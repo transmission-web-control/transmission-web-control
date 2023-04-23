@@ -50,8 +50,6 @@ jobs:
       - run: zip -r dist.zip ./dist/
       - run: tar -czvf dist.tar.gz ./dist/
 
-      - run: gh release create "${GITHUB_REF##*/}" dist.zip dist.tar.gz --generate-notes
-
       - uses: actions/upload-artifact@v3
         with:
           name: build-tar
