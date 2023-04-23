@@ -23,7 +23,6 @@ const system = {
   autoReloadTimer: null,
   downloadDir: '',
   islocal: false,
-  B64: new Base64_ESM(),
   // 当前选中的种子编号
   currentTorrentId: 0,
   currentContentPage: 'home',
