@@ -136,9 +136,11 @@
   "dialog": {
     "torrent-add": {
       "download-dir": "Diretório de descarga:",
+      "used-download-dir": "Used Download Dir:",
       "torrent-url": "URL do Torrent:",
       "tip-torrent-url": "Dica: separa por linhas (Enter) múltiplas ligações para adicioná-las de uma só vez",
       "autostart": "Auto iniciar:",
+      "tip-autostart": "",
       "set-default-download-dir": "Diretório padrão",
       "upload-file": "Ficheiros Torrent:",
       "nosource": "Nenhum ficheiro ou url Torrent.",
@@ -219,7 +221,16 @@
         "color": "Color",
         "actions": "Actions",
         "import-confirm": "Do you want to import labels? This overrides the current configuration."
-      }
+      },
+      "import-config": "Import configuration from file",
+      "export-config": "Export current configuration",
+      "import-config-confirm": "Do you want to import these configurations? This overrides the current configuration.",
+      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
+      "ipinfo": "IPinfo.io access token:",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
       "button-ok": "Aceptar",
@@ -256,6 +267,16 @@
       "move-data": "Se marcado, mover da localização anterior. Caso contrário, procura 'Novo diretório' para os ficheiros.",
       "set-error": "Erro!",
       "recheck-data": "Verificar novamente os dados."
+    },
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
     },
     "system-replaceTracker": {
       "title": "Substituir trackers",
@@ -294,6 +315,17 @@
       "title": "Set User Labels",
       "available": "Available:",
       "selected": "Selected:"
+    },
+    "export-config": {
+      "title": "Please select the details need to be exported",
+      "option-all": "All configuration",
+      "option-system": "Web Control configuration",
+      "option-dictionary": "Defined Folders Dictionary",
+      "option-server": "Transmission configuration (Download directory, cache, speed limit, etc.)"
+    },
+    "import-config": {
+      "title": "Please select the details need to be import",
+      "invalid-file": "Invalid profile"
     }
   },
   "torrent": {
@@ -317,7 +349,8 @@
       "queuePosition": "Queue",
       "activityDate": "Activity Date",
       "trackers": "Trackers",
-      "labels": "User Labels"
+      "labels": "User Labels",
+      "doneDate": "Completed Date"
     },
     "status-text": {
       "0": "Pausado",
@@ -352,10 +385,20 @@
         "lastAnnounceTime": "Anúncio",
         "lastAnnounceTimedOut": "Tempo limite",
         "downloadCount": "Contagem de descarga",
-        "nextAnnounceTime": "Próximo anúncio"
+        "nextAnnounceTime": "Próximo anúncio",
+        "leecherCount": "Leecher count",
+        "seederCount": "Seeder count",
+        "announceStateText": {
+          "0": "Inactive",
+          "1": "Waiting",
+          "2": "Queued",
+          "3": "Active"
+        }
       },
       "peers-fields": {
         "address": "IP address",
+        "port": "Port",
+        "isUTP": "UTP enabled",
         "clientName": "Cliente",
         "flagStr": "Flag",
         "progress": "Progresso",
@@ -370,6 +413,11 @@
         "0": "Normal",
         "1": "Alto",
         "-1": "Baixo"
+      },
+      "filter-template-text": {
+        "1": "All",
+        "2": "BitComet padding file",
+        "3": "Unnecessary files"
       },
       "label": {
         "name": "Nome:",
@@ -402,6 +450,7 @@
         "button-allow": "Baixar os ficheiros selecionados",
         "button-deny": "Ignorar os ficheiros selecionados",
         "button-priority": "Definir prioridade",
+        "button-filter": "Search files by regular expression",
         "button-tracker-add": "Add New Tracker",
         "button-tracker-edit": "Edit Tracker",
         "button-tracker-remove": "Remove Tracker"
@@ -429,6 +478,7 @@
     "text-on": "ON",
     "text-off": "OFF",
     "text-how-to-update": "How to update?",
-    "text-ignore-this-version": "Ignore this version"
+    "text-ignore-this-version": "Ignore this version",
+    "text-json-file-parsing-failed": "JSON file parsing failed!"
   }
 }
