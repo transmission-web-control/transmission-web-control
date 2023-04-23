@@ -15,7 +15,7 @@ system.config = $.extend(system.config, {
   autoExpandAttribute: false,
   // default language
   defaultLang: '',
-  //show Folders
+  // show Folders
   foldersShow: false,
   // theme
   theme: 'default',

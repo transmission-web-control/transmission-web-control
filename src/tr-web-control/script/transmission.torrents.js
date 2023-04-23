@@ -33,27 +33,27 @@ transmission.torrents = {
   // Whether the torrents are being changed
   isRecentlyActive: false,
   // New torrents
-  newIds: new Array(),
+  newIds: [],
   btItems: [],
   getallids: function (callback, ids, moreFields) {
-    var tmp = this.fields.base;
+    let tmp = this.fields.base;
     if (this.loadSimpleInfo && this.all) tmp = this.fields.status;
 
-    var fields = tmp.split(',');
+    const fields = tmp.split(',');
     if ($.isArray(moreFields)) {
       $.unique($.merge(fields, moreFields));
     }
-    var args = {
-      fields: fields,
+    const args = {
+      fields,
     };
 
     this.isRecentlyActive = false;
     // If it has been acquired
     if (this.all && ids == undefined) {
-      args['ids'] = 'recently-active';
+      args.ids = 'recently-active';
       this.isRecentlyActive = true;
     } else if (ids) {
-      args['ids'] = ids;
+      args.ids = ids;
     }
     if (!this.all) {
       this.all = {};
@@ -85,29 +85,29 @@ transmission.torrents = {
   // The IDs are sorted according to the torrent status
   splitid: function () {
     // Downloading
-    this.downloading = new Array();
+    this.downloading = [];
     // Paused
-    this.puased = new Array();
+    this.puased = [];
     // Active lately
-    this.actively = new Array();
+    this.actively = [];
     // With Errors
-    this.error = new Array();
+    this.error = [];
     // With Warnings
-    this.warning = new Array();
-    this.btItems = new Array();
+    this.warning = [];
+    this.btItems = [];
     // All download directories used by current torrents
     if (transmission.downloadDirs == undefined) {
-      transmission.downloadDirs = new Array();
+      transmission.downloadDirs = [];
     }
 
-    var _Status = transmission._status;
+    const _Status = transmission._status;
     this.status = {};
     transmission.trackers = {};
     this.totalSize = 0;
     this.folders = {};
     this.count = 0;
 
-    var B64 = new Base64();
+    const B64 = new Base64();
 
     // Merge two numbers
     for (var index in this.recently) {
@@ -115,7 +115,7 @@ transmission.torrents = {
       this.datas[item.id] = item;
     }
 
-    var removed = new Array();
+    const removed = [];
 
     // Remove the torrents that have been removed
     for (var index in this.removed) {
@@ -151,10 +151,10 @@ transmission.torrents = {
       // 转为数值
       item.uploadRatio = parseFloat(item.uploadRatio);
       item.infoIsLoading = false;
-      var type = this.status[item.status];
+      let type = this.status[item.status];
       this.addTracker(item);
       if (!type) {
-        this.status[item.status] = new Array();
+        this.status[item.status] = [];
         type = this.status[item.status];
       }
 
@@ -163,12 +163,12 @@ transmission.torrents = {
 
       // Time left
       if (item.rateDownload > 0 && item.leftUntilDone > 0) {
-        item['remainingTime'] = Math.floor((item.leftUntilDone / item.rateDownload) * 1000);
+        item.remainingTime = Math.floor((item.leftUntilDone / item.rateDownload) * 1000);
       } else if (item.rateDownload == 0 && item.leftUntilDone == 0 && item.totalSize != 0) {
-        item['remainingTime'] = 0;
+        item.remainingTime = 0;
       } else {
         // ~100 years
-        item['remainingTime'] = 3153600000000;
+        item.remainingTime = 3153600000000;
       }
 
       type.push(item);
@@ -202,21 +202,21 @@ transmission.torrents = {
       if (transmission.options.getFolders) {
         if (item.downloadDir) {
           // 统一使用 / 来分隔目录
-          var folder = item.downloadDir.replace(/\\/g, '/').split('/');
-          var folderkey = 'folders-';
-          for (var i in folder) {
-            var text = folder[i];
+          const folder = item.downloadDir.replace(/\\/g, '/').split('/');
+          let folderkey = 'folders-';
+          for (const i in folder) {
+            const text = folder[i];
             if (text == '') {
               continue;
             }
-            var key = B64.encode(text);
+            const key = B64.encode(text);
             // 去除特殊字符
             folderkey += key.replace(/[+|\/|=]/g, '0');
-            var node = this.folders[folderkey];
+            let node = this.folders[folderkey];
             if (!node) {
               node = {
                 count: 0,
-                torrents: new Array(),
+                torrents: [],
                 size: 0,
                 nodeid: folderkey,
               };
@@ -239,30 +239,30 @@ transmission.torrents = {
     }
   },
   addTracker: function (item) {
-    var trackerStats = item.trackerStats;
-    var trackers = [];
+    const trackerStats = item.trackerStats;
+    const trackers = [];
 
     item.leecherCount = 0;
     item.seederCount = 0;
 
     if (trackerStats.length > 0) {
-      var warnings = [];
-      for (var index in trackerStats) {
+      const warnings = [];
+      for (const index in trackerStats) {
         var trackerInfo = trackerStats[index];
-        var lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
-        var hostName = trackerInfo.host.getHostName();
-        var trackerUrl = hostName.split('.');
+        const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
+        const hostName = trackerInfo.host.getHostName();
+        const trackerUrl = hostName.split('.');
         if ($.inArray(trackerUrl[0], 'www,tracker,announce'.split(',')) != -1) {
           trackerUrl.shift();
         }
 
-        var name = trackerUrl.join('.');
-        var id = 'tracker-' + name.replace(/\./g, '-');
-        var tracker = transmission.trackers[id];
+        const name = trackerUrl.join('.');
+        const id = 'tracker-' + name.replace(/\./g, '-');
+        let tracker = transmission.trackers[id];
         if (!tracker) {
           transmission.trackers[id] = {
             count: 0,
-            torrents: new Array(),
+            torrents: [],
             size: 0,
             connected: true,
             isBT: trackerStats.length > 5,
@@ -270,9 +270,9 @@ transmission.torrents = {
           tracker = transmission.trackers[id];
         }
 
-        tracker['name'] = name;
-        tracker['nodeid'] = id;
-        tracker['host'] = trackerInfo.host;
+        tracker.name = name;
+        tracker.nodeid = id;
+        tracker.host = trackerInfo.host;
 
         // 判断当前tracker状态
         if (
@@ -305,14 +305,14 @@ transmission.torrents = {
 
       if (warnings.length == trackerStats.length) {
         if (warnings.join(';').replace(/;/g, '') == '') {
-          item['warning'] = '';
+          item.warning = '';
         } else {
-          item['warning'] = warnings.join(';');
+          item.warning = warnings.join(';');
         }
         // 设置下次更新时间
-        if (!item['nextAnnounceTime']) item['nextAnnounceTime'] = trackerInfo.nextAnnounceTime;
-        else if (item['nextAnnounceTime'] > trackerInfo.nextAnnounceTime)
-          item['nextAnnounceTime'] = trackerInfo.nextAnnounceTime;
+        if (!item.nextAnnounceTime) item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
+        else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime)
+          item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
 
         this.warning.push(item);
       }
@@ -333,7 +333,7 @@ transmission.torrents = {
         method: 'torrent-get',
         arguments: {
           fields: 'peers,peersFrom'.split(','),
-          ids: ids,
+          ids,
         },
       },
       function (data) {
@@ -349,7 +349,7 @@ transmission.torrents = {
         method: 'torrent-get',
         arguments: {
           fields: fields.split(','),
-          ids: ids,
+          ids,
         },
       },
       function (data) {
@@ -370,7 +370,7 @@ transmission.torrents = {
       source = this.all;
     }
 
-    var arrReturn = new Array();
+    const arrReturn = [];
     $.each(source, function (item, i) {
       if (source[item].name.toLowerCase().indexOf(key.toLowerCase()) != -1) {
         arrReturn.push(source[item]);
@@ -407,8 +407,8 @@ transmission.torrents = {
   // 获取错误/警告的ID列表
 
   getErrorIds: function (ignore, needUpdateOnly) {
-    var result = new Array();
-    var now = new Date();
+    const result = [];
+    let now = new Date();
     if (needUpdateOnly == true) {
       now = now.getTime() / 1000;
     }
@@ -455,20 +455,20 @@ transmission.torrents = {
     if (!oldTracker || !newTracker) {
       return;
     }
-    var result = {};
-    var count = 0;
+    const result = {};
+    let count = 0;
     for (var index in this.all) {
-      var item = this.all[index];
+      const item = this.all[index];
       if (!item) {
         return;
       }
-      var trackerStats = item.trackerStats;
-      for (var n in trackerStats) {
-        var tracker = trackerStats[n];
+      const trackerStats = item.trackerStats;
+      for (const n in trackerStats) {
+        const tracker = trackerStats[n];
         if (tracker.announce == oldTracker) {
           if (!result[n]) {
             result[n] = {
-              ids: new Array(),
+              ids: [],
               tracker: newTracker,
             };
           }
@@ -510,7 +510,7 @@ transmission.torrents = {
 
   // 获取磁力链接
   getMagnetLink: function (ids, callback) {
-    var result = '';
+    let result = '';
     // is single number
     if (ids.constructor.name != 'Array') ids = [ids];
     if (ids.length == 0) {
@@ -518,8 +518,8 @@ transmission.torrents = {
       return;
     }
     // 跳过己获取的
-    var req_list = [];
-    for (var id in ids) {
+    const req_list = [];
+    for (let id in ids) {
       id = ids[id];
       if (!this.all[id]) continue;
       if (!this.all[id].magnetLink) req_list.push(id);
@@ -541,7 +541,7 @@ transmission.torrents = {
       },
       function (data) {
         if (data.result == 'success') {
-          for (var item in data.arguments.torrents) {
+          for (let item in data.arguments.torrents) {
             item = data.arguments.torrents[item];
             transmission.torrents.all[item.id].magnetLink = item.magnetLink;
             result += item.magnetLink + '\n';

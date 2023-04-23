@@ -16,8 +16,8 @@ system.plugin = {
       // Automatically match the data directory
       case 'auto-match-data-folder':
         var rows = system.control.torrentlist.datagrid('getChecked');
-        var ids = new Array();
-        for (var i in rows) {
+        var ids = [];
+        for (const i in rows) {
           ids.push(rows[i].id);
         }
         if (ids.length == 0) return;
@@ -30,7 +30,7 @@ system.plugin = {
             height: 280,
           },
           datas: {
-            ids: ids,
+            ids,
           },
         });
         break;

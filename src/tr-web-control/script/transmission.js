@@ -41,13 +41,13 @@ var transmission = {
   trackers: {},
   islocal: false,
   // The list of directories that currently exist
-  downloadDirs: new Array(),
+  downloadDirs: [],
   getSessionId: function (me, callback) {
-    var settings = {
+    const settings = {
       type: 'POST',
       url: this.fullpath,
       error: function (request, event, settings) {
-        var SessionId = '';
+        let SessionId = '';
         if (
           request.status === 409 &&
           (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
@@ -71,9 +71,9 @@ var transmission = {
 		if (this.fullpath=="")
 		{
 			this.fullpath = this.host + (this.port?":"+this.port:"") + this.path;
-		}*/
+		} */
     if (this.username && this.password) {
-      this.headers['Authorization'] =
+      this.headers.Authorization =
         'Basic ' + new Base64().encode(this.username + ':' + this.password);
     }
 
@@ -91,7 +91,7 @@ var transmission = {
     if (!this.isInitialized) {
       return false;
     }
-    var data = {
+    const data = {
       method: '',
       arguments: {},
       tag: '',
@@ -110,7 +110,7 @@ var transmission = {
         }
       },
       error: function (request, event, page) {
-        var SessionId = '';
+        let SessionId = '';
         if (
           request.status === 409 &&
           (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
@@ -174,7 +174,7 @@ var transmission = {
     if (url.match(/^[0-9a-f]{40}$/i)) {
       url = 'magnet:?xt=urn:btih:' + url;
     }
-    var options = {
+    const options = {
       method: 'torrent-add',
       arguments: {
         filename: url,
@@ -215,24 +215,24 @@ var transmission = {
   },
   // 从文件内容增加种子
   addTorrentFromFile: function (file, savePath, paused, callback, filecount) {
-    var fileReader = new FileReader();
+    const fileReader = new FileReader();
 
     fileReader.onload = function (e) {
-      var contents = e.target.result;
-      var key = 'base64,';
-      var index = contents.indexOf(key);
+      const contents = e.target.result;
+      const key = 'base64,';
+      const index = contents.indexOf(key);
       if (index == -1) {
         return;
       }
-      var metainfo = contents.substring(index + key.length);
+      const metainfo = contents.substring(index + key.length);
 
       transmission.exec(
         {
           method: 'torrent-add',
           arguments: {
-            metainfo: metainfo,
+            metainfo,
             'download-dir': savePath,
-            paused: paused,
+            paused,
           },
         },
         function (data) {
@@ -277,7 +277,7 @@ var transmission = {
       {
         method: 'torrent-remove',
         arguments: {
-          ids: ids,
+          ids,
           'delete-local-data': removeData,
         },
       },
@@ -292,7 +292,7 @@ var transmission = {
       {
         method: 'free-space',
         arguments: {
-          path: path,
+          path,
         },
       },
       function (result) {
@@ -316,7 +316,7 @@ var transmission = {
   // oldpath 			原文件路径或目录，如：opencd/info.txt 或 opencd/cd1
   // newname			新的文件或目录名，如：into1.txt 或 disc1
   renameTorrent: function (torrentId, oldpath, newname, callback) {
-    var torrent = this.torrents.all[torrentId];
+    const torrent = this.torrents.all[torrentId];
     if (!torrent) return false;
 
     this.exec(

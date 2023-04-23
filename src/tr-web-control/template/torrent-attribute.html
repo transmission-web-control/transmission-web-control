@@ -411,7 +411,7 @@
     // 设置已选中的文件是否下载
     function changeSelectedFilesWanted(wanted, button) {
       var rows = filelist.datagrid('getChecked');
-      var files = new Array();
+      var files = [];
       var arguments = null;
 
       for (var i in rows) {
@@ -449,7 +449,7 @@
     // 设置已选中的文件优先级别
     function changeSelectedFilesPriority(priority) {
       var rows = filelist.datagrid('getChecked');
-      var files = new Array();
+      var files = [];
       var arguments = null;
 
       for (var i in rows) {

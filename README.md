@@ -1,7 +1,8 @@
 # Transmission Web Control
+
 ![](https://img.shields.io/github/license/ronggang/transmission-web-control.svg)
 ![[GitHub Releases](https://github.com/transmission-web-control/transmission-web-control/releases)](https://img.shields.io/github/release/transmission-web-control/transmission-web-control.svg)
-![Support Transmission Version](https://img.shields.io/badge/transmission-%3E=2.40%20(RPC%20%3E14)-green.svg)
+![Support Transmission Version](<https://img.shields.io/badge/transmission-%3E=2.40%20(RPC%20%3E14)-green.svg>)
 
 # English
 

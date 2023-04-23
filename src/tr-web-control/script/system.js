@@ -102,7 +102,7 @@ var system = {
     if (!lang) {
       if (this.config.defaultLang) lang = this.config.defaultLang;
       else lang = navigator.language || navigator.browserLanguage;
-      //this.debug("lang",lang);
+      // this.debug("lang",lang);
     }
     if (!lang) lang = 'zh-CN';
 
@@ -145,7 +145,7 @@ var system = {
   init: function (lang, islocal, devicetype) {
     this.readConfig();
     this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
-    this.islocal = islocal == 1 ? true : false;
+    this.islocal = islocal == 1;
     this.panel = {
       main: $('#main'),
       top: $('#m_top'),
@@ -180,10 +180,10 @@ var system = {
   // Set the language information
   resetLangText: function (parent) {
     if (!parent) parent = $;
-    var items = parent.find('*[system-lang]');
+    let items = parent.find('*[system-lang]');
 
     $.each(items, function (key, item) {
-      var name = $(item).attr('system-lang');
+      const name = $(item).attr('system-lang');
       if (name.substr(0, 1) == '[') {
         $(item).html(eval('system.lang' + name));
       } else {
@@ -194,7 +194,7 @@ var system = {
     items = parent.find('*[system-tip-lang]');
 
     $.each(items, function (key, item) {
-      var name = $(item).attr('system-tip-lang');
+      const name = $(item).attr('system-tip-lang');
       if (name.substr(0, 1) == '[') {
         $(item).attr('title', eval('system.lang' + name));
       } else {
@@ -203,16 +203,16 @@ var system = {
     });
   },
   initdata: function () {
-    //this.panel.title.text(this.lang.system.title+" "+this.version+" ("+this.codeupdate+")");
+    // this.panel.title.text(this.lang.system.title+" "+this.version+" ("+this.codeupdate+")");
     $(document).attr('title', this.lang.system.title + ' ' + this.version);
 
     // 设置开关组件默认文字
-    $.fn.switchbutton.defaults.onText = this.lang['public']['text-on'];
-    $.fn.switchbutton.defaults.offText = this.lang['public']['text-off'];
+    $.fn.switchbutton.defaults.onText = this.lang.public['text-on'];
+    $.fn.switchbutton.defaults.offText = this.lang.public['text-off'];
 
     // The initial navigation bar
-    var buttons = new Array();
-    var title = '<span>' + this.lang.title.left + '</span>';
+    const buttons = [];
+    let title = '<span>' + this.lang.title.left + '</span>';
     // 暂时取消导航栏上的额外按钮
     // buttons.push("<span class='tree-title-toolbar'>");
     // for (var key in this.lang.tree.toolbar.nav) {
@@ -316,7 +316,7 @@ var system = {
       $('<option/>')
         .text(value)
         .val(key)
-        .attr('selected', key == system.lang.name ? true : false)
+        .attr('selected', key == system.lang.name)
         .appendTo(system.panel.top.find('#lang'));
     });
     this.panel.top.find('#lang').change(function () {
@@ -387,7 +387,7 @@ var system = {
       false,
     );
 
-    $('#text-drop-title').html(this.lang['public']['text-drop-title']);
+    $('#text-drop-title').html(this.lang.public['text-drop-title']);
     // End
 
     // 取消选择所有已选中的种子
@@ -450,9 +450,9 @@ var system = {
   },
   // Navigation toolbar Click Events
   navToolbarClick: function (source) {
-    var key = source.id;
-    var status = $(source).data('status');
-    var treenode = null;
+    const key = source.id;
+    let status = $(source).data('status');
+    let treenode = null;
     switch (key) {
       case 'tree-toolbar-nav-folders':
         treenode = this.panel.left.tree('find', 'folders');
@@ -502,9 +502,9 @@ var system = {
   // Check the dragged files
   checkDropFiles: function (sources) {
     if (!sources || !sources.length) return;
-    var files = new Array();
-    for (var i = 0; i < sources.length; i++) {
-      var file = sources[i];
+    const files = [];
+    for (let i = 0; i < sources.length; i++) {
+      const file = sources[i];
       if (file.name.split('.').pop().toLowerCase() == 'torrent') files.push(file);
     }
 
@@ -518,14 +518,14 @@ var system = {
           resizable: true,
         },
         datas: {
-          files: files,
+          files,
         },
       });
     }
   },
   // Initialize the tree list
   initTree: function () {
-    var items = [
+    const items = [
       {
         id: 'torrent-all',
         iconCls: 'iconfont tr-icon-home',
@@ -570,7 +570,7 @@ var system = {
       },
     ];
 
-    var navContents = {
+    const navContents = {
       servers: {
         id: 'servers',
         text: this.lang.tree.servers,
@@ -676,9 +676,9 @@ var system = {
       },
     };
 
-    for (var key in this.config.nav) {
-      var value = this.config.nav[key];
-      var data = navContents[key];
+    for (const key in this.config.nav) {
+      const value = this.config.nav[key];
+      const data = navContents[key];
       if (data) {
         if (value) {
           items.push(data);
@@ -690,7 +690,7 @@ var system = {
       data: items,
       onSelect: function (node) {
         system.loadTorrentToList({
-          node: node,
+          node,
         });
         system.currentListDir = node.downDir;
       },
@@ -703,7 +703,7 @@ var system = {
   initUIStatus: function () {
     if (this.uiIsInitialized) return;
     system.uiIsInitialized = true;
-    var status = this.lastUIStatus.tree;
+    let status = this.lastUIStatus.tree;
     for (var key in status) {
       var node = this.panel.left.tree('find', key);
       if (node && node.target) {
@@ -784,14 +784,14 @@ var system = {
     this.control.torrentlist = $('<table/>')
       .attr('class', 'torrent-list')
       .appendTo(this.panel.list);
-    var headContextMenu = null;
-    var selectedIndex = -1;
+    let headContextMenu = null;
+    let selectedIndex = -1;
     $.get(
       system.rootPath + 'template/torrent-fields.json?time=' + new Date(),
       function (data) {
-        var fields = data.fields;
-        var _fields = {};
-        for (var i = 0; i < fields.length; i++) {
+        let fields = data.fields;
+        const _fields = {};
+        for (let i = 0; i < fields.length; i++) {
           var item = fields[i];
           _fields[item.field] = item;
         }
@@ -803,19 +803,19 @@ var system = {
         // User field settings
         system.userConfig.torrentList.fields = fields;
 
-        for (var key in fields) {
+        for (const key in fields) {
           var item = fields[key];
-          var _field = _fields[item.field];
-          if (_field && _field['formatter']) {
-            item['formatter'] = _field['formatter'];
-          } else if (item['formatter']) {
-            delete item['formatter'];
+          const _field = _fields[item.field];
+          if (_field && _field.formatter) {
+            item.formatter = _field.formatter;
+          } else if (item.formatter) {
+            delete item.formatter;
           }
 
-          if (_field && _field['sortable']) {
-            item['sortable'] = _field['sortable'];
-          } else if (item['sortable']) {
-            delete item['sortable'];
+          if (_field && _field.sortable) {
+            item.sortable = _field.sortable;
+          } else if (item.sortable) {
+            delete item.sortable;
           }
 
           item.title = system.lang.torrent.fields[item.field] || item.field;
@@ -867,8 +867,8 @@ var system = {
           },
           // Header sorting
           onSortColumn: function (field, order) {
-            var field_func = field;
-            var datas = system.control.torrentlist
+            const field_func = field;
+            const datas = system.control.torrentlist
               .datagrid('getData')
               .originalRows.sort(arrayObjectSort(field_func, order));
             system.control.torrentlist.datagrid('loadData', datas);
@@ -881,7 +881,7 @@ var system = {
             system.saveUserConfig();
           },
           onRowContextMenu: function (e, rowIndex, rowData) {
-            //console.log("onRowContextMenu");
+            // console.log("onRowContextMenu");
             if (system.config.simpleCheckMode) {
               system.control.torrentlist.datagrid('uncheckAll');
             }
@@ -894,7 +894,7 @@ var system = {
             system.showContextMenu('torrent-list', e);
           },
           onHeadDrop: function (sourceField, targetField) {
-            //console.log("onHeadDrop");
+            // console.log("onHeadDrop");
             system.resetTorrentListFieldsUserConfig(
               system.control.torrentlist.datagrid('options').columns[0],
             );
@@ -907,7 +907,7 @@ var system = {
             system.saveUserConfig();
           },
           onHeaderContextMenu: function (e, field) {
-            //console.log("onHeaderContextMenu");
+            // console.log("onHeaderContextMenu");
             e.preventDefault();
             if (!headContextMenu) {
               createHeadContextMenu();
@@ -954,10 +954,10 @@ var system = {
           system.saveUserConfig();
         },
       });
-      var fields = system.control.torrentlist.datagrid('getColumnFields');
-      for (var i = 0; i < fields.length; i++) {
-        var field = fields[i];
-        var col = system.control.torrentlist.datagrid('getColumnOption', field);
+      const fields = system.control.torrentlist.datagrid('getColumnFields');
+      for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+        const col = system.control.torrentlist.datagrid('getColumnOption', field);
         if (col.allowCustom != false && col.allowCustom != 'false') {
           headContextMenu.menu('appendItem', {
             text: col.title,
@@ -975,14 +975,14 @@ var system = {
 		*/
   },
   resetTorrentListFieldsUserConfig: function (columns) {
-    var fields = {};
+    const fields = {};
     $.each(this.userConfig.torrentList.fields, function (index, item) {
       fields[item.field] = item;
     });
 
     this.userConfig.torrentList.fields = [];
     $.each(columns, function (index, item) {
-      var field = $.extend({}, fields[item.field]);
+      const field = $.extend({}, fields[item.field]);
       field.width = item.width;
       field.hidden = item.hidden;
       system.userConfig.torrentList.fields.push(field);
@@ -990,7 +990,7 @@ var system = {
   },
   // Show context menu
   showContextMenu: function (type, e) {
-    var parent = this.contextMenus[type];
+    let parent = this.contextMenus[type];
     if (!parent) {
       parent = $('<div/>')
         .attr('class', 'easyui-menu')
@@ -1003,11 +1003,11 @@ var system = {
     } else {
       parent.empty();
     }
-    var menus = null;
+    let menus = null;
 
     switch (type) {
       case 'torrent-list':
-        menus = new Array(
+        menus = [
           'start',
           'pause',
           '-',
@@ -1024,7 +1024,7 @@ var system = {
           'menu-queue-move-down',
           'menu-queue-move-bottom',
           'magnetLink',
-        );
+        ];
 
         // 是否显示标签菜单
         if (this.config.nav.labels) {
@@ -1032,12 +1032,12 @@ var system = {
           menus.push('setLabels');
         }
         var toolbar = this.panel.toolbar;
-        for (var item in menus) {
-          var key = menus[item];
+        for (const item in menus) {
+          const key = menus[item];
           if (key == '-') {
             $("<div class='menu-sep'></div>").appendTo(parent);
           } else {
-            var menu = toolbar.find('#toolbar_' + key);
+            let menu = toolbar.find('#toolbar_' + key);
             if (menu.length > 0) {
               parent.menu('appendItem', {
                 text: menu.attr('title'),
@@ -1103,9 +1103,9 @@ var system = {
           iconCls: 'iconfont tr-icon-labels',
           disabled: this.checkedRows.length == 0,
           onclick: function () {
-            var rows = system.checkedRows;
-            var values = new Array();
-            for (var i in rows) {
+            const rows = system.checkedRows;
+            const values = [];
+            for (const i in rows) {
               values.push(rows[i].hashString);
             }
             if (values.length == 0) return;
@@ -1145,15 +1145,15 @@ var system = {
    * @return 返回一组标签内容
    */
   formetTorrentLabels: function (ids, hashString) {
-    var box = $("<div style='position: relative;'/>");
+    const box = $("<div style='position: relative;'/>");
     if (ids) {
-      if (typeof ids == 'string') {
+      if (typeof ids === 'string') {
         ids = ids.split(',');
       }
 
-      for (var i = 0; i < ids.length; i++) {
-        var index = ids[i];
-        var item = this.config.labels[index];
+      for (let i = 0; i < ids.length; i++) {
+        const index = ids[i];
+        const item = this.config.labels[index];
         if (item) {
           $("<span class='user-label'/>")
             .html(item.name)
@@ -1166,7 +1166,7 @@ var system = {
       }
     }
 
-    var button = $(
+    const button = $(
       '<button onclick=\'javascript:system.setTorrentLabels(this,"' +
         hashString +
         '");\' data-options="iconCls:\'iconfont tr-icon-labels\',plain:true" class="easyui-linkbutton user-label-set"/>',
@@ -1234,7 +1234,6 @@ var system = {
         disabled: true,
       });
       this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
-      return;
 
       // 当仅有一条数据被选中时
     } else if (this.checkedRows.length == 1) {
@@ -1247,7 +1246,7 @@ var system = {
       });
       this.panel.toolbar.find('#toolbar_queue').menubutton('enable');
 
-      var torrent = transmission.torrents.all[rowData.id];
+      const torrent = transmission.torrents.all[rowData.id];
       // 确认当前种子状态
       switch (torrent.status) {
         // 已停止
@@ -1302,12 +1301,12 @@ var system = {
     if (this.checkedRows.length > 0) {
       this.panel.status_text.empty();
       this.showStatus(undefined, 0);
-      var items = [];
-      var text = this.lang.system.status.checked.replace('%n', this.checkedRows.length);
-      var paths = [];
+      const items = [];
+      const text = this.lang.system.status.checked.replace('%n', this.checkedRows.length);
+      const paths = [];
       $("<div style='padding: 5px;'/>").html(text).appendTo(this.panel.status_text);
-      for (var index = 0; index < this.checkedRows.length; index++) {
-        var item = this.checkedRows[index];
+      for (let index = 0; index < this.checkedRows.length; index++) {
+        const item = this.checkedRows[index];
         items.push({ value: index, text: index + 1 + '. ' + item.name });
         if ($.inArray(item.downloadDir, paths) === -1) {
           paths.push(item.downloadDir);
@@ -1332,8 +1331,8 @@ var system = {
   // by https://stackoverflow.com/questions/22581345/click-button-copy-to-clipboard-using-jquery?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
   copyToClipboard: function (text) {
     // Create a "hidden" input
-    var id = 'copy_to_clipboard_textarea';
-    var aux = document.getElementById(id);
+    const id = 'copy_to_clipboard_textarea';
+    let aux = document.getElementById(id);
     if (!aux) aux = document.createElement('textarea'); // <input/> 不接受换行
     aux.id = id;
     aux.style.display = 'block';
@@ -1360,7 +1359,7 @@ var system = {
       min: 3,
       disabled: !this.config.autoReload,
       onChange: function () {
-        var value = this.value;
+        const value = this.value;
         if ($.isNumeric(value)) {
           system.config.reloadStep = value * 1000;
           system.saveConfig();
@@ -1433,14 +1432,14 @@ var system = {
     // Start all
     this.panel.toolbar
       .find('#toolbar_start_all')
-      //.linkbutton({text:this.lang.toolbar["start-all"],disabled:false})
+      // .linkbutton({text:this.lang.toolbar["start-all"],disabled:false})
       .linkbutton({
         disabled: false,
       })
       .attr('title', this.lang.toolbar.tip['start-all'])
       .click(function () {
-        var button = $(this);
-        var icon = button.linkbutton('options').iconCls;
+        let button = $(this);
+        const icon = button.linkbutton('options').iconCls;
         button.linkbutton({
           disabled: true,
           iconCls: 'icon-loading',
@@ -1462,14 +1461,14 @@ var system = {
     // Pause all
     this.panel.toolbar
       .find('#toolbar_pause_all')
-      //.linkbutton({text:this.lang.toolbar["pause-all"],disabled:false})
+      // .linkbutton({text:this.lang.toolbar["pause-all"],disabled:false})
       .linkbutton({
         disabled: false,
       })
       .attr('title', this.lang.toolbar.tip['pause-all'])
       .click(function () {
-        var button = $(this);
-        var icon = button.linkbutton('options').iconCls;
+        let button = $(this);
+        const icon = button.linkbutton('options').iconCls;
         button.linkbutton({
           disabled: true,
           iconCls: 'icon-loading',
@@ -1494,7 +1493,7 @@ var system = {
       .linkbutton({
         disabled: true,
       })
-      .attr('title', this.lang.toolbar.tip['start'])
+      .attr('title', this.lang.toolbar.tip.start)
       .click(function () {
         system.changeSelectedTorrentStatus('start', $(this));
       });
@@ -1505,7 +1504,7 @@ var system = {
       .linkbutton({
         disabled: true,
       })
-      .attr('title', this.lang.toolbar.tip['pause'])
+      .attr('title', this.lang.toolbar.tip.pause)
       .click(function () {
         system.changeSelectedTorrentStatus('stop', $(this));
       });
@@ -1516,12 +1515,12 @@ var system = {
       .linkbutton({
         disabled: true,
       })
-      .attr('title', this.lang.toolbar.tip['recheck'])
+      .attr('title', this.lang.toolbar.tip.recheck)
       .click(function () {
-        var rows = system.control.torrentlist.datagrid('getChecked');
+        const rows = system.control.torrentlist.datagrid('getChecked');
         if (rows.length > 0) {
           if (rows.length == 1) {
-            var torrent = transmission.torrents.all[rows[0].id];
+            const torrent = transmission.torrents.all[rows[0].id];
             if (torrent.percentDone > 0) {
               if (confirm(system.lang.toolbar.tip['recheck-confirm'])) {
                 system.changeSelectedTorrentStatus('verify', $(this));
@@ -1551,11 +1550,11 @@ var system = {
       .linkbutton({
         disabled: true,
       })
-      .attr('title', this.lang.toolbar.tip['remove'])
+      .attr('title', this.lang.toolbar.tip.remove)
       .click(function () {
-        var rows = system.control.torrentlist.datagrid('getChecked');
-        var ids = new Array();
-        for (var i in rows) {
+        const rows = system.control.torrentlist.datagrid('getChecked');
+        const ids = [];
+        for (const i in rows) {
           ids.push(rows[i].id);
         }
         if (ids.length == 0) return;
@@ -1568,7 +1567,7 @@ var system = {
             height: 150,
           },
           datas: {
-            ids: ids,
+            ids,
           },
         });
       });
@@ -1580,7 +1579,7 @@ var system = {
         disabled: true,
       })
       .click(function () {
-        var rows = system.control.torrentlist.datagrid('getChecked');
+        const rows = system.control.torrentlist.datagrid('getChecked');
         if (rows.length == 0) return;
 
         system.openDialogFromTemplate({
@@ -1605,9 +1604,9 @@ var system = {
       })
       .attr('title', this.lang.toolbar.tip['change-download-dir'])
       .click(function () {
-        var rows = system.control.torrentlist.datagrid('getChecked');
-        var ids = new Array();
-        for (var i in rows) {
+        const rows = system.control.torrentlist.datagrid('getChecked');
+        const ids = [];
+        for (const i in rows) {
           ids.push(rows[i].id);
         }
         if (ids.length == 0) return;
@@ -1620,7 +1619,7 @@ var system = {
             height: 200,
           },
           datas: {
-            ids: ids,
+            ids,
           },
         });
       });
@@ -1632,9 +1631,9 @@ var system = {
       })
       .attr('title', this.lang.toolbar.tip['change-speedlimit'])
       .click(function () {
-        var rows = system.control.torrentlist.datagrid('getChecked');
-        var ids = new Array();
-        for (var i in rows) {
+        const rows = system.control.torrentlist.datagrid('getChecked');
+        const ids = [];
+        for (const i in rows) {
           ids.push(rows[i].id);
         }
         if (ids.length == 0) return;
@@ -1648,7 +1647,7 @@ var system = {
             resizable: true,
           },
           datas: {
-            ids: ids,
+            ids,
           },
           type: 0,
         });
@@ -1660,9 +1659,9 @@ var system = {
       .linkbutton()
       .attr('title', this.lang.toolbar.tip['alt-speed'])
       .click(function () {
-        var button = $(this);
-        var options = button.linkbutton('options');
-        var enabled = false;
+        const button = $(this);
+        const options = button.linkbutton('options');
+        let enabled = false;
         if (options.iconCls == 'iconfont tr-icon-rocket') {
           enabled = true;
         }
@@ -1677,7 +1676,7 @@ var system = {
             if (data.result == 'success') {
               system.serverConfig['alt-speed-enabled'] = enabled;
               button.linkbutton({
-                iconCls: 'iconfont tr-icon-' + (enabled ? 'woniu' : 'rocket'), //"icon-alt-speed-" + enabled.toString()
+                iconCls: 'iconfont tr-icon-' + (enabled ? 'woniu' : 'rocket'), // "icon-alt-speed-" + enabled.toString()
               });
               if (enabled) {
                 $('#status_alt_speed').show();
@@ -1749,7 +1748,7 @@ var system = {
     };
     // When submitting an error
     transmission.on.postError = function () {
-      //system.reloadTorrentBaseInfos();
+      // system.reloadTorrentBaseInfos();
     };
     // Initialize the connection
     transmission.init(
@@ -1770,7 +1769,7 @@ var system = {
       $('#status_version').html(
         'Transmission ' +
           system.lang.statusbar.version +
-          result['version'] +
+          result.version +
           ', RPC: ' +
           result['rpc-version'] +
           ', WEB Control: ' +
@@ -1814,9 +1813,9 @@ var system = {
     });
   },
   showFreeSpace: function (size) {
-    var tmp = size;
+    let tmp = size;
     if (tmp == -1) {
-      tmp = system.lang['public']['text-unknown'];
+      tmp = system.lang.public['text-unknown'];
     } else {
       tmp = formatSize(tmp);
     }
@@ -1829,7 +1828,7 @@ var system = {
     if (this.reloading) return;
     clearTimeout(this.autoReloadTimer);
     this.reloading = true;
-    var oldInfos = {
+    const oldInfos = {
       trackers: transmission.trackers,
       folders: transmission.torrents.folders,
     };
@@ -1837,14 +1836,14 @@ var system = {
     // Gets all the torrent id information
     transmission.torrents.getallids(
       function (resultTorrents) {
-        var ignore = new Array();
-        for (var index in resultTorrents) {
-          var item = resultTorrents[index];
+        const ignore = [];
+        for (const index in resultTorrents) {
+          const item = resultTorrents[index];
           ignore.push(item.id);
         }
 
         // Error numbered list
-        var errorIds = transmission.torrents.getErrorIds(ignore, true);
+        const errorIds = transmission.torrents.getErrorIds(ignore, true);
 
         if (errorIds.length > 0) {
           transmission.torrents.getallids(function () {
@@ -1878,7 +1877,7 @@ var system = {
    * 重置导航栏种子状态信息
    */
   resetNavTorrentStatus: function () {
-    var currentTorrentId = this.currentTorrentId;
+    const currentTorrentId = this.currentTorrentId;
     // Paused
     if (transmission.torrents.status[transmission._status.stopped]) {
       system.updateTreeNodeText(
@@ -1913,7 +1912,7 @@ var system = {
         system.appendTreeNode(node, [
           {
             id: 'seedwait',
-            text: text,
+            text,
             iconCls: 'iconfont tr-icon-wait',
           },
         ]);
@@ -1945,7 +1944,7 @@ var system = {
         system.appendTreeNode(node, [
           {
             id: 'checkwait',
-            text: text,
+            text,
             iconCls: 'iconfont tr-icon-wait',
           },
         ]);
@@ -1981,7 +1980,7 @@ var system = {
         system.appendTreeNode(node, [
           {
             id: 'downloadwait',
-            text: text,
+            text,
             iconCls: 'iconfont tr-icon-wait',
           },
         ]);
@@ -2008,9 +2007,9 @@ var system = {
 
     var node = system.panel.left.tree('getSelected');
     if (node != null) {
-      var p = system.control.torrentlist.datagrid('options').pageNumber;
+      const p = system.control.torrentlist.datagrid('options').pageNumber;
       system.loadTorrentToList({
-        node: node,
+        node,
         page: p,
       });
     }
@@ -2039,7 +2038,7 @@ var system = {
    */
   resetNavServers: function (oldInfos) {
     // 获取服务器分布主节点
-    var serversNode = this.panel.left.tree('find', 'servers');
+    let serversNode = this.panel.left.tree('find', 'servers');
     if (!this.config.nav.servers) {
       if (serversNode) {
         this.panel.left.tree('remove', serversNode.target);
@@ -2062,9 +2061,9 @@ var system = {
       serversNode = this.panel.left.tree('find', 'servers');
     }
 
-    var datas = new Array();
-    var BTServersNode = this.panel.left.tree('find', 'btservers');
-    var BTServersNodeState = BTServersNode ? BTServersNode.state : 'close';
+    const datas = [];
+    let BTServersNode = this.panel.left.tree('find', 'btservers');
+    const BTServersNodeState = BTServersNode ? BTServersNode.state : 'close';
 
     // 先添加一个“BT”目录节点，用于增加BT服务器列表
     if (!BTServersNode && system.config.showBTServers) {
@@ -2088,8 +2087,8 @@ var system = {
           continue;
         }
       }
-      var node = system.panel.left.tree('find', tracker.nodeid);
-      var text = tracker.name + this.showNodeMoreInfos(tracker.count, tracker.size);
+      const node = system.panel.left.tree('find', tracker.nodeid);
+      const text = tracker.name + this.showNodeMoreInfos(tracker.count, tracker.size);
       if (node) {
         system.updateTreeNodeText(
           tracker.nodeid,
@@ -2100,7 +2099,7 @@ var system = {
         system.appendTreeNode(tracker.isBT ? BTServersNode : serversNode, [
           {
             id: tracker.nodeid,
-            text: text,
+            text,
             iconCls: tracker.connected
               ? 'iconfont tr-icon-server'
               : 'iconfont tr-icon-server-error',
@@ -2132,14 +2131,14 @@ var system = {
    */
   resetNavStatistics: function () {
     if (!this.config.nav.statistics) {
-      var node = this.panel.left.tree('find', 'statistics');
+      const node = this.panel.left.tree('find', 'statistics');
       if (node) {
         this.panel.left.tree('remove', node.target);
       }
       return;
     }
     // Statistics
-    var items = 'uploadedBytes,downloadedBytes,filesAdded,sessionCount,secondsActive'.split(',');
+    const items = 'uploadedBytes,downloadedBytes,filesAdded,sessionCount,secondsActive'.split(',');
     $.each(items, function (key, item) {
       switch (item) {
         case 'uploadedBytes':
@@ -2194,14 +2193,14 @@ var system = {
   resetNavFolders: function (oldInfos) {
     if (!this.config.nav.folders) {
       this.initUIStatus();
-      var node = this.panel.left.tree('find', 'folders');
+      const node = this.panel.left.tree('find', 'folders');
       if (node) {
         this.panel.left.tree('remove', node.target);
       }
       return;
     }
-    for (var index in transmission.torrents.folders) {
-      var item = transmission.torrents.folders[index];
+    for (const index in transmission.torrents.folders) {
+      const item = transmission.torrents.folders[index];
       oldInfos.folders[item.nodeid] = null;
     }
 
@@ -2221,7 +2220,7 @@ var system = {
     }
 
     if (clear) {
-      var items = this.panel.left.tree(
+      const items = this.panel.left.tree(
         'getChildren',
         this.panel.left.tree('find', 'labels').target,
       );
@@ -2230,11 +2229,11 @@ var system = {
       }
     }
 
-    var prefix = 'label-';
+    const prefix = 'label-';
 
     for (var index = 0; index < this.config.labels.length; index++) {
-      var item = this.config.labels[index];
-      var key = prefix + this.getValidTreeKey(item.name);
+      const item = this.config.labels[index];
+      const key = prefix + this.getValidTreeKey(item.name);
       var node = this.panel.left.tree('find', key);
       if (!node) {
         this.appendTreeNode('labels', [
@@ -2261,7 +2260,7 @@ var system = {
   },
   // Displays the current torrent count and size
   showNodeMoreInfos: function (count, size) {
-    var result = '';
+    let result = '';
     if (count > 0) {
       result = " <span class='nav-torrents-number'>(" + count + ')</span>';
     }
@@ -2279,14 +2278,14 @@ var system = {
     this.reloading = true;
     transmission.getStatus(function (data) {
       system.reloading = false;
-      //system.updateTreeNodeText("torrent-all",system.lang.tree.all+" ("+data["torrentCount"]+")");
-      //system.updateTreeNodeText("paused",system.lang.tree.paused+(data["pausedTorrentCount"]==0?"":" ("+data["pausedTorrentCount"]+")"));
-      //system.updateTreeNodeText("sending",system.lang.tree.sending+(data["activeTorrentCount"]==0?"":" ("+data["activeTorrentCount"]+")"));
-      $('#status_downloadspeed').html(formatSize(data['downloadSpeed'], false, 'speed'));
-      $('#status_uploadspeed').html(formatSize(data['uploadSpeed'], false, 'speed'));
+      // system.updateTreeNodeText("torrent-all",system.lang.tree.all+" ("+data["torrentCount"]+")");
+      // system.updateTreeNodeText("paused",system.lang.tree.paused+(data["pausedTorrentCount"]==0?"":" ("+data["pausedTorrentCount"]+")"));
+      // system.updateTreeNodeText("sending",system.lang.tree.sending+(data["activeTorrentCount"]==0?"":" ("+data["activeTorrentCount"]+")"));
+      $('#status_downloadspeed').html(formatSize(data.downloadSpeed, false, 'speed'));
+      $('#status_uploadspeed').html(formatSize(data.uploadSpeed, false, 'speed'));
       system.serverSessionStats = data;
-      if (data['torrentCount'] == 0) {
-        var serversNode = system.panel.left.tree('find', 'servers');
+      if (data.torrentCount == 0) {
+        const serversNode = system.panel.left.tree('find', 'servers');
         if (serversNode) {
           system.panel.left.tree('remove', serversNode.target);
         }
@@ -2315,15 +2314,15 @@ var system = {
   },
   // Updates the tree node text
   updateTreeNodeText: function (id, text, iconCls) {
-    var node = this.panel.left.tree('find', id);
+    let node = this.panel.left.tree('find', id);
     if (node) {
-      var data = {
+      const data = {
         target: node.target,
-        text: text,
+        text,
       };
 
       if (iconCls != undefined) {
-        data['iconCls'] = iconCls;
+        data.iconCls = iconCls;
       }
       this.panel.left.tree('update', data);
     }
@@ -2331,26 +2330,26 @@ var system = {
   },
   // Append tree nodes
   appendTreeNode: function (parentid, data) {
-    var parent = null;
-    if (typeof parentid == 'string') {
+    let parent = null;
+    if (typeof parentid === 'string') {
       parent = this.panel.left.tree('find', parentid);
     } else parent = parentid;
 
     if (parent) {
       this.panel.left.tree('append', {
         parent: parent.target,
-        data: data,
+        data,
       });
     } else {
       this.panel.left.tree('append', {
-        data: data,
+        data,
       });
     }
     parent = null;
   },
   // Remove tree nodes
   removeTreeNode: function (id) {
-    var node = this.panel.left.tree('find', id);
+    let node = this.panel.left.tree('find', id);
     if (node) {
       this.panel.left.tree('remove', node.target);
     }
@@ -2361,7 +2360,7 @@ var system = {
     if (!transmission.torrents.all) {
       return;
     }
-    var def = {
+    const def = {
       node: null,
       page: 1,
     };
@@ -2369,11 +2368,11 @@ var system = {
     jQuery.extend(def, config);
     if (!config.node) return;
 
-    var torrents = null;
-    var parent = this.panel.left.tree('getParent', config.node.target) || {
+    let torrents = null;
+    const parent = this.panel.left.tree('getParent', config.node.target) || {
       id: '',
     };
-    var currentNodeId = this.panel.left.data('currentNodeId');
+    let currentNodeId = this.panel.left.data('currentNodeId');
 
     if (currentNodeId != config.node.id) {
       // 当切换了导航菜单时，取消选择所有内容
@@ -2448,14 +2447,14 @@ var system = {
           default:
             // Categories
             if (config.node.id.indexOf('folders-') != -1) {
-              var folder = transmission.torrents.folders[config.node.id];
+              const folder = transmission.torrents.folders[config.node.id];
               if (folder) {
                 if (!this.config.hideSubfolders) {
                   torrents = folder.torrents;
                 } else {
                   torrents = [];
                   for (var index = 0; index < folder.torrents.length; index++) {
-                    var element = folder.torrents[index];
+                    const element = folder.torrents[index];
                     if (element.downloadDir.replace(/[\\|\/]/g, '') == config.node.path) {
                       torrents.push(element);
                     }
@@ -2463,10 +2462,10 @@ var system = {
                 }
               }
             } else if (config.node.id.indexOf('label-') != -1) {
-              var labelIndex = parseInt(config.node.labelIndex);
+              const labelIndex = parseInt(config.node.labelIndex);
               torrents = [];
-              for (var key in transmission.torrents.all) {
-                var item = transmission.torrents.all[key];
+              for (const key in transmission.torrents.all) {
+                const item = transmission.torrents.all[key];
                 var labels = this.config.labelMaps[item.hashString];
                 if (labels && $.inArray(labelIndex, labels) != -1) {
                   torrents.push(item);
@@ -2484,12 +2483,12 @@ var system = {
       this.saveConfig();
     }
 
-    var datas = new Array();
+    const datas = [];
     for (var index in torrents) {
       if (!torrents[index]) {
         return;
       }
-      var status = this.lang.torrent['status-text'][torrents[index].status];
+      let status = this.lang.torrent['status-text'][torrents[index].status];
       // var percentDone = parseFloat(torrents[index].percentDone * 100).toFixed(2);
       // // Checksum, the use of verification progress
       // if (status == transmission._status.check) {
@@ -2506,7 +2505,7 @@ var system = {
           status +
           '</span>';
       }
-      var data = {};
+      let data = {};
       data = $.extend(data, torrents[index]);
       data.status = status;
       data.statusCode = torrents[index].status;
@@ -2518,7 +2517,7 @@ var system = {
         data.labels = labels;
       }
 
-      //data.leecherCount = torrents[index].leecher;
+      // data.leecherCount = torrents[index].leecher;
       /*
 			datas.push({
 				id:torrents[index].id
@@ -2558,11 +2557,11 @@ var system = {
    * shift 键选择
    */
   initShiftCheck: function () {
-    var items = $('#m_list div.datagrid-cell-check input:checkbox');
-    var eventName = 'click.Shift';
+    const items = $('#m_list div.datagrid-cell-check input:checkbox');
+    const eventName = 'click.Shift';
     items.off(eventName);
-    var lastChecked = null;
-    var torrentlist = this.control.torrentlist;
+    let lastChecked = null;
+    const torrentlist = this.control.torrentlist;
     items.on(eventName, function (e) {
       if (!lastChecked) {
         lastChecked = this;
@@ -2570,12 +2569,12 @@ var system = {
       }
 
       if (e.shiftKey) {
-        var start = items.index(this);
-        var end = items.index(lastChecked);
-        var checked = lastChecked.checked;
-        var startIndex = Math.min(start, end);
-        var endIndex = Math.max(start, end) + 1;
-        for (var index = startIndex; index < endIndex; index++) {
+        const start = items.index(this);
+        const end = items.index(lastChecked);
+        const checked = lastChecked.checked;
+        const startIndex = Math.min(start, end);
+        const endIndex = Math.max(start, end) + 1;
+        for (let index = startIndex; index < endIndex; index++) {
           if (checked) {
             torrentlist.datagrid('checkRow', index);
           } else {
@@ -2590,18 +2589,18 @@ var system = {
   // Update torrent list current page data
   updateTorrentCurrentPageDatas: function (currentTypeDatas) {
     // Get the current page data
-    var rows = this.control.torrentlist.datagrid('getRows');
+    let rows = this.control.torrentlist.datagrid('getRows');
 
     if (currentTypeDatas.length == 0 && rows.length > 0) {
       this.control.torrentlist.datagrid('loadData', []);
       return;
     }
 
-    var _options = this.control.torrentlist.datagrid('options');
-    var orderField = null;
+    const _options = this.control.torrentlist.datagrid('options');
+    let orderField = null;
     if (_options.sortName) {
       orderField = _options.sortName;
-      var orderField_func = orderField;
+      const orderField_func = orderField;
       currentTypeDatas = currentTypeDatas.sort(
         arrayObjectSort(orderField_func, _options.sortOrder),
       );
@@ -2625,16 +2624,16 @@ var system = {
 
     // Setting data
     this.control.torrentlist.datagrid('getData').originalRows = currentTypeDatas;
-    var start = (_options.pageNumber - 1) * parseInt(_options.pageSize);
-    var end = start + parseInt(_options.pageSize);
+    const start = (_options.pageNumber - 1) * parseInt(_options.pageSize);
+    const end = start + parseInt(_options.pageSize);
     currentTypeDatas = currentTypeDatas.slice(start, end);
 
-    //this.debug("currentTypeDatas:",currentTypeDatas);
+    // this.debug("currentTypeDatas:",currentTypeDatas);
 
     // Current updated torrent list
-    var recently = {};
+    let recently = {};
     //
-    var datas = {};
+    let datas = {};
 
     // Initializes the most recently updated data
     for (var index in transmission.torrents.recently) {
@@ -2650,20 +2649,20 @@ var system = {
       item = null;
     }
 
-    //this.debug("datas:",datas);
-    //this.debug("recently:",recently);
-    //this.debug("rows:",rows);
+    // this.debug("datas:",datas);
+    // this.debug("recently:",recently);
+    // this.debug("rows:",rows);
 
-    var addedDatas = {};
+    const addedDatas = {};
     // Update the changed data
     for (var index = rows.length - 1; index >= 0; index--) {
       var item = rows[index];
-      var data = datas[item.id];
+      let data = datas[item.id];
       if (!data) {
         this.control.torrentlist.datagrid('deleteRow', index);
       } else if (recently[item.id]) {
         this.control.torrentlist.datagrid('updateRow', {
-          index: index,
+          index,
           row: data,
         });
         addedDatas[item.id] = item;
@@ -2699,8 +2698,8 @@ var system = {
   },
   // Gets the contents of the torrent name display area
   getTorrentNameBar: function (torrent) {
-    var className = '';
-    var tip = torrent.name;
+    let className = '';
+    let tip = torrent.name;
     switch (torrent.status) {
       case transmission._status.stopped:
         className = 'iconlabel icon-pause-small';
@@ -2729,21 +2728,21 @@ var system = {
 
     if (torrent.warning) {
       className = 'iconlabel icon-warning-type1';
-      tip += '\n\n' + this.lang['public']['text-info'] + ': ' + torrent.warning;
+      tip += '\n\n' + this.lang.public['text-info'] + ': ' + torrent.warning;
     }
 
     if (torrent.error != 0) {
       className = 'iconlabel icon-exclamation';
-      tip += '\n\n' + this.lang['public']['text-info'] + ': ' + torrent.errorString;
+      tip += '\n\n' + this.lang.public['text-info'] + ': ' + torrent.errorString;
     }
 
     return '<span class="' + className + '" title="' + tip + '">' + torrent.name + '</span>';
   },
   // Gets the progress bar for the specified torrent
   getTorrentProgressBar: function (progress, torrent) {
-    var className = '';
-    var status = 0;
-    if (typeof torrent == 'object') {
+    let className = '';
+    let status = 0;
+    if (typeof torrent === 'object') {
       status = torrent.status;
     } else {
       status = torrent;
@@ -2768,7 +2767,7 @@ var system = {
         className = 'torrent-progress-seed';
         break;
     }
-    if (typeof torrent == 'object') {
+    if (typeof torrent === 'object') {
       if (torrent.warning) {
         className = 'torrent-progress-warning';
       }
@@ -2779,8 +2778,8 @@ var system = {
     if (status == transmission._status.check) {
       // 目前只有status==_status.download时 torrent 不是对象
       // 检查进度条长度保持在已完成的范围内
-      var percentCheckText = parseFloat(torrent.recheckProgress * 100).toFixed(2);
-      var percentCheckView = parseFloat(progress * torrent.recheckProgress).toFixed(2);
+      const percentCheckText = parseFloat(torrent.recheckProgress * 100).toFixed(2);
+      const percentCheckView = parseFloat(progress * torrent.recheckProgress).toFixed(2);
       return (
         '<div class="torrent-progress" title="' +
         progress +
@@ -2814,12 +2813,12 @@ var system = {
   },
   // Add torrent
   addTorrentsToServer: function (urls, count, autostart, savepath, labels) {
-    //this.config.autoReload = false;
-    var index = count - urls.length;
-    var url = urls.shift();
+    // this.config.autoReload = false;
+    const index = count - urls.length;
+    const url = urls.shift();
     if (!url) {
       this.showStatus(this.lang.system.status.queuefinish);
-      //this.config.autoReload = true;
+      // this.config.autoReload = true;
       this.getServerStatus();
       if (labels != null) system.saveConfig();
       return;
@@ -2833,12 +2832,12 @@ var system = {
   },
   // Starts / pauses the selected torrent
   changeSelectedTorrentStatus: function (status, button, method) {
-    var rows = this.control.torrentlist.datagrid('getChecked');
-    var ids = new Array();
+    const rows = this.control.torrentlist.datagrid('getChecked');
+    const ids = [];
     if (!status) {
       status = 'start';
     }
-    for (var i in rows) {
+    for (const i in rows) {
       ids.push(rows[i].id);
     }
 
@@ -2856,9 +2855,9 @@ var system = {
 
       transmission.exec(
         {
-          method: method,
+          method,
           arguments: {
-            ids: ids,
+            ids,
           },
         },
         function (data) {
@@ -2875,9 +2874,9 @@ var system = {
   },
   // get the magnetlink of torrent
   getTorrentMagnetLink: function (callback) {
-    var rows = this.control.torrentlist.datagrid('getChecked');
-    var ids = new Array();
-    for (var i in rows) {
+    const rows = this.control.torrentlist.datagrid('getChecked');
+    const ids = [];
+    for (const i in rows) {
       ids.push(rows[i].id);
     }
     transmission.torrents.getMagnetLink(ids, callback);
@@ -2887,19 +2886,19 @@ var system = {
     if (key == '') {
       return;
     }
-    var result = transmission.torrents.search(key);
+    const result = transmission.torrents.search(key);
     if (result == null || result.length == 0) {
       this.removeTreeNode('search-result');
       return;
     }
 
-    var node = this.panel.left.tree('find', 'search-result');
-    var text = this.lang.tree['search-result'] + ' : ' + key + ' (' + result.length + ')';
+    let node = this.panel.left.tree('find', 'search-result');
+    const text = this.lang.tree['search-result'] + ' : ' + key + ' (' + result.length + ')';
     if (node == null) {
       this.appendTreeNode('torrent-all', [
         {
           id: 'search-result',
-          text: text,
+          text,
           iconCls: 'iconfont tr-icon-search',
         },
       ]);
@@ -2907,7 +2906,7 @@ var system = {
     } else {
       this.panel.left.tree('update', {
         target: node.target,
-        text: text,
+        text,
       });
     }
     this.panel.left.tree('select', node.target);
@@ -2922,10 +2921,10 @@ var system = {
     this.currentTorrentId = id;
     // Loads only when expanded
     if (!this.panel.attribute.panel('options').collapsed) {
-      //this.panel.attribute.panel({iconCls:"icon-loading"});
-      var torrent = transmission.torrents.all[id];
+      // this.panel.attribute.panel({iconCls:"icon-loading"});
+      const torrent = transmission.torrents.all[id];
       torrent.infoIsLoading = true;
-      var fields =
+      let fields =
         'fileStats,trackerStats,peers,leftUntilDone,status,rateDownload,rateUpload,uploadedEver,uploadRatio,error,errorString,pieces,pieceCount,pieceSize';
       // If this is the first time to load this torrent information, load more information
       if (!torrent.moreInfosTag) {
@@ -2935,7 +2934,7 @@ var system = {
       // Gets the list of files
       transmission.torrents.getMoreInfos(fields, id, function (result) {
         torrent.infoIsLoading = false;
-        //system.panel.attribute.panel({iconCls:""});
+        // system.panel.attribute.panel({iconCls:""});
         if (result == null) return;
         // Merge the currently returned value to the current torrent
         jQuery.extend(torrent, result[0]);
@@ -2967,17 +2966,17 @@ var system = {
   // Updates the specified current page count
   updateCurrentPageDatas: function (keyField, datas, sourceTable) {
     // Get the current page data
-    var rows = sourceTable.datagrid('getRows');
-    var _options = sourceTable.datagrid('options');
-    var orderField = null;
+    const rows = sourceTable.datagrid('getRows');
+    const _options = sourceTable.datagrid('options');
+    let orderField = null;
     if (_options.sortName) {
       orderField = _options.sortName;
       datas = datas.sort(arrayObjectSort(orderField, _options.sortOrder));
     }
 
-    var isFileTable = sourceTable.selector.indexOf('#torrent-files-table') != -1;
-    var tableData = sourceTable.datagrid('getData');
-    var isFileFilterMode =
+    const isFileTable = sourceTable.selector.indexOf('#torrent-files-table') != -1;
+    const tableData = sourceTable.datagrid('getData');
+    const isFileFilterMode =
       isFileTable && !!tableData.filterString && tableData.torrentId == system.currentTorrentId;
     if (isFileFilterMode) {
       datas = fileFilter(datas, tableData.filterString);
@@ -2997,11 +2996,11 @@ var system = {
 
     // Setting data
     sourceTable.datagrid('getData').originalRows = datas;
-    var start = (_options.pageNumber - 1) * parseInt(_options.pageSize);
-    var end = start + parseInt(_options.pageSize);
+    const start = (_options.pageNumber - 1) * parseInt(_options.pageSize);
+    const end = start + parseInt(_options.pageSize);
     datas = datas.slice(start, end);
 
-    var newDatas = {};
+    const newDatas = {};
     // Initializes the data under the current type
     for (var index in datas) {
       var item = datas[index];
@@ -3013,11 +3012,11 @@ var system = {
     for (var index = rows.length - 1; index >= 0; index--) {
       var item = rows[index];
 
-      var data = newDatas[item[keyField]];
+      let data = newDatas[item[keyField]];
 
       if (data) {
         sourceTable.datagrid('updateRow', {
-          index: index,
+          index,
           row: data,
         });
       } else {
@@ -3082,32 +3081,32 @@ var system = {
       }
       system.panel.attribute.find('#torrent-attribute-value-' + key).html(value);
     });
-    var pieces = new Base64().decode_bytes(torrent.pieces);
+    const pieces = new Base64().decode_bytes(torrent.pieces);
     var piece = 0;
-    var pieceCount = torrent.pieceCount;
-    var pieceSize = torrent.pieceSize;
-    var piecesFlag = []; //inverted
+    const pieceCount = torrent.pieceCount;
+    const pieceSize = torrent.pieceSize;
+    const piecesFlag = []; // inverted
     while (piece < pieceCount) {
-      var bset = pieces.codePointAt(piece >> 3);
-      for (var test = 0x80; test > 0 && piece < pieceCount; test = test >> 1, ++piece) {
-        piecesFlag.push(bset & test ? false : true);
+      const bset = pieces.codePointAt(piece >> 3);
+      for (let test = 0x80; test > 0 && piece < pieceCount; test = test >> 1, ++piece) {
+        piecesFlag.push(!(bset & test));
       }
     }
-    var MAXCELLS = 500;
+    const MAXCELLS = 500;
 
-    var piecePerCell = parseInt((MAXCELLS - 1 + pieceCount) / MAXCELLS);
-    var cellSize = formatSize(pieceSize * piecePerCell);
-    var cellCount = parseInt((piecePerCell - 1 + pieceCount) / piecePerCell);
+    const piecePerCell = parseInt((MAXCELLS - 1 + pieceCount) / MAXCELLS);
+    const cellSize = formatSize(pieceSize * piecePerCell);
+    const cellCount = parseInt((piecePerCell - 1 + pieceCount) / piecePerCell);
     var cell = 0;
-    var cells = '';
+    let cells = '';
     for (var cell = 0, piece = 0; cell < cellCount; ++cell) {
-      var done = piecePerCell;
-      for (var i = 0; i < piecePerCell; ++i, ++piece) {
+      let done = piecePerCell;
+      for (let i = 0; i < piecePerCell; ++i, ++piece) {
         if (piecesFlag[piece]) --done;
       }
-      var percent = parseInt((done * 100) / piecePerCell);
-      var rate = percent / 100;
-      var ramp = parseInt(((Math.pow(128, rate) - 1) * 100) / 127) / 100;
+      const percent = parseInt((done * 100) / piecePerCell);
+      const rate = percent / 100;
+      const ramp = parseInt(((Math.pow(128, rate) - 1) * 100) / 127) / 100;
       cells +=
         '<i style="filter:saturate(' + ramp + ')" title="' + cellSize + ' x ' + percent + '%"></i>';
     }
@@ -3115,26 +3114,26 @@ var system = {
   },
   // Fill the torrent with a list of files
   fillTorrentFileList: function (torrent) {
-    var files = torrent.files;
-    var fileStats = torrent.fileStats;
-    var datas = new Array();
-    var namelength = torrent.name.length + 1;
-    for (var index in files) {
-      var file = files[index];
-      var stats = fileStats[index];
-      var percentDone = parseFloat((stats.bytesCompleted / file.length) * 100).toFixed(2);
+    const files = torrent.files;
+    const fileStats = torrent.fileStats;
+    const datas = [];
+    const namelength = torrent.name.length + 1;
+    for (const index in files) {
+      const file = files[index];
+      const stats = fileStats[index];
+      const percentDone = parseFloat((stats.bytesCompleted / file.length) * 100).toFixed(2);
       datas.push({
         name: file.name == torrent.name ? file.name : file.name.substr(namelength),
-        index: index,
+        index,
         bytesCompleted: stats.bytesCompleted,
         percentDone: system.getTorrentProgressBar(percentDone, transmission._status.download),
         length: file.length,
-        wanted: system.lang.torrent.attribute['status'][stats.wanted],
+        wanted: system.lang.torrent.attribute.status[stats.wanted],
         priority:
           '<span class="iconlabel icon-flag-' +
           stats.priority +
           '">' +
-          system.lang.torrent.attribute['priority'][stats.priority] +
+          system.lang.torrent.attribute.priority[stats.priority] +
           '</span>',
       });
     }
@@ -3147,23 +3146,23 @@ var system = {
   },
   // Fill in the torrent server list
   fillTorrentServerList: function (torrent) {
-    var trackerStats = torrent.trackerStats;
-    var datas = new Array();
-    for (var index in trackerStats) {
-      var stats = trackerStats[index];
-      var rowdata = {};
-      for (var key in stats) {
+    const trackerStats = torrent.trackerStats;
+    const datas = [];
+    for (const index in trackerStats) {
+      const stats = trackerStats[index];
+      const rowdata = {};
+      for (const key in stats) {
         switch (key) {
           case 'downloadCount':
           case 'leecherCount':
           case 'seederCount':
-            rowdata[key] = stats[key] == -1 ? system.lang['public']['text-unknown'] : stats[key];
+            rowdata[key] = stats[key] == -1 ? system.lang.public['text-unknown'] : stats[key];
             break;
 
           // state
           case 'announceState':
             rowdata[key] =
-              system.lang.torrent.attribute['servers-fields']['announceStateText'][stats[key]];
+              system.lang.torrent.attribute['servers-fields'].announceStateText[stats[key]];
             break;
           // Dates
           case 'lastAnnounceTime':
@@ -3174,7 +3173,7 @@ var system = {
           // true/false
           case 'lastAnnounceSucceeded':
           case 'lastAnnounceTimedOut':
-            rowdata[key] = system.lang.torrent.attribute['status'][stats[key]];
+            rowdata[key] = system.lang.torrent.attribute.status[stats[key]];
             break;
 
           default:
@@ -3189,25 +3188,25 @@ var system = {
     transmission.torrents.addTracker(torrent);
 
     this.updateCurrentPageDatas('id', datas, system.panel.attribute.find('#torrent-servers-table'));
-    //console.log("datas:",datas);
-    //system.panel.attribute.find("#torrent-servers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
+    // console.log("datas:",datas);
+    // system.panel.attribute.find("#torrent-servers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
   },
   // Fill the torrent user list
   fillTorrentPeersList: function (torrent) {
-    var peers = torrent.peers;
-    var datas = new Array();
+    const peers = torrent.peers;
+    const datas = [];
 
-    for (var index in peers) {
-      var item = peers[index];
-      var rowdata = {};
-      for (var key in item) {
+    for (const index in peers) {
+      const item = peers[index];
+      const rowdata = {};
+      for (const key in item) {
         rowdata[key] = item[key];
       }
 
       if (system.config.ipInfoToken !== '' || system.config.ipInfoFlagUrl !== '') {
         let flag = '';
         let detail = '';
-        let ip = rowdata['address'];
+        const ip = rowdata.address;
 
         if (system.config.ipInfoDetailUrl !== '') {
           if (this.ipdetail[ip] === undefined) {
@@ -3234,7 +3233,7 @@ var system = {
           }
           $.ajax({
             type: 'GET',
-            url: url,
+            url,
           }).done((data) => {
             if (data) {
               flag = data.toLowerCase().trim();
@@ -3270,12 +3269,12 @@ var system = {
             ip.replaceAll(/[:.]+/g, '_') +
             '" style="display:none;"> ';
         }
-        rowdata['address'] = img + ip;
+        rowdata.address = img + ip;
       }
 
       // 使用同类已有的翻译文本
-      rowdata.isUTP = system.lang.torrent.attribute['status'][item.isUTP];
-      var percentDone = parseFloat(item.progress * 100).toFixed(2);
+      rowdata.isUTP = system.lang.torrent.attribute.status[item.isUTP];
+      const percentDone = parseFloat(item.progress * 100).toFixed(2);
       rowdata.progress = system.getTorrentProgressBar(percentDone, transmission._status.download);
       datas.push(rowdata);
     }
@@ -3285,8 +3284,8 @@ var system = {
       datas,
       system.panel.attribute.find('#torrent-peers-table'),
     );
-    //console.log("datas:",datas);
-    //system.panel.attribute.find("#torrent-peers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
+    // console.log("datas:",datas);
+    // system.panel.attribute.find("#torrent-peers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
   },
   // Fill torrent parameters
   fillTorrentConfig: function (torrent) {
@@ -3296,14 +3295,14 @@ var system = {
     transmission.torrents.getConfig(torrent.id, function (result) {
       if (result == null) return;
 
-      var torrent = transmission.torrents.all[system.currentTorrentId];
+      const torrent = transmission.torrents.all[system.currentTorrentId];
       // Merge the currently returned value to the current torrent
       jQuery.extend(torrent, result[0]);
       if (system.currentTorrentId == 0) return;
       $.each(result[0], function (key, value) {
-        var indeterminate = false;
-        var checked = false;
-        var useTag = false;
+        let indeterminate = false;
+        let checked = false;
+        let useTag = false;
         switch (key) {
           //
           case 'seedIdleMode':
@@ -3363,8 +3362,8 @@ var system = {
 
         case 'progress':
           field.formatter = function (value, row, index) {
-            var percentDone = parseFloat(value * 100).toFixed(2);
-            return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row['id']]);
+            const percentDone = parseFloat(value * 100).toFixed(2);
+            return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
           };
           break;
 
@@ -3372,14 +3371,14 @@ var system = {
           switch (field.field) {
             case 'name':
               field.formatter = function (value, row, index) {
-                return system.getTorrentNameBar(transmission.torrents.all[row['id']]);
+                return system.getTorrentNameBar(transmission.torrents.all[row.id]);
               };
               break;
           }
           break;
         case 'ratio':
           field.formatter = function (value, row, index) {
-            var className = '';
+            let className = '';
             if (parseFloat(value) < 1 && value != -1) {
               className = 'text-status-warning';
             }
@@ -3404,7 +3403,7 @@ var system = {
 
         case 'color':
           field.formatter = function (value, row, index) {
-            var box = $("<span class='user-label'/>")
+            const box = $("<span class='user-label'/>")
               .html(value)
               .css({
                 'background-color': value,
@@ -3436,8 +3435,8 @@ var system = {
   loadFolderList: function (oldFolders) {
     this.removeTreeNode('folders-loading');
     // Delete the directory that does not exist
-    for (var index in oldFolders) {
-      var item = oldFolders[index];
+    for (const index in oldFolders) {
+      const item = oldFolders[index];
       if (item) {
         system.removeTreeNode(item.nodeid);
       }
@@ -3463,37 +3462,37 @@ var system = {
 			var parentkey = rootkey;
 			var fullkey = transmission.downloadDirs[index];
 
-		}*/
+		} */
   },
   appendFolder: function (fullkey) {
     if (!fullkey) return;
 
-    var rootkey = 'folders';
-    var parentkey = rootkey;
-    var folder = fullkey.replace(/\\/g, '/').split('/');
-    var key = rootkey + '-';
-    var path = '';
-    for (var i in folder) {
-      var name = folder[i];
+    const rootkey = 'folders';
+    let parentkey = rootkey;
+    const folder = fullkey.replace(/\\/g, '/').split('/');
+    let key = rootkey + '-';
+    let path = '';
+    for (const i in folder) {
+      const name = folder[i];
       if (name == '') {
         continue;
       }
-      //key += "--" + text.replace(/\./g,"。") + "--";
+      // key += "--" + text.replace(/\./g,"。") + "--";
       path += name;
-      var _key = this.B64.encode(name);
+      const _key = this.B64.encode(name);
       key += _key.replace(/[+|\/|=]/g, '0');
-      var node = this.panel.left.tree('find', key);
-      var folderinfos = transmission.torrents.folders[key];
+      let node = this.panel.left.tree('find', key);
+      const folderinfos = transmission.torrents.folders[key];
       if (folderinfos) {
-        var text = name + this.showNodeMoreInfos(folderinfos.count, folderinfos.size);
+        const text = name + this.showNodeMoreInfos(folderinfos.count, folderinfos.size);
 
         if (!node) {
           this.appendTreeNode(parentkey, [
             {
               id: key,
-              path: path,
+              path,
               downDir: fullkey,
-              text: text,
+              text,
               iconCls: 'iconfont tr-icon-file',
             },
           ]);
@@ -3513,7 +3512,7 @@ var system = {
     }
   },
   replaceURI: function (text) {
-    var reg = /(http|https|ftp):\/\/([^/:]+)(:\d*)?([^# ]*)/gi;
+    const reg = /(http|https|ftp):\/\/([^/:]+)(:\d*)?([^# ]*)/gi;
     return text.replace(reg, function (url) {
       return '<a href="' + url + '" target="_blank">' + url + '</a>';
     });
@@ -3522,19 +3521,19 @@ var system = {
   readConfig: function () {
     this.readUserConfig();
     // 将原来的cookies的方式改为本地存储的方式
-    var config = this.getStorageData(this.configHead + '.system');
+    const config = this.getStorageData(this.configHead + '.system');
     if (config) {
       this.config = $.extend(true, this.config, JSON.parse(config));
     }
 
-    for (var key in this.storageKeys.dictionary) {
+    for (const key in this.storageKeys.dictionary) {
       this.dictionary[key] = this.getStorageData(this.storageKeys.dictionary[key]);
     }
   },
   // Save the parameters in cookies
   saveConfig: function () {
     this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
-    for (var key in this.storageKeys.dictionary) {
+    for (const key in this.storageKeys.dictionary) {
       this.setStorageData(this.storageKeys.dictionary[key], this.dictionary[key]);
     }
     this.saveUserConfig();
@@ -3550,9 +3549,9 @@ var system = {
     }
   },
   readUserConfig: function () {
-    var local = window.localStorage[this.configHead];
+    const local = window.localStorage[this.configHead];
     if (local) {
-      var localOptions = JSON.parse(local);
+      const localOptions = JSON.parse(local);
       this.userConfig = $.extend(true, this.userConfig, localOptions);
     }
   },
@@ -3563,12 +3562,12 @@ var system = {
   uploadTorrentFile: function (fileInputId, savePath, paused, callback) {
     // Determines whether the FileReader interface is supported
     if (window.FileReader) {
-      var files = $("input[id='" + fileInputId + "']")[0].files;
+      const files = $("input[id='" + fileInputId + "']")[0].files;
       $.each(files, function (index, file) {
         transmission.addTorrentFromFile(file, savePath, paused, callback, files.length);
       });
     } else {
-      alert(system.lang['public']['text-browsers-not-support-features']);
+      alert(system.lang.public['text-browsers-not-support-features']);
     }
   },
   checkUpdate: function () {
@@ -3577,18 +3576,18 @@ var system = {
       dataType: 'json',
       success: function (result) {
         if (result && result.tag_name) {
-          var update = result.created_at.substr(0, 10).replace(/-/g, '');
-          var version = result.tag_name;
+          const update = result.created_at.substr(0, 10).replace(/-/g, '');
+          const version = result.tag_name;
           if ($.inArray(version, system.config.ignoreVersion) != -1) {
             return;
           }
           if (system.codeupdate < update) {
             $('#area-update-infos').show();
             $('#msg-updateInfos').html(update + ' -> ' + result.name);
-            var content = $('<div/>');
-            var html = result.body.replace(/\r\n/g, '<br/>');
+            const content = $('<div/>');
+            const html = result.body.replace(/\r\n/g, '<br/>');
 
-            var toolbar = $("<div style='text-align:right;'/>").appendTo(content);
+            const toolbar = $("<div style='text-align:right;'/>").appendTo(content);
             $(
               '<a href="https://github.com/ronggang/transmission-web-control/releases/latest" target="_blank" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-github\'"/>',
             )
@@ -3599,7 +3598,7 @@ var system = {
             $(
               '<a href="https://github.com/ronggang/transmission-web-control/wiki" target="_blank" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-help\'"/>',
             )
-              .html(system.lang['public']['text-how-to-update'])
+              .html(system.lang.public['text-how-to-update'])
               .appendTo(toolbar)
               .linkbutton();
             $('<span/>').html(' ').appendTo(toolbar);
@@ -3608,7 +3607,7 @@ var system = {
                 version +
                 '\');" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-cancel-checked\'"/>',
             )
-              .html(system.lang['public']['text-ignore-this-version'])
+              .html(system.lang.public['text-ignore-this-version'])
               .appendTo(toolbar)
               .linkbutton();
             $('<hr/>').appendTo(content);
@@ -3654,7 +3653,7 @@ var system = {
    * 	type: 0 窗口，1 tooltip；默认为 0
    */
   openDialogFromTemplate: function (config) {
-    var defaultConfig = {
+    const defaultConfig = {
       id: null,
       options: null,
       datas: null,
@@ -3665,11 +3664,11 @@ var system = {
 
     if (config.id == null) return;
 
-    var dialogId = config.id;
-    var options = config.options;
-    var datas = config.datas;
+    const dialogId = config.id;
+    let options = config.options;
+    const datas = config.datas;
 
-    var dialog = $('#' + dialogId);
+    let dialog = $('#' + dialogId);
     if (dialog.length) {
       if (datas) {
         $.each(datas, function (key, value) {
@@ -3694,7 +3693,7 @@ var system = {
       }
     }
 
-    var defaultOptions = {
+    const defaultOptions = {
       title: '',
       width: 100,
       height: 100,
@@ -3780,9 +3779,9 @@ var system = {
         editable: false,
         panelHeight: 'auto',
         onChange: function (value) {
-          var values = (value + ';').split(';');
-          var theme = values[0];
-          var logo = values[1] || 'logo.png';
+          const values = (value + ';').split(';');
+          const theme = values[0];
+          const logo = values[1] || 'logo.png';
           $('#styleEasyui').attr(
             'href',
             'tr-web-control/script/easyui/themes/' + theme + '/easyui.css',
@@ -3802,7 +3801,7 @@ var system = {
    */
   getValidTreeKey: function (text) {
     if (!text) return '';
-    var _key = this.B64.encode(text);
+    const _key = this.B64.encode(text);
     return _key.replace(/[+|\/|=]/g, '0');
   },
 
@@ -3834,9 +3833,9 @@ $(document).ready(function () {
 });
 
 function fileFilter(dataRows, filterString) {
-  var filter = new RegExp(filterString || '.*');
-  var rawDataFiltered = new Array();
-  for (var j = 0; j < dataRows.length; ++j) {
+  const filter = new RegExp(filterString || '.*');
+  const rawDataFiltered = [];
+  for (let j = 0; j < dataRows.length; ++j) {
     if (filter.test(dataRows[j].name)) {
       rawDataFiltered.push(dataRows[j]);
     }
@@ -3845,8 +3844,8 @@ function fileFilter(dataRows, filterString) {
 }
 
 function restoreFileFilterInputbox(defaultFilter) {
-  var langText = system.lang.torrent.attribute['filter-template-text'];
-  var filterTemplate = [
+  const langText = system.lang.torrent.attribute['filter-template-text'];
+  const filterTemplate = [
     {
       id: 1,
       text: langText ? langText['1'] : 'All',
@@ -3871,7 +3870,7 @@ function restoreFileFilterInputbox(defaultFilter) {
       panelWidth: 400,
       panelHeight: 'auto',
       formatter: function (row) {
-        var s =
+        const s =
           '<span style="font-weight:bold; padding:3px;">' +
           row.text +
           '</span><br/>' +
@@ -3886,10 +3885,10 @@ function restoreFileFilterInputbox(defaultFilter) {
 }
 
 function pagerFilter(data) {
-  var isFileData = false;
-  var filterChanged = false;
+  let isFileData = false;
+  let filterChanged = false;
 
-  if (typeof data.length == 'number' && typeof data.splice == 'function') {
+  if (typeof data.length === 'number' && typeof data.splice === 'function') {
     // is array
     data = {
       total: data.length,
@@ -3905,8 +3904,8 @@ function pagerFilter(data) {
       (data.filterString && data.originalRows.length == data.unfilteredRows.length);
     if (filterChanged) {
       data.torrentId = system.currentTorrentId;
-      var rawData = data.unfilteredRows || data.originalRows || data.rows;
-      var rawDataFiltered = fileFilter(rawData, fileFilterString);
+      const rawData = data.unfilteredRows || data.originalRows || data.rows;
+      const rawDataFiltered = fileFilter(rawData, fileFilterString);
       data.originalRows = rawDataFiltered;
       data.total = rawDataFiltered.length;
       if (!data.unfilteredRows) {
@@ -3916,33 +3915,33 @@ function pagerFilter(data) {
     }
   }
 
-  var dg = $(this);
-  var opts = dg.datagrid('options');
-  var pager = dg.datagrid('getPager');
-  var buttons = dg.data('buttons');
-  //system.debug("pagerFilter.buttons:",buttons);
+  const dg = $(this);
+  const opts = dg.datagrid('options');
+  const pager = dg.datagrid('getPager');
+  const buttons = dg.data('buttons');
+  // system.debug("pagerFilter.buttons:",buttons);
   pager.pagination({
     onSelectPage: function (pageNum, pageSize) {
       opts.pageNumber = pageNum;
       opts.pageSize = pageSize;
       pager.pagination('refresh', {
         pageNumber: pageNum,
-        pageSize: pageSize,
+        pageSize,
       });
       dg.datagrid('loadData', data);
     },
-    buttons: buttons,
+    buttons,
   });
   if (!data.originalRows) {
     data.originalRows = data.rows;
   }
-  var start = filterChanged ? 0 : (opts.pageNumber - 1) * parseInt(opts.pageSize);
-  var end = start + parseInt(opts.pageSize);
+  const start = filterChanged ? 0 : (opts.pageNumber - 1) * parseInt(opts.pageSize);
+  const end = start + parseInt(opts.pageSize);
   data.rows = data.originalRows.slice(start, end);
 
   if (buttons && buttons.length) {
-    for (var i = 0; i < buttons.length; i++) {
-      var button = buttons[i];
+    for (let i = 0; i < buttons.length; i++) {
+      const button = buttons[i];
       if (button.id && button.title) {
         $('#' + button.id, pager).attr('title', button.title);
       }

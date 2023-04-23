@@ -134,8 +134,8 @@
 <script type="text/javascript">
   (function (thisDialog) {
     var ids = thisDialog.data('ids');
-    var notMatchedTorrents = new Array();
-    var notMatchedFolders = new Array();
+    var notMatchedTorrents = [];
+    var notMatchedFolders = [];
     var torrent = null;
     var isworking = false;
     var ignore = false;
@@ -150,7 +150,7 @@
       torrent = transmission.torrents.all[ids];
       thisDialog.find('#torrent-count').html(1);
       ids = null;
-      ids = new Array();
+      ids = [];
       ids.push(torrent.id);
     }
 
@@ -459,7 +459,7 @@
               function (data) {
                 if (data.result == 'success') {
                   notMatchedTorrents = null;
-                  notMatchedTorrents = new Array();
+                  notMatchedTorrents = [];
                   $.each(data.arguments.torrents, function (key, item) {
                     if (item.status == 0 && item.percentDone == 0) {
                       if (jQuery.inArray(item.id, notMatchedTorrents) == -1)
@@ -605,7 +605,7 @@
                       function (data) {
                         if (data.result == 'success') {
                           notMatchedTorrents = null;
-                          notMatchedTorrents = new Array();
+                          notMatchedTorrents = [];
                           $.each(data.arguments.torrents, function (key, item) {
                             if (item.status == 0 && item.percentDone == 0) {
                               if (jQuery.inArray(item.id, notMatchedTorrents) == -1)

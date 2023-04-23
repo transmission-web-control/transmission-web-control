@@ -1,8 +1,8 @@
 // Get "query string"
 String.prototype.getQueryString = function (name, split) {
   if (split == undefined) split = '&';
-  var reg = new RegExp('(^|' + split + '|\\?)' + name + '=([^' + split + ']*)(' + split + '|$)'),
-    r;
+  const reg = new RegExp('(^|' + split + '|\\?)' + name + '=([^' + split + ']*)(' + split + '|$)');
+  let r;
   if ((r = this.match(reg))) return unescape(r[2]);
   return null;
 };
@@ -12,11 +12,11 @@ String.prototype.right = function (len) {
 };
 
 String.prototype.getHostName = function () {
-  var url = this;
-  var result = url;
-  var regex = /^\w+\:\/\/([^\/]*).*/;
-  var match = url.match(regex);
-  if (typeof match != 'undefined' && null != match) {
+  const url = this;
+  let result = url;
+  const regex = /^\w+\:\/\/([^\/]*).*/;
+  const match = url.match(regex);
+  if (typeof match !== 'undefined' && match != null) {
     result = match[1];
     if (result.indexOf(':') != -1) {
       result = result.split(':')[0];
@@ -25,8 +25,8 @@ String.prototype.getHostName = function () {
   return result;
 };
 
-//公用函数定义
-//格式化数字
+// 公用函数定义
+// 格式化数字
 Number.prototype.formatNumber = function (f) {
   this.fStr = function (n, f, p) {
     if (n == '' || n == undefined) {
@@ -36,14 +36,14 @@ Number.prototype.formatNumber = function (f) {
         return f;
       }
     }
-    var fc = (s = r = ''),
-      pos;
+    let fc = (s = r = '');
+    let pos;
     if (!p) {
       n = n.split('').reverse().join('');
       f = f.split('').reverse().join('');
     }
 
-    for (var i = (j = 0); i < f.length; i++, j++) {
+    for (let i = (j = 0); i < f.length; i++, j++) {
       s = n.charAt(j);
       if (s == undefined) continue;
       fc = f.charAt(i);
@@ -55,7 +55,7 @@ Number.prototype.formatNumber = function (f) {
         case '0':
           r = s || s == fc ? r + s : r + 0;
           pos = i;
-          break; //原方法,这里对小数点后的处理有点问题.
+          break; // 原方法,这里对小数点后的处理有点问题.
         case '.':
           r += s == fc ? s : (j--, fc);
           break;
@@ -79,9 +79,10 @@ Number.prototype.formatNumber = function (f) {
     }
     return r;
   };
-  var n = this.toString();
-  if (n.length == 0) return '';
-  if (f == undefined) return this;
+  let n = this.toString();
+  if (n.length === 0) return '';
+  if (f === undefined) return this;
+  // eslint-disable-next-line no-sequences
   (f = f.split('.')), (n = n.split('.'));
   return f.length > 1
     ? this.fStr(n[0], f[0]) + '.' + this.fStr(n[1], f[1], 1)
@@ -92,18 +93,18 @@ Number.prototype.formatNumber = function (f) {
  * 根据指定的十六进制颜色值，返回RGB颜色数值
  */
 String.prototype.getRGB = function () {
-  var reg = /^#([0-9a-f]{3}|[0-9a-f]{6})$/;
-  var color = this.toLowerCase();
+  const reg = /^#([0-9a-f]{3}|[0-9a-f]{6})$/;
+  let color = this.toLowerCase();
   if (color && reg.test(color)) {
     if (color.length === 4) {
-      var sColorNew = '#';
+      let sColorNew = '#';
       for (var i = 1; i < 4; i += 1) {
         sColorNew += color.slice(i, i + 1).concat(color.slice(i, i + 1));
       }
       color = sColorNew;
     }
-    //处理六位的颜色值
-    var result = [];
+    // 处理六位的颜色值
+    const result = [];
     for (var i = 1; i < 7; i += 2) {
       result.push(parseInt('0x' + color.slice(i, i + 2)));
     }
@@ -144,7 +145,7 @@ function getLocalTime(time) {
 }
 
 function formatLongTime(time, formatString) {
-  var now = new Date(parseInt(time) * 1000);
+  const now = new Date(parseInt(time) * 1000);
   return formatDate(now);
 }
 
@@ -153,7 +154,7 @@ function formatDate(formatDate, formatString) {
     formatString = 'yyyy-mm-dd hh:nn:ss';
   }
   if (formatDate instanceof Date) {
-    var months = new Array(
+    const months = [
       'Jan',
       'Feb',
       'Mar',
@@ -166,21 +167,21 @@ function formatDate(formatDate, formatString) {
       'Oct',
       'Nov',
       'Dec',
-    );
-    var yyyy = formatDate.getFullYear();
-    var yy = yyyy.toString().substring(2);
-    var m = formatDate.getMonth() + 1;
-    var mm = m < 10 ? '0' + m : m;
-    var mmm = months[m];
-    var d = formatDate.getDate();
-    var dd = d < 10 ? '0' + d : d;
+    ];
+    const yyyy = formatDate.getFullYear();
+    const yy = yyyy.toString().substring(2);
+    const m = formatDate.getMonth() + 1;
+    const mm = m < 10 ? '0' + m : m;
+    const mmm = months[m];
+    const d = formatDate.getDate();
+    const dd = d < 10 ? '0' + d : d;
 
-    var h = formatDate.getHours();
-    var hh = h < 10 ? '0' + h : h;
-    var n = formatDate.getMinutes();
-    var nn = n < 10 ? '0' + n : n;
-    var s = formatDate.getSeconds();
-    var ss = s < 10 ? '0' + s : s;
+    const h = formatDate.getHours();
+    const hh = h < 10 ? '0' + h : h;
+    const n = formatDate.getMinutes();
+    const nn = n < 10 ? '0' + n : n;
+    const s = formatDate.getSeconds();
+    const ss = s < 10 ? '0' + s : s;
 
     formatString = formatString.replace(/yyyy/i, yyyy);
     formatString = formatString.replace(/yy/i, yy);
@@ -212,8 +213,8 @@ function formatSize(bytes, zeroToEmpty, type) {
       } else return '0.00';
     }
   }
-  var r = '';
-  var u = 'KB';
+  let r = '';
+  let u = 'KB';
   if (bytes < 1000 * 1024) {
     r = bytes / 1024;
     u = 'KB';
@@ -250,29 +251,29 @@ function getMinutesFromHours(hours) {
 
 // Get the cumulative time
 function getTotalTime(time, format) {
-  //time [ms]
+  // time [ms]
   if (!format) {
     format = '%dd %hh %mm %ss ';
   }
-  //Calculate the difference between the number of days
-  var days = Math.floor(time / (24 * 3600 * 1000));
+  // Calculate the difference between the number of days
+  const days = Math.floor(time / (24 * 3600 * 1000));
 
-  //Calculate the number of hours
-  var leave1 = time % (24 * 3600 * 1000);
-  //The number of milliseconds remaining after calculating the number of days
-  var hours = Math.floor(leave1 / (3600 * 1000));
+  // Calculate the number of hours
+  const leave1 = time % (24 * 3600 * 1000);
+  // The number of milliseconds remaining after calculating the number of days
+  const hours = Math.floor(leave1 / (3600 * 1000));
 
-  //Calculate the number of minutes
-  var leave2 = leave1 % (3600 * 1000);
-  //The number of milliseconds remaining after the number of hours is counted
-  var minutes = Math.floor(leave2 / (60 * 1000));
+  // Calculate the number of minutes
+  const leave2 = leave1 % (3600 * 1000);
+  // The number of milliseconds remaining after the number of hours is counted
+  const minutes = Math.floor(leave2 / (60 * 1000));
 
-  //Calculate the number of seconds
-  var leave3 = leave2 % (60 * 1000);
-  //The number of milliseconds remaining after calculating the number of minutes
-  var seconds = Math.round(leave3 / 1000);
+  // Calculate the number of seconds
+  const leave3 = leave2 % (60 * 1000);
+  // The number of milliseconds remaining after calculating the number of minutes
+  const seconds = Math.round(leave3 / 1000);
 
-  var result = format;
+  let result = format;
   if (days == 0) {
     result = result.replace(/(%d+\s)/, '');
   } else result = result.replace('%d', days);
@@ -294,8 +295,8 @@ function getTotalTime(time, format) {
 // Array object sort extension
 function arrayObjectSort(field, sortOrder) {
   return function (object1, object2) {
-    var value1 = object1[field];
-    var value2 = object2[field];
+    const value1 = object1[field];
+    const value2 = object2[field];
     if (value1 < value2) {
       if (sortOrder == 'desc') {
         return 1;
@@ -312,11 +313,11 @@ function arrayObjectSort(field, sortOrder) {
 
 // Generic time - sharing processing functions
 function timedChunk(items, process, context, delay, callback) {
-  var todo = items.concat();
+  const todo = items.concat();
   if (delay == undefined) delay = 25;
 
   setTimeout(function () {
-    var start = +new Date();
+    const start = +new Date();
 
     do {
       process.call(context, todo.shift());
@@ -334,10 +335,10 @@ function timedChunk(items, process, context, delay, callback) {
 (function ($) {
   // Fade in and out
   $.fn.fadeInAndOut = function (speed, easing, fn) {
-    var options = {
-      speed: speed,
-      easing: easing,
-      fn: fn,
+    const options = {
+      speed,
+      easing,
+      fn,
     };
     $.extend(options, $.fn.fadeInAndOut.defaults);
     this.fadeIn(options.speed)
@@ -355,8 +356,9 @@ function timedChunk(items, process, context, delay, callback) {
 
 // returns only unique values
 function uniq(a) {
-  var seen = {};
+  const seen = {};
   return a.filter(function (item) {
+    // eslint-disable-next-line no-prototype-builtins
     return seen.hasOwnProperty(item) ? false : (seen[item] = true);
   });
 }
@@ -367,12 +369,12 @@ function uniq(a) {
 function loadFileContent(fileType, callback) {
   $("<input id='file-loadContent' type='file' style='display:none;' multiple='true'/>")
     .on('change', function () {
-      var fileSelector = this;
+      const fileSelector = this;
       if (fileSelector.files.length > 0 && fileSelector.files[0].name.length > 0) {
-        var files = fileSelector.files;
-        var count = files.length;
-        var index = 0;
-        var r = new FileReader();
+        const files = fileSelector.files;
+        const count = files.length;
+        let index = 0;
+        const r = new FileReader();
         r.onload = function (e) {
           callback && callback.call(system, e.target.result);
           readFile();
@@ -390,8 +392,8 @@ function loadFileContent(fileType, callback) {
             return;
           }
           var file = files[index];
-          var lastIndex = file.name.lastIndexOf('.');
-          var fix = file.name.substr(lastIndex + 1);
+          const lastIndex = file.name.lastIndexOf('.');
+          const fix = file.name.substr(lastIndex + 1);
 
           index++;
 
@@ -416,10 +418,10 @@ function loadFileContent(fileType, callback) {
  */
 function saveFileAs(fileName, fileData) {
   try {
-    var Blob = window.Blob || window.WebKitBlob;
+    const Blob = window.Blob || window.WebKitBlob;
 
     // Detect availability of the Blob constructor.
-    var constructor_supported = false;
+    let constructor_supported = false;
     if (Blob) {
       try {
         new Blob([], {
@@ -429,15 +431,15 @@ function saveFileAs(fileName, fileData) {
       } catch (_) {}
     }
 
-    var b = null;
+    let b = null;
     if (constructor_supported) {
       b = new Blob([fileData], {
         type: 'text/plain',
       });
     } else {
       // Deprecated BlobBuilder API
-      var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder;
-      var bb = new BlobBuilder();
+      const BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder;
+      const bb = new BlobBuilder();
       bb.append(fileData);
       b = bb.getBlob('text/plain');
     }
