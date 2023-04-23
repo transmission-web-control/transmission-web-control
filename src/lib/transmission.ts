@@ -861,21 +861,15 @@ export const transmission = {
         }
 
         // Total size
-        // @ts-ignore
         this.totalSize += item.totalSize;
 
         // Time left
-        // @ts-ignore
         if (item.rateDownload > 0 && item.leftUntilDone > 0) {
-          // @ts-ignore
           item.remainingTime = Math.floor((item.leftUntilDone / item.rateDownload) * 1000);
-          // @ts-ignore
         } else if (item.rateDownload == 0 && item.leftUntilDone == 0 && item.totalSize != 0) {
-          // @ts-ignore
           item.remainingTime = 0;
         } else {
           // ~100 years
-          // @ts-ignore
           item.remainingTime = 3153600000000;
         }
 
@@ -985,7 +979,12 @@ export interface Torrent {
   trackerStats: Tracker[];
   nextAnnounceTime: number;
   downloadDir: string;
+  remainingTime: number;
   magnetLink: string;
+  rateDownload: number;
+  leftUntilDone: number;
+  totalSize: number;
+  uploadRatio: number;
 }
 
 export type Transmission = typeof transmission;
