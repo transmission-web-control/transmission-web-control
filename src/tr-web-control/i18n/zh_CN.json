@@ -1,6 +1,6 @@
 {
   "name": "zh-CN",
-  "languageName": "简体中文|Chinese (Simplified)",
+  "languageName": "English",
   "author": "栽培者, vodek3",
   "system": {
     "title": "Transmission WEB 控制器",
@@ -69,7 +69,6 @@
       "autoreload-enabled": "启用自动刷新",
       "tracker-replace": "替换 Tracker",
       "change-download-dir": "变更数据保存目录",
-      "change-speedlimit": "变更上传和下载速度",
       "ui-mobile": "切换到移动设备界面",
       "ui-original": "切换到原版界面",
       "more-peers": "获取更多Peer",
@@ -142,6 +141,7 @@
       "torrent-url": "种子地址：",
       "tip-torrent-url": "注：复制种子链接到列表中，多个种子用“回车”分隔。",
       "autostart": "自动开始：",
+      "tip-autostart": "",
       "set-default-download-dir": "设为默认保存目录",
       "upload-file": "种子文件：",
       "nosource": "没有选择种子或没有输入URL地址",
@@ -309,8 +309,6 @@
       "newname": "新名称"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "精选(IP)",
-      "button-search-all-ip": "全部(IP)",
       "title": "增加 Tracker",
       "tip": "每行表示一个Tracker"
     },
@@ -388,9 +386,9 @@
         "lastAnnounceTime": "更新时间",
         "lastAnnounceTimedOut": "超时",
         "downloadCount": "下载数",
+        "nextAnnounceTime": "下次更新时间",
         "leecherCount": "吸血数",
         "seederCount": "种子数",
-        "nextAnnounceTime": "下次更新时间",
         "announceStateText": {
           "0": "非活动",
           "1": "待机",
