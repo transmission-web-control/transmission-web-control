@@ -21,10 +21,28 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'yarn'
 
-      - run: npm ci
+      - run: yarn
 
       - run: npx prettier --check ./
 
-      - run: npm run lint
+      - run: yarn lint
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - run: yarn
+
+      - run: npx tsc --noEmit
+
+      - run: yarn build

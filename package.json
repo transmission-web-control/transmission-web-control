@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint ./src/",
-    "start": "node ./start.mjs",
+    "start": "vite --host 127.0.0.1",
+    "prebuild": "rimraf ./dist/",
+    "build": "vite build",
     "format": "prettier --list-different -w .",
     "lint-staged": "lint-staged",
     "prepare": "husky install"
@@ -19,6 +21,7 @@
     "jquery": "^3.6.4"
   },
   "devDependencies": {
+    "@types/node": "^18.16.0",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
@@ -27,12 +30,11 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
     "husky": "^8.0.3",
-    "koa": "^2.14.2",
-    "koa-proxies": "^0.12.3",
-    "koa-static": "^5.0.0",
     "lint-staged": "^13.2.1",
     "prettier": "^2.8.8",
-    "typescript": "^5.0.4"
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.1"
   },
   "lint-staged": {
     "*.{js,mjs,mts,html,css,ts,md,json,yml,yaml}": [

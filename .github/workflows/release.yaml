@@ -9,4 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: gh release create "${GITHUB_REF##*/}" --generate-notes
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - run: yarn
+
+      - run: yarn build
+
+      - run: zip -r dist.zip ./dist/
+
+      - run: gh release create "${GITHUB_REF##*/}" dist.zip --generate-notes
