@@ -1,6 +1,7 @@
-// transmission RPC 操作类
-// 栽培者
-var transmission = {
+import $ from 'jquery';
+
+export const transmission = {
+  torrents: null as any,
   SessionId: '',
   isInitialized: false,
   host: '',
@@ -37,17 +38,39 @@ var transmission = {
     getFolders: true,
     getTarckers: true,
   },
-  headers: {},
+  headers: {} as Record<string, string>,
   trackers: {},
   islocal: false,
   // The list of directories that currently exist
   downloadDirs: [],
-  getSessionId: function (me, callback) {
-    const settings = {
+  // async getSessionId(me: Transmission) {
+  //   console.log(this.headers);
+  //   const res = await fetch(this.fullpath, {
+  //     method: 'POST',
+  //     credentials: 'include',
+  //     headers: this.headers,
+  //   });
+  //
+  //   if (res.status === 404) {
+  //     const SessionId = res.headers.get('X-Transmission-Session-Id');
+  //     me.isInitialized = true;
+  //     me.SessionId = SessionId;
+  //     me.headers['X-Transmission-Session-Id'] = SessionId;
+  //   }
+  // },
+  getSessionId(
+    me: {
+      isInitialized: boolean;
+      SessionId: string | null;
+      headers: Record<string, string>;
+    },
+    callback?: () => void,
+  ) {
+    void $.ajax({
       type: 'POST',
       url: this.fullpath,
-      error: function (request, event, settings) {
-        let SessionId = '';
+      error: function (request) {
+        let SessionId: string | null = '';
         if (
           request.status === 409 &&
           (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
@@ -55,29 +78,23 @@ var transmission = {
           me.isInitialized = true;
           me.SessionId = SessionId;
           me.headers['X-Transmission-Session-Id'] = SessionId;
-          if (callback) {
+          if (callback != null) {
             callback();
           }
         }
       },
       headers: this.headers,
-    };
-    jQuery.ajax(settings);
+    });
   },
-  init: function (config, callback) {
-    jQuery.extend(this, config);
+  init(config: unknown, callback: () => void) {
+    $.extend(this, config);
 
-    /*
-		if (this.fullpath=="")
-		{
-			this.fullpath = this.host + (this.port?":"+this.port:"") + this.path;
-		} */
     if (this.username && this.password) {
-      this.headers.Authorization =
-        'Basic ' + new Base64().encode(this.username + ':' + this.password);
+      this.headers.Authorization = 'Basic ' + btoa(this.username + ':' + this.password);
     }
 
     this.fullpath = this.rpcpath;
+    // this.getSessionId(this).finally(callback);
     this.getSessionId(this, callback);
   },
   /**
@@ -87,7 +104,11 @@ var transmission = {
    * @param  {[type]}   tags     [description]
    * @return {[type]}            [description]
    */
-  exec: function (config, callback, tags) {
+  exec(
+    config: { method: string; arguments?: any },
+    callback: (data: any, tags?: any) => void,
+    tags?: any,
+  ) {
     if (!this.isInitialized) {
       return false;
     }
@@ -97,38 +118,39 @@ var transmission = {
       tag: '',
     };
 
-    jQuery.extend(data, config);
+    $.extend(data, config);
 
-    var settings = {
+    const settings: JQueryAjaxSettings = {
       type: 'POST',
       url: this.fullpath,
       dataType: 'json',
       data: JSON.stringify(data),
-      success: function (resultData, textStatus) {
+      success: function (resultData: unknown, textStatus: unknown) {
         if (callback) {
           callback(resultData, tags);
         }
       },
       error: function (request, event, page) {
-        let SessionId = '';
+        let SessionId: string | null = '';
         if (
           request.status === 409 &&
           (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
         ) {
           transmission.SessionId = SessionId;
           transmission.headers['X-Transmission-Session-Id'] = SessionId;
-          jQuery.ajax(settings);
+          void $.ajax(settings);
         } else {
           if (transmission.on.postError) {
+            // @ts-expect-error
             transmission.on.postError(request);
           }
         }
       },
       headers: this.headers,
     };
-    jQuery.ajax(settings);
+    void $.ajax(settings);
   },
-  getStatus: function (callback) {
+  getStatus(callback: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-stats',
@@ -154,14 +176,14 @@ var transmission = {
       },
     );
   },
-  getSession: function (callback) {
+  getSession: function (callback?: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-get',
       },
       function (data) {
         if (data.result == 'success') {
-          if (callback) {
+          if (callback != null) {
             callback(data.arguments);
           }
         }
@@ -169,9 +191,14 @@ var transmission = {
     );
   },
   // 添加种子
-  addTorrentFromUrl: function (url, savepath, autostart, callback) {
+  addTorrentFromUrl: function (
+    url: string,
+    savepath: string,
+    autostart: boolean,
+    callback?: (data: unknown) => void,
+  ) {
     // 磁性连接（代码来自原版WEBUI）
-    if (url.match(/^[0-9a-f]{40}$/i)) {
+    if (url.match(/^[0-9a-f]{40}$/i) != null) {
       url = 'magnet:?xt=urn:btih:' + url;
     }
     const options = {
@@ -179,7 +206,7 @@ var transmission = {
       arguments: {
         filename: url,
         paused: !autostart,
-      },
+      } as Record<string, any>,
     };
 
     if (savepath) {
@@ -189,7 +216,7 @@ var transmission = {
       switch (data.result) {
         // 添加成功
         case 'success':
-          if (callback) {
+          if (callback != null) {
             if (data.arguments['torrent-added']) {
               callback(data.arguments['torrent-added']);
             }
@@ -206,7 +233,7 @@ var transmission = {
         // 重复的种子
         case 'duplicate torrent':
         default:
-          if (callback) {
+          if (callback != null) {
             callback(data.result);
           }
           break;
@@ -214,17 +241,23 @@ var transmission = {
     });
   },
   // 从文件内容增加种子
-  addTorrentFromFile: function (file, savePath, paused, callback, filecount) {
+  addTorrentFromFile: function (
+    file: Blob,
+    savePath: string,
+    paused: boolean,
+    callback: (data: any, fileCount?: number) => void,
+    filecount: number,
+  ) {
     const fileReader = new FileReader();
 
     fileReader.onload = function (e) {
-      const contents = e.target.result;
+      const contents = e.target!.result as string;
       const key = 'base64,';
       const index = contents.indexOf(key);
       if (index == -1) {
         return;
       }
-      const metainfo = contents.substring(index + key.length);
+      const metainfo = contents.slice(index + key.length);
 
       transmission.exec(
         {
@@ -268,11 +301,12 @@ var transmission = {
   _onTorrentCountChange: function () {
     this.torrents.loadSimpleInfo = false;
     if (this.on.torrentCountChange) {
+      // @ts-expect-error
       this.on.torrentCountChange();
     }
   },
   // 删除种子
-  removeTorrent: function (ids, removeData, callback) {
+  removeTorrent: function (ids: string[], removeData: boolean, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'torrent-remove',
@@ -282,12 +316,12 @@ var transmission = {
         },
       },
       function (data) {
-        if (callback) callback(data.result);
+        if (callback != null) callback(data.result);
       },
     );
   },
   // 獲取指定目錄的大小
-  getFreeSpace: function (path, callback) {
+  getFreeSpace: function (path: string, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'free-space',
@@ -296,18 +330,18 @@ var transmission = {
         },
       },
       function (result) {
-        if (callback) callback(result);
+        if (callback != null) callback(result);
       },
     );
   },
   // 更新黑名單
-  updateBlocklist: function (callback) {
+  updateBlocklist: function (callback?: (data: any) => void) {
     this.exec(
       {
         method: 'blocklist-update',
       },
       function (data) {
-        if (callback) callback(data.result);
+        if (callback != null) callback(data.result);
       },
     );
   },
@@ -315,7 +349,12 @@ var transmission = {
   // torrentId 		只能指定一个
   // oldpath 			原文件路径或目录，如：opencd/info.txt 或 opencd/cd1
   // newname			新的文件或目录名，如：into1.txt 或 disc1
-  renameTorrent: function (torrentId, oldpath, newname, callback) {
+  renameTorrent: function (
+    torrentId: string,
+    oldpath: string,
+    newname: string,
+    callback?: (data: unknown) => void,
+  ) {
     const torrent = this.torrents.all[torrentId];
     if (!torrent) return false;
 
@@ -329,22 +368,27 @@ var transmission = {
         },
       },
       function (data) {
-        if (callback) callback(data);
+        if (callback != null) callback(data);
       },
     );
   },
   // 关闭连接？
-  closeSession: function (callback) {
+  closeSession: function (callback?: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-close',
       },
       function (result) {
-        if (callback) callback(result);
+        if (callback != null) callback(result);
       },
     );
   },
 };
+
+export type Transmission = typeof transmission;
+
+// @ts-expect-error set global
+globalThis.transmission = transmission;
 
 /*
 (function($){

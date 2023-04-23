@@ -1,17 +1,8 @@
 import 'vite/client';
+import type { System } from './type';
+import type { Transmission } from './lib/transmission.ts';
 
 declare global {
-  const system: {
-    lang: any;
-    plugin: { exec(key: string): void };
-
-    control: any;
-    openDialogFromTemplate(config: {
-      id: string;
-      options: unknown;
-      datas?: unknown;
-      type?: number;
-      source?: unknown;
-    }): void;
-  };
+  const transmission: Transmission;
+  const system: System;
 }

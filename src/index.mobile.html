@@ -34,14 +34,8 @@
       type="text/javascript"
       src="tr-web-control/script/other/ua-parser.min.js?v=20170522"
     ></script>
-    <script
-      type="text/javascript"
-      src="tr-web-control/script/min/transmission.min.js?v=20180906"
-    ></script>
-    <script
-      type="text/javascript"
-      src="tr-web-control/script/min/transmission.torrents.min.js?v=20180906"
-    ></script>
+    <script type="module" src="./lib/transmission.ts"></script>
+    <script type="module" src="./lib/transmission.torrents.js"></script>
     <script
       type="text/javascript"
       src="tr-web-control/script/min/system.mobile.min.js?v=20180906"
@@ -398,6 +392,7 @@
       });
       $usedDownloadDir.val(system.downloadDir).selectmenu('refresh', true);
     }
+
     function addUrl() {
       var urls = $('#torrent-url').val();
       if (urls == '') {
