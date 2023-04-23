@@ -136,9 +136,11 @@
   "dialog": {
     "torrent-add": {
       "download-dir": "다운로드 폴더:",
+      "used-download-dir": "Used Download Dir:",
       "torrent-url": "토렌트 URL:",
       "tip-torrent-url": "Tip：여러개 입력시 줄로 구분하세요",
       "autostart": "자동 시작:",
+      "tip-autostart": "",
       "set-default-download-dir": "기본 폴더 지정",
       "upload-file": "토렌트 파일:",
       "nosource": "토렌트 파일이나 URL이 없음.",
@@ -219,7 +221,16 @@
         "color": "Color",
         "actions": "Actions",
         "import-confirm": "Do you want to import labels? This overrides the current configuration."
-      }
+      },
+      "import-config": "Import configuration from file",
+      "export-config": "Export current configuration",
+      "import-config-confirm": "Do you want to import these configurations? This overrides the current configuration.",
+      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
+      "ipinfo": "IPinfo.io access token:",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
       "button-ok": "확인",
@@ -256,6 +267,16 @@
       "move-data": "선택하면, 이전 위치에서 이동합니다. 그렇지 않으면, '새 디렉토리'를 검색합니다.",
       "set-error": "지정 오류!",
       "recheck-data": "데이터 재확인."
+    },
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
     },
     "system-replaceTracker": {
       "title": "트래커 변경",
@@ -294,6 +315,17 @@
       "title": "Set User Labels",
       "available": "Available:",
       "selected": "Selected:"
+    },
+    "export-config": {
+      "title": "Please select the details need to be exported",
+      "option-all": "All configuration",
+      "option-system": "Web Control configuration",
+      "option-dictionary": "Defined Folders Dictionary",
+      "option-server": "Transmission configuration (Download directory, cache, speed limit, etc.)"
+    },
+    "import-config": {
+      "title": "Please select the details need to be import",
+      "invalid-file": "Invalid profile"
     }
   },
   "torrent": {
@@ -317,7 +349,8 @@
       "queuePosition": "Queue",
       "activityDate": "Activity Date",
       "trackers": "Trackers",
-      "labels": "User Labels"
+      "labels": "User Labels",
+      "doneDate": "Completed Date"
     },
     "status-text": {
       "0": "정지",
@@ -352,10 +385,20 @@
         "lastAnnounceTime": "연결된 시각",
         "lastAnnounceTimedOut": "시간 초과",
         "downloadCount": "다운로드 수",
-        "nextAnnounceTime": "다음 연결 시각"
+        "nextAnnounceTime": "다음 연결 시각",
+        "leecherCount": "Leecher count",
+        "seederCount": "Seeder count",
+        "announceStateText": {
+          "0": "Inactive",
+          "1": "Waiting",
+          "2": "Queued",
+          "3": "Active"
+        }
       },
       "peers-fields": {
         "address": "IP 주소",
+        "port": "Port",
+        "isUTP": "UTP enabled",
         "clientName": "클라이언트",
         "flagStr": "플래그",
         "progress": "진행",
@@ -370,6 +413,11 @@
         "0": "보통",
         "1": "높음",
         "-1": "낮음"
+      },
+      "filter-template-text": {
+        "1": "All",
+        "2": "BitComet padding file",
+        "3": "Unnecessary files"
       },
       "label": {
         "name": "이름:",
@@ -402,6 +450,7 @@
         "button-allow": "다운로드 확인한 파일",
         "button-deny": "확인 생략한 파일",
         "button-priority": "우선도 지정",
+        "button-filter": "Search files by regular expression",
         "button-tracker-add": "Add New Tracker",
         "button-tracker-edit": "Edit Tracker",
         "button-tracker-remove": "Remove Tracker"
@@ -429,6 +478,7 @@
     "text-on": "ON",
     "text-off": "OFF",
     "text-how-to-update": "How to update?",
-    "text-ignore-this-version": "Ignore this version"
+    "text-ignore-this-version": "Ignore this version",
+    "text-json-file-parsing-failed": "JSON file parsing failed!"
   }
 }
