@@ -2,6 +2,7 @@ import 'vite/client';
 
 declare global {
   const system: {
+    lang: any;
     plugin: { exec(key: string): void };
 
     control: any;
