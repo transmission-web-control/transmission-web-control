@@ -20,6 +20,8 @@
  along with SwitchySharp.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* eslint-disable */
+
 var saveAs =
   saveAs ||
   (function (view) {
