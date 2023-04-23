@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import { Base64 } from 'js-base64';
 
 export const transmission = {
   torrents: null as any,
@@ -39,10 +40,10 @@ export const transmission = {
     getTarckers: true,
   },
   headers: {} as Record<string, string>,
-  trackers: {},
+  trackers: {} as Record<string, Tracker>,
   islocal: false,
   // The list of directories that currently exist
-  downloadDirs: [],
+  downloadDirs: [] as string[],
   // async getSessionId(me: Transmission) {
   //   console.log(this.headers);
   //   const res = await fetch(this.fullpath, {
@@ -90,7 +91,7 @@ export const transmission = {
     $.extend(this, config);
 
     if (this.username && this.password) {
-      this.headers.Authorization = 'Basic ' + btoa(this.username + ':' + this.password);
+      this.headers.Authorization = 'Basic ' + Base64.encode(this.username + ':' + this.password);
     }
 
     this.fullpath = this.rpcpath;
@@ -385,29 +386,582 @@ export const transmission = {
   },
 };
 
+/* eslint-disable */
+// Torrent related information
+transmission.torrents = {
+  activeTorrentCount: 0,
+  actively: null,
+  addTracker: function (item: any) {
+    const trackerStats = item.trackerStats;
+    const trackers = [];
+
+    item.leecherCount = 0;
+    item.seederCount = 0;
+
+    if (trackerStats.length > 0) {
+      const warnings = [];
+      for (const index in trackerStats) {
+        var trackerInfo = trackerStats[index];
+        const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
+        const hostName = trackerInfo.host.getHostName();
+        const trackerUrl = hostName.split('.');
+        if ($.inArray(trackerUrl[0], 'www,tracker,announce'.split(',')) != -1) {
+          trackerUrl.shift();
+        }
+
+        const name = trackerUrl.join('.');
+        const id = 'tracker-' + name.replace(/\./g, '-');
+        let tracker = transmission.trackers[id];
+        if (!tracker) {
+          tracker = {
+            count: 0,
+            torrents: [],
+            size: 0,
+            connected: true,
+            isBT: trackerStats.length > 5,
+          } as unknown as Tracker;
+          transmission.trackers[id] = tracker;
+        }
+
+        tracker.name = name;
+        tracker.nodeid = id;
+        tracker.host = trackerInfo.host;
+
+        // 判断当前tracker状态
+        if (
+          !trackerInfo.lastAnnounceSucceeded &&
+          trackerInfo.announceState != transmission._trackerStatus.inactive
+        ) {
+          warnings.push(trackerInfo.lastAnnounceResult);
+
+          if (lastResult == 'could not connect to tracker') {
+            tracker.connected = false;
+          }
+        }
+
+        if (!tracker.torrents.includes(item)) {
+          tracker.torrents.push(item);
+          tracker.count++;
+          tracker.size += item.totalSize;
+        }
+
+        item.leecherCount += trackerInfo.leecherCount;
+        item.seederCount += trackerInfo.seederCount;
+        if (trackers.indexOf(name) == -1) {
+          trackers.push(name);
+        }
+      }
+
+      if (trackerStats.length > 5) {
+        this.btItems.push(item);
+      }
+
+      if (warnings.length == trackerStats.length) {
+        if (warnings.join(';').replace(/;/g, '') == '') {
+          item.warning = '';
+        } else {
+          item.warning = warnings.join(';');
+        }
+        // 设置下次更新时间
+        if (!item.nextAnnounceTime) item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
+        else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
+          item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
+        }
+
+        this.warning.push(item);
+      }
+
+      if (item.leecherCount < 0) item.leecherCount = 0;
+      if (item.seederCount < 0) item.seederCount = 0;
+
+      item.leecher = item.leecherCount + ' (' + item.peersGettingFromUs + ')';
+      item.seeder = item.seederCount + ' (' + item.peersSendingToUs + ')';
+      item.trackers = trackers.join(';');
+    }
+  },
+  all: null as Record<string, Torrent> | null,
+  btItems: [],
+  count: 0,
+  datas: {} as Record<string, Torrent>,
+  downloading: null,
+  error: null,
+  fields: {
+    base:
+      'id,name,status,hashString,totalSize,percentDone,addedDate,trackerStats,leftUntilDone,rateDownload,rateUpload,recheckProgress' +
+      ',rateDownload,rateUpload,peersGettingFromUs,peersSendingToUs,uploadRatio,uploadedEver,downloadedEver,downloadDir,error,errorString,doneDate,queuePosition,activityDate',
+    status:
+      'id,name,status,totalSize,percentDone,trackerStats,leftUntilDone,rateDownload,rateUpload,recheckProgress' +
+      ',rateDownload,rateUpload,peersGettingFromUs,peersSendingToUs,uploadRatio,uploadedEver,downloadedEver,error,errorString,doneDate,queuePosition,activityDate',
+    config:
+      'id,name,downloadLimit,downloadLimited,peer-limit,seedIdleLimit,seedIdleMode,seedRatioLimit,seedRatioMode,uploadLimit,uploadLimited',
+  },
+  folders: {},
+  getConfig: function (id: string, callback: any) {
+    this.getMoreInfos(this.fields.config, id, callback);
+  },
+  getErrorIds: function (ignore: any, needUpdateOnly: any) {
+    const result = [];
+    let now: any = new Date();
+    if (needUpdateOnly == true) {
+      now = now.getTime() / 1000;
+    }
+    for (var index in this.error) {
+      var item = this.error[index];
+      if ($.inArray(item.id, ignore) != -1 && ignore.length > 0) {
+        continue;
+      }
+      if (needUpdateOnly == true) {
+        // 当前时间没有超过“下次更新时间”时，不需要更新
+        if (now < item.nextAnnounceTime) {
+          continue;
+        }
+      }
+
+      // 已停止的種子不計算在內
+      if (item.status == transmission._status.stopped) {
+        continue;
+      }
+
+      result.push(item.id);
+    }
+
+    for (var index in this.warning) {
+      var item = this.warning[index];
+      if ($.inArray(item.id, ignore) != -1 && ignore.length > 0) {
+        continue;
+      }
+
+      if (needUpdateOnly == true) {
+        // 当前时间没有超过“下次更新时间”时，不需要更新
+        if (now < item.nextAnnounceTime) {
+          continue;
+        }
+      }
+      result.push(item.id);
+    }
+
+    return result;
+  },
+  getFiles: function (id: any, callback: any) {
+    transmission.exec(
+      {
+        method: 'torrent-get',
+        arguments: {
+          fields: 'files,fileStats'.split(','),
+          ids: id,
+        },
+      },
+      function (data) {
+        if (data.result == 'success') {
+          if (callback) callback(data.arguments.torrents);
+        } else if (callback) callback(null);
+      },
+    );
+  },
+  getMagnetLink: function (ids: string[], callback: any) {
+    let result = '';
+    // is single number
+    if (!Array.isArray(ids)) ids = [ids];
+    if (ids.length == 0) {
+      if (callback) callback(result);
+      return;
+    }
+    // 跳过己获取的
+    const req_list = [];
+    for (const id of ids) {
+      if (!this.all[id]) continue;
+      if (!this.all[id].magnetLink) req_list.push(id);
+      else result += this.all[id].magnetLink + '\n';
+    }
+
+    if (req_list.length == 0) {
+      if (callback) callback(result.trim());
+      return;
+    }
+
+    transmission.exec(
+      {
+        method: 'torrent-get',
+        arguments: {
+          fields: ['id', 'magnetLink'],
+          ids: req_list,
+        },
+      },
+      function (data) {
+        if (data.result == 'success') {
+          for (let item of data.arguments.torrents) {
+            transmission.torrents.all[item.id].magnetLink = item.magnetLink;
+            result += item.magnetLink + '\n';
+          }
+          if (callback) callback(result.trim());
+        }
+      },
+    );
+  },
+  // List of all the torrents that have been acquired
+  getMoreInfos: function (fields: any, ids: any, callback: any) {
+    transmission.exec(
+      {
+        method: 'torrent-get',
+        arguments: {
+          fields: fields.split(','),
+          ids,
+        },
+      },
+      function (data) {
+        if (data.result == 'success') {
+          if (callback) callback(data.arguments.torrents);
+        } else if (callback) callback(null);
+      },
+    );
+  },
+  // The list of recently acquired torrents
+  getPeers: function (ids: string[]) {
+    transmission.exec(
+      {
+        method: 'torrent-get',
+        arguments: {
+          fields: 'peers,peersFrom'.split(','),
+          ids,
+        },
+      },
+      function (data) {
+        console.log('data:', data);
+      },
+    );
+  },
+  // The recently removed seed
+  getallids: function (
+    callback: null | ((data: Torrent[] | null) => void),
+    ids: string[] | undefined,
+    moreFields: string[],
+  ) {
+    let tmp = this.fields.base;
+    if (this.loadSimpleInfo && this.all) tmp = this.fields.status;
+
+    let fields = tmp.split(',');
+    if (Array.isArray(moreFields)) {
+      fields = Array.from(new Set([...fields, ...moreFields]));
+    }
+    const args: Record<string, any> = {
+      fields,
+    };
+
+    this.isRecentlyActive = false;
+    // If it has been acquired
+    if (this.all && ids == undefined) {
+      args.ids = 'recently-active';
+      this.isRecentlyActive = true;
+    } else if (ids) {
+      args.ids = ids;
+    }
+    if (!this.all) {
+      this.all = {};
+    }
+    transmission.exec(
+      {
+        method: 'torrent-get',
+        arguments: args,
+      },
+      function (data) {
+        if (data.result == 'success') {
+          transmission.torrents.newIds.length = 0;
+          transmission.torrents.loadSimpleInfo = true;
+          transmission.torrents.recently = data.arguments.torrents;
+          transmission.torrents.removed = data.arguments.removed;
+          transmission.torrents.splitid();
+          if (callback) {
+            callback(data.arguments.torrents);
+          }
+        } else {
+          transmission.torrents.datas = null;
+          if (callback) {
+            callback(null);
+          }
+        }
+      },
+    );
+  },
+  // Whether the torrents are being changed
+  isRecentlyActive: false,
+  // New torrents
+  loadSimpleInfo: false,
+  newIds: [],
+  pausedTorrentCount: 0,
+  // The IDs are sorted according to the torrent status
+  puased: null,
+  recently: null,
+  // 获取下载者和做种者数量测试
+
+  removed: null,
+  // 获取更多信息
+
+  search: function (key: any, source: any) {
+    if (!key) {
+      return null;
+    }
+
+    if (!source) {
+      source = this.all;
+    }
+
+    const arrReturn: any = [];
+    $.each(source, function (item, i) {
+      if (source[item].name.toLowerCase().indexOf(key.toLowerCase()) != -1) {
+        arrReturn.push(source[item]);
+      }
+    });
+
+    this.searchResult = arrReturn;
+
+    return arrReturn;
+  },
+  // 从当前已获取的种子列表中搜索指定关键的种子
+
+  searchAndReplaceTrackers: function (oldTracker: any, newTracker: any, callback: any) {
+    if (!oldTracker || !newTracker) {
+      return;
+    }
+    const result: any = {};
+    let count = 0;
+    for (var index in this.all) {
+      const item = this.all[index];
+      if (!item) {
+        return;
+      }
+      const trackerStats = item.trackerStats;
+      for (const n in trackerStats) {
+        const tracker = trackerStats[n];
+        if (tracker.announce == oldTracker) {
+          if (!result[n]) {
+            result[n] = {
+              ids: [],
+              tracker: newTracker,
+            };
+          }
+          result[n].ids.push(item.id);
+          count++;
+        }
+      }
+    }
+
+    if (count == 0) {
+      if (callback) {
+        callback(null, 0);
+      }
+    }
+    for (var index in result) {
+      transmission.exec(
+        {
+          method: 'torrent-set',
+          arguments: {
+            ids: result[index].ids,
+            trackerReplace: [parseInt(index), result[index].tracker],
+          },
+        },
+        function (data, tags) {
+          if (data.result == 'success') {
+            if (callback) {
+              callback(tags, count);
+            }
+          } else {
+            if (callback) {
+              callback(null);
+            }
+          }
+        },
+        result[index].ids,
+      );
+    }
+  },
+  // 获取指定种子的文件列表
+
+  searchResult: null,
+  // 获取指定种子的设置信息
+
+  splitid: function () {
+    // Downloading
+    this.downloading = [];
+    // Paused
+    this.puased = [];
+    // Active lately
+    this.actively = [];
+    // With Errors
+    this.error = [];
+    // With Warnings
+    this.warning = [];
+    this.btItems = [];
+    // All download directories used by current torrents
+    if (transmission.downloadDirs == undefined) {
+      transmission.downloadDirs = [];
+    }
+
+    const _Status = transmission._status;
+    this.status = {};
+    transmission.trackers = {};
+    this.totalSize = 0;
+    this.folders = {};
+    this.count = 0;
+
+    // Merge two numbers
+    for (var index in this.recently) {
+      var item = this.recently[index];
+      this.datas[item.id] = item;
+    }
+
+    const removed = [];
+
+    // Remove the torrents that have been removed
+    for (var index in this.removed) {
+      var item = this.removed[index];
+      removed.push(item);
+    }
+
+    // Torrents are classified
+    for (var index in this.datas) {
+      var item = this.datas[index];
+      if (!item) {
+        return;
+      }
+      if ($.inArray(item.id, removed) != -1 && removed.length > 0) {
+        if (this.all[item.id]) {
+          this.all[item.id] = null;
+          delete this.all[item.id];
+        }
+        this.datas[index] = null;
+        delete this.datas[index];
+
+        continue;
+      }
+      // If the current torrent is being acquired and there is no such torrent in the previous torrent list, that is, the new torrent needs to be reloaded with the basic information
+      if (this.isRecentlyActive && !this.all[item.id]) {
+        this.newIds.push(item.id);
+      }
+      item = $.extend(this.all[item.id], item);
+      // 没有活动数据时，将分享率标记为 -1
+      if (item.uploadedEver == 0 && item.downloadedEver == 0) {
+        item.uploadRatio = -1;
+      }
+      // 转为数值
+      item.uploadRatio = parseFloat(item.uploadRatio);
+      item.infoIsLoading = false;
+      let type = this.status[item.status];
+      this.addTracker(item);
+      if (!type) {
+        this.status[item.status] = [];
+        type = this.status[item.status];
+      }
+
+      // Total size
+      this.totalSize += item.totalSize;
+
+      // Time left
+      if (item.rateDownload > 0 && item.leftUntilDone > 0) {
+        item.remainingTime = Math.floor((item.leftUntilDone / item.rateDownload) * 1000);
+      } else if (item.rateDownload == 0 && item.leftUntilDone == 0 && item.totalSize != 0) {
+        item.remainingTime = 0;
+      } else {
+        // ~100 years
+        item.remainingTime = 3153600000000;
+      }
+
+      type.push(item);
+      // The seed for which the error occurred
+      if (item.error != 0) {
+        this.error.push(item);
+      }
+
+      // There is currently a number of seeds
+      if (item.rateUpload > 0 || item.rateDownload > 0) {
+        this.actively.push(item);
+      }
+
+      switch (item.status) {
+        case _Status.stopped:
+          this.puased.push(item);
+          break;
+
+        case _Status.download:
+          this.downloading.push(item);
+          break;
+      }
+
+      this.all[item.id] = item;
+
+      // Set the directory
+      if (!transmission.downloadDirs.includes(item.downloadDir)) {
+        transmission.downloadDirs.push(item.downloadDir);
+      }
+
+      if (transmission.options.getFolders) {
+        if (item.downloadDir) {
+          // 统一使用 / 来分隔目录
+          const folder = item.downloadDir.replace(/\\/g, '/').split('/');
+          let folderkey = 'folders-';
+          for (const i in folder) {
+            const text = folder[i];
+            if (text == '') {
+              continue;
+            }
+            const key = Base64.encode(text);
+            // 去除特殊字符
+            folderkey += key.replace(/[+|\/|=]/g, '0');
+            let node = this.folders[folderkey];
+            if (!node) {
+              node = {
+                count: 0,
+                torrents: [],
+                size: 0,
+                nodeid: folderkey,
+              };
+            }
+            node.torrents.push(item);
+            node.count++;
+            node.size += item.totalSize;
+            this.folders[folderkey] = node;
+          }
+        }
+      }
+
+      this.count++;
+    }
+    transmission.downloadDirs = transmission.downloadDirs.sort();
+
+    // If there a need to acquire new seeds
+    if (this.newIds.length > 0) {
+      this.getallids(null, this.newIds);
+    }
+  },
+  // 获取错误/警告的ID列表
+
+  status: {},
+  // 查找并替換 Tracker
+
+  totalSize: 0,
+
+  // 获取磁力链接
+  warning: null,
+};
+
+/* eslint-enable */
+
+export interface Tracker {
+  host: string;
+  nodeid: string;
+  name: string;
+  count: number;
+  torrents: Torrent[];
+  size: number;
+  connected: boolean;
+  isBT: boolean;
+}
+
+export interface Torrent {
+  downloadDir: string;
+  magnetLink: string;
+}
+
 export type Transmission = typeof transmission;
 
 // @ts-expect-error set global
 globalThis.transmission = transmission;
-
-/*
-(function($){
-	var items = $("script");
-	var index = -1;
-	for (var i=0;i<items.length ;i++ )
-	{
-		var src = items[i].src.toLowerCase();
-		index = src.indexOf("min/transmission.js");
-		if (index!=-1)
-		{
-			// 种子相关信息
-			$.getScript("script/min/transmission.torrents.js");
-			break;
-		}
-	}
-	if (index==-1)
-	{
-		$.getScript("script/transmission.torrents.js");
-	}
-})(jQuery);
-*/
