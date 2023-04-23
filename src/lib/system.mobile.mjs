@@ -1,6 +1,8 @@
 import { transmission } from './transmission';
 import { getQueryString } from './utils';
 
+import { APP_VERSION } from './version';
+
 /*
 	移动版
 */

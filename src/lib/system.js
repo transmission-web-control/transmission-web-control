@@ -2,6 +2,8 @@ import { UAParser } from 'ua-parser-js';
 
 import { transmission } from './transmission';
 import { getQueryString } from './utils';
+import { APP_VERSION } from './version';
+import { Base64 } from 'js-base64';
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
@@ -72,7 +74,6 @@ const system = {
   autoReloadTimer: null,
   downloadDir: '',
   islocal: false,
-  B64: new Base64(),
   // The currently selected torrent number
   currentTorrentId: 0,
   flags: [],
@@ -3476,7 +3477,7 @@ const system = {
       }
       // key += "--" + text.replace(/\./g,"。") + "--";
       path += name;
-      const _key = this.B64.encode(name);
+      const _key = Base64.encode(name);
       key += _key.replace(/[+|\/|=]/g, '0');
       let node = this.panel.left.tree('find', key);
       const folderinfos = transmission.torrents.folders[key];
@@ -3798,7 +3799,7 @@ const system = {
    */
   getValidTreeKey: function (text) {
     if (!text) return '';
-    const _key = this.B64.encode(text);
+    const _key = Base64.encode(text);
     return _key.replace(/[+|\/|=]/g, '0');
   },
 

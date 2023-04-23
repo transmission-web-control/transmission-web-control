@@ -5,7 +5,6 @@ import { type System } from './type';
 import type Semver from 'semver';
 
 declare global {
-  var APP_VERSION: string;
   var transmission: Transmission;
   var system: System;
   var semver: typeof Semver;
