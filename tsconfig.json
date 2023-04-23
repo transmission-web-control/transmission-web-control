@@ -6,6 +6,8 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "strictNullChecks": true,
+    "noEmit": true,
+    "pretty": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitAny": true
   }
