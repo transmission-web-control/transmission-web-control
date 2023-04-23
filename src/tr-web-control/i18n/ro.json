@@ -136,9 +136,11 @@
   "dialog": {
     "torrent-add": {
       "download-dir": "Directorul de descărcare:",
+      "used-download-dir": "Used Download Dir:",
       "torrent-url": "Torrent URL:",
       "tip-torrent-url": "Sfat: Separate cu 'Enter'",
       "autostart": "Auto Start:",
+      "tip-autostart": "",
       "set-default-download-dir": "Configurează ca director implicit",
       "upload-file": "Fişiere Torrent :",
       "nosource": "Niciun fişier torrent sau URL.",
@@ -219,7 +221,16 @@
         "color": "Color",
         "actions": "Actions",
         "import-confirm": "Do you want to import labels? This overrides the current configuration."
-      }
+      },
+      "import-config": "Import configuration from file",
+      "export-config": "Export current configuration",
+      "import-config-confirm": "Do you want to import these configurations? This overrides the current configuration.",
+      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
+      "ipinfo": "IPinfo.io access token:",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
       "button-ok": "OK",
@@ -256,6 +267,16 @@
       "move-data": "Dacă bifat se va muta din locația anterioară sau setează director nou pentru fișiere.",
       "set-error": "eroare !",
       "recheck-data": "Recheck data."
+    },
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
     },
     "system-replaceTracker": {
       "title": "Înlocuiește trackerul",
@@ -294,6 +315,17 @@
       "title": "Set User Labels",
       "available": "Available:",
       "selected": "Selected:"
+    },
+    "export-config": {
+      "title": "Please select the details need to be exported",
+      "option-all": "All configuration",
+      "option-system": "Web Control configuration",
+      "option-dictionary": "Defined Folders Dictionary",
+      "option-server": "Transmission configuration (Download directory, cache, speed limit, etc.)"
+    },
+    "import-config": {
+      "title": "Please select the details need to be import",
+      "invalid-file": "Invalid profile"
     }
   },
   "torrent": {
@@ -317,7 +349,8 @@
       "queuePosition": "Queue",
       "activityDate": "Activity Date",
       "trackers": "Trackers",
-      "labels": "User Labels"
+      "labels": "User Labels",
+      "doneDate": "Completed Date"
     },
     "status-text": {
       "0": "Pauză",
@@ -352,10 +385,20 @@
         "lastAnnounceTime": "Timp pentru verificare tracker",
         "lastAnnounceTimedOut": "Erori la conectare tracker ?",
         "downloadCount": "Număr descărcări",
-        "nextAnnounceTime": "Următoarea verificare tracker"
+        "nextAnnounceTime": "Următoarea verificare tracker",
+        "leecherCount": "Leecher count",
+        "seederCount": "Seeder count",
+        "announceStateText": {
+          "0": "Inactive",
+          "1": "Waiting",
+          "2": "Queued",
+          "3": "Active"
+        }
       },
       "peers-fields": {
         "address": "Adresa IP",
+        "port": "Port",
+        "isUTP": "UTP enabled",
         "clientName": "Client",
         "flagStr": "Flag",
         "progress": "Progres",
@@ -370,6 +413,11 @@
         "0": "Normală",
         "1": "Mare",
         "-1": "Mică"
+      },
+      "filter-template-text": {
+        "1": "All",
+        "2": "BitComet padding file",
+        "3": "Unnecessary files"
       },
       "label": {
         "name": "Nume:",
@@ -402,6 +450,7 @@
         "button-allow": "Descărcarea fișierelor bifate",
         "button-deny": "Nu descărca fișierele :",
         "button-priority": "Prioritate",
+        "button-filter": "Search files by regular expression",
         "button-tracker-add": "Add New Tracker",
         "button-tracker-edit": "Edit Tracker",
         "button-tracker-remove": "Remove Tracker"
@@ -429,6 +478,7 @@
     "text-on": "ON",
     "text-off": "OFF",
     "text-how-to-update": "How to update?",
-    "text-ignore-this-version": "Ignore this version"
+    "text-ignore-this-version": "Ignore this version",
+    "text-json-file-parsing-failed": "JSON file parsing failed!"
   }
 }
