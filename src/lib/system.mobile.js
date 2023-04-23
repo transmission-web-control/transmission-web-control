@@ -2,9 +2,9 @@
 	移动版
 */
 var system = {
-  version: '1.6.0 beta',
+  // version: VERSION,
   rootPath: 'tr-web-control/',
-  codeupdate: '20180906',
+  // codeupdate: VERSION,
   configHead: 'transmission-web-control',
   config: {
     autoReload: true,
@@ -90,7 +90,7 @@ var system = {
     }
   },
   initdata: function () {
-    $(document).attr('title', this.lang.system.title + ' ' + this.version);
+    $(document).attr('title', this.lang.system.title + ' ' + APP_VERSION);
     // this.control.torrentlist = $("#content-torrent-list ul");
     this.control.torrentlist = $('#torrent-list');
     this.connect();

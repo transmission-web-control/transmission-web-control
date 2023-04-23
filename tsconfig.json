@@ -9,6 +9,9 @@
     "noEmit": true,
     "pretty": true,
     "noUncheckedIndexedAccess": true,
+    "lib": ["DOM"],
     "noImplicitAny": true
-  }
+  },
+  "files": ["./src/vite-env.d.ts"],
+  "include": ["./src/**/*"]
 }

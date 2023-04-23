@@ -105,9 +105,7 @@
           ', RPC: ' +
           system.serverConfig['rpc-version'],
       );
-    thisDialog
-      .find('#dialog-about-version')
-      .html('Web Control: ' + system.version + ' (' + system.codeupdate + ')');
+    thisDialog.find('#dialog-about-version').html('Web Control: ' + APP_VERSION);
 
     thisDialog.find('#dialog-about-button-close').click(function () {
       thisDialog.dialog('close');
