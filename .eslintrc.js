@@ -3,6 +3,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+  plugins: ['unicorn'],
   extends: ['standard-with-typescript', 'prettier'],
   overrides: [],
   parserOptions: {
@@ -10,6 +11,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    'unicorn/prefer-string-slice': 'error',
     '@typescript-eslint/ban-ts-comment': 1,
     '@typescript-eslint/no-non-null-assertion': 1,
     '@typescript-eslint/consistent-type-assertions': 0,
