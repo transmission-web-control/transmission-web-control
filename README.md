@@ -1,18 +1,48 @@
-<p align="center">
-<img src="https://github.com/ronggang/transmission-web-control/raw/master/src/tr-web-control/logo.png"><br/>
-<a href="https://github.com/ronggang/transmission-web-control/releases" title="GitHub Releases"><img src="https://img.shields.io/github/release/ronggang/transmission-web-control.svg"></a>
-<img src="https://img.shields.io/badge/transmission-%3E=2.40%20(RPC%20%3E14)-green.svg" title="Support Transmission Version">
-<a href="https://github.com/ronggang/transmission-web-control/LICENSE" title="GitHub license"><img src="https://img.shields.io/github/license/ronggang/transmission-web-control.svg"></a>
-<a href="https://t.me/transmission_web_control"><img src="https://img.shields.io/badge/Telegram-Chat-blue.svg?logo=telegram" alt="Telegram"/></a>
-</p>
+# Transmission Web Control
+![](https://img.shields.io/github/license/ronggang/transmission-web-control.svg)
+![[GitHub Releases](https://github.com/transmission-web-control/transmission-web-control/releases)](https://img.shields.io/github/release/transmission-web-control/transmission-web-control.svg)
+![Support Transmission Version](https://img.shields.io/badge/transmission-%3E=2.40%20(RPC%20%3E14)-green.svg)
 
 ---
 
-## [English Introduction](https://github.com/ronggang/transmission-web-control/wiki)
+# English
 
+## Introduction
+
+Transmission Web Control is a custom web UI. The project was originally written by [ronggang](https://github.com/ronggang/transmission-web-control).
+Welcome to give me any feedback or submit a Pull Request.
+
+## Support Transmission Version
+
+Transmission 2.40 and above (RPC version: 14 and above)
+
+## Browsers support
+
+A browser which supports HTML5. (Chrome 15.0.874，Firefox 8.0.1，IE 9.0.8112，Opera 11.52 etc.)
+
+## Features
+
+- Add torrent files or URLs
+- Drag-and-drop to add torrent files
+- Modify Transmission settings online (Download folder, Speed limit, Port, etc.)
+- Pause / resume / recheck selected or all torrents
+- View the current torrents status (Files, Peers, Trackers etc.)
+- View Statistics (Cumulative/Current)
+- Pagination
+- Set files priority
+- Change the torrent download directory
+- Trackers list
+- Multi-language support.
+
+## Special feature
+
+- Support data folder display in the navigation bar.
+- Support "user label" feature, you can use it to classify torrent.
+
+<!--
 ## 国内镜像源
-
 - https://gitee.com/culturist/transmission-web-control
+-->
 
 ## 关于
 

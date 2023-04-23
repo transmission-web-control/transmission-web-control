@@ -10,7 +10,7 @@ ORG_INDEX_FILE="index.original.html"
 INDEX_FILE="index.html"
 TMP_FOLDER="/tmp/tr-web-control"
 PACK_NAME="master.tar.gz"
-WEB_HOST="https://github.com/ronggang/transmission-web-control/archive/"
+WEB_HOST="https://github.com/transmission-web-control/transmission-web-control/archive/"
 DOWNLOAD_URL="$WEB_HOST$PACK_NAME"
 # 安装类型
 # 1 安装至当前 Transmission Web 所在目录
@@ -48,7 +48,7 @@ MSG_BEGIN="BEGIN"
 MSG_END="END"
 MSG_MAIN_MENU="
 	Welcome to the Transmission Web Control Installation Script.
-	Official help documentation: https://github.com/ronggang/transmission-web-control/wiki 
+	Official help documentation: https://github.com/ronggang/transmission-web-control/wiki
 	Installation script version: $SCRIPT_VERSION
 
 	1. Install the latest release.
@@ -95,13 +95,13 @@ initValues() {
 	if [ ! -d "$TMP_FOLDER" ]; then
 		mkdir -p "$TMP_FOLDER"
 	fi
-    
+
     # 判断是否指定了ROOT_FOLDER
     if [ "$ROOT_FOLDER" == "" ]; then
         # 获取 Transmission 目录
         getTransmissionPath
     fi
-    
+
 	# 判断 ROOT_FOLDER 是否为一个有效的目录，如果是则表明传递了一个有效路径
 	if [ -d "$ROOT_FOLDER" ]; then
 		showLog "$MSG_TR_WORK_FOLDER $ROOT_FOLDER/web"
@@ -123,9 +123,9 @@ initValues() {
 			PACK_NAME="v$VERSION.tar.gz"
 		fi
 		showLog "$MSG_SPECIFIED_VERSION $VERSION"
-		
+
 		DOWNLOAD_URL="https://github.com/ronggang/transmission-web-control/archive/$PACK_NAME"
-	fi	
+	fi
 
 	if [ $SKIP_SEARCH = 0 ]; then
 		# 查找目录
@@ -148,7 +148,7 @@ main() {
 findWebFolder() {
 	# 找出web ui 目录
 	showLog "$MSG_SEARCHING_TR_FOLDER"
-		
+
 	# 判断 TRANSMISSION_WEB_HOME 环境变量是否被定义，如果是，直接用这个变量的值
 	if [ $TRANSMISSION_WEB_HOME ]; then
 		showLog "$MSG_USE_WEB_HOME"
@@ -198,10 +198,10 @@ install() {
 		download
 		# 创建web文件夹，从 20171014 之后，打包文件不包含web目录，直接打包为src下所有文件
 		mkdir web
-		
+
 		# 解压缩包
 		unpack "web"
-		
+
 		showLog "$MSG_PACK_COPYING"
 		# 复制文件到
 		cp -r web "$ROOT_FOLDER"
@@ -257,7 +257,7 @@ download() {
 	if [ $? -eq 0 ]; then
 		showLog "$MSG_DOWNLOAD_COMPLETE"
 		return 0
-	else 
+	else
 		showLog "$MSG_DOWNLOAD_FAILED"
 		end
 		exit 1
@@ -279,7 +279,7 @@ showLog() {
 		*)
 			echo "<< $TIME >> $1" ;;
 	esac
-	
+
 }
 
 # 解压安装包
@@ -356,7 +356,7 @@ showMainMenu() {
 			read VERSION
 			main
 			;;
-		
+
 		3)
 			revertOriginalUI
 			;;
@@ -381,7 +381,7 @@ showMainMenu() {
 			sleep 2
 			showMainMenu
 			;;
-		
+
 		# 下载最新的代码
 		9)
 			echo -n "$MSG_MASTER_INSTALL_CONFIRM"
@@ -440,9 +440,9 @@ getTransmissionPath() {
 # 获取最后的发布版本号
 # 因在源码库里提交二进制文件不便于管理，以后将使用这种方式获取最新发布的版本
 getLatestReleases() {
-	# VERSION=`wget -O - https://api.github.com/repos/ronggang/transmission-web-control/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4`
+	# VERSION=`wget -O - https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4`
 	# 换为curl，避免OpenWRT下wget得到的内容没有分行，导致grep输出结果失效
-	VERSION=`curl -s https://api.github.com/repos/ronggang/transmission-web-control/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4`
+	VERSION=`curl -s https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4`
 }
 
 # 检测 Transmission 进程是否存在
@@ -499,7 +499,7 @@ downloadInstallScript() {
 	# 判断是否下载成功
 	if [ $? -eq 0 ]; then
 		showLog "$MSG_INSTALL_SCRIPT_DOWNLOAD_COMPLETE"
-	else 
+	else
 		showLog "$MSG_INSTALL_SCRIPT_DOWNLOAD_FAILED"
 		sleep 2
 		showMainMenu
@@ -510,7 +510,7 @@ if [ "$USER" != 'root' ]; then
 	showLog "$MSG_NON_ROOT_USER" "n"
 	read input
 	if [ "$input" = "n" -o "$input" = "N" ]; then
-		exit -1
+		exit 1
 	fi
 fi
 
