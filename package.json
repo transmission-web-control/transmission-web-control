@@ -1,0 +1,29 @@
+{
+  "name": "transmission-web-control",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier --list-different -w .",
+    "lint-staged": "lint-staged"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.1",
+    "prettier": "^2.8.8"
+  },
+  "lint-staged": {
+    "*.{js,html,css,ts,md,json,yml,yaml}": [
+      "prettier --ignore-path ./.prettierignore --write "
+    ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "all"
+  }
+}
