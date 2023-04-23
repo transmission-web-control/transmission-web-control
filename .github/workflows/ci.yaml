@@ -3,12 +3,12 @@ name: CI
 on:
   pull_request:
     branches:
-      - "**"
+      - '**'
 
   push:
     branches:
-      - "**"
-      - "!renovate/**"
+      - '**'
+      - '!renovate/**'
 
 jobs:
   lint:
@@ -20,8 +20,8 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
-          cache: "npm"
+          node-version: '18'
+          cache: 'npm'
 
       - run: npm ci
 
