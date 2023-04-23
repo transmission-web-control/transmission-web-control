@@ -23,3 +23,5 @@ jobs:
       - run: tar -czvf dist.tar.gz ./dist/
 
       - run: gh release create "${GITHUB_REF##*/}" dist.zip dist.tar.gz --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
