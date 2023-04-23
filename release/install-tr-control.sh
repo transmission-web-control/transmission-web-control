@@ -42,13 +42,13 @@ MSG_DOWNLOAD_FAILED="The installation package failed to download. Please try aga
 MSG_INSTALL_COMPLETE="Transmission Web Control Installation Completed!"
 MSG_PACK_EXTRACTING="Extracting installation package..."
 MSG_PACK_CLEANING_UP="Cleaning up the installation package..."
-MSG_DONE="Installation completed. Installation problems see：https://github.com/ronggang/transmission-web-control/wiki "
+MSG_DONE="Installation completed. Installation problems see：https://github.com/transmission-web-control/transmission-web-control/wiki "
 MSG_SETTING_PERMISSIONS="Setting permissions, It takes about one minute ..."
 MSG_BEGIN="BEGIN"
 MSG_END="END"
 MSG_MAIN_MENU="
 	Welcome to the Transmission Web Control Installation Script.
-	Official help documentation: https://github.com/ronggang/transmission-web-control/wiki
+	Official help documentation: https://github.com/transmission-web-control/transmission-web-control/wiki
 	Installation script version: $SCRIPT_VERSION
 
 	1. Install the latest release.
