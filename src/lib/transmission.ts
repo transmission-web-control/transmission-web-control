@@ -1005,5 +1005,4 @@ export interface Torrent {
 
 export type Transmission = typeof transmission;
 
-// @ts-expect-error set global
 globalThis.transmission = transmission;

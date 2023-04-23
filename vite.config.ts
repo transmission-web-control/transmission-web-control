@@ -2,6 +2,8 @@ import { fileURLToPath } from 'node:url';
 
 import { defineConfig } from 'vite';
 
+import { version } from './package.json';
+
 const TRANSMISSION_RPC = process.env.TRANSMISSION_RPC || 'http://192.168.1.3:9091/transmission/rpc';
 
 export default defineConfig(({ mode }) => {
@@ -28,6 +30,9 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [],
     css: {},
-    define: {},
+    define: {
+      'import.meta.env.__APP_VERSION__': JSON.stringify(version),
+      'window.env.__APP_VERSION__': JSON.stringify(version),
+    },
   };
 });

@@ -1,8 +1,6 @@
 // Current system global object
 var system = {
-  version: '1.6.1',
   rootPath: 'tr-web-control/',
-  codeupdate: '20230423',
   configHead: 'transmission-web-control',
   // default config, can be customized in config.js
   config: {
@@ -967,6 +965,7 @@ var system = {
         }
       }
     }
+
     /*
 		this.panel.list.bind('contextmenu',function(e){
 			 e.preventDefault();
@@ -1197,8 +1196,8 @@ var system = {
   },
   /**
    * 选中或反选种子时，改变菜单的可操作状态
-   * @param rowIndex 	当前行索引，当全选/反选时为 'all'
-   * @param rowData		当前行数据，当全选/反选时为 true 或 false，全选为false, 全反选为 true
+   * @param rowIndex  当前行索引，当全选/反选时为 'all'
+   * @param rowData    当前行数据，当全选/反选时为 true 或 false，全选为false, 全反选为 true
    * @return void
    */
   checkTorrentRow: function (rowIndex, rowData) {
@@ -1767,16 +1766,7 @@ var system = {
       system.serverConfig = result;
       // Version Information
       $('#status_version').html(
-        'Transmission ' +
-          system.lang.statusbar.version +
-          result.version +
-          ', RPC: ' +
-          result['rpc-version'] +
-          ', WEB Control: ' +
-          system.version +
-          '(' +
-          system.codeupdate +
-          ')',
+        `Transmission ${system.lang.statusbar.version}${result.version}, RPC: ${result['rpc-version']}, WEB Control: ${APP_VERSION}`,
       );
       if (result['alt-speed-enabled'] == true) {
         system.panel.toolbar.find('#toolbar_alt_speed').linkbutton({
@@ -3582,7 +3572,7 @@ var system = {
           if ($.inArray(version, system.config.ignoreVersion) != -1) {
             return;
           }
-          if (system.codeupdate < update) {
+          if (semver.lt(APP_VERSION, result.tag_name)) {
             $('#area-update-infos').show();
             $('#msg-updateInfos').html(update + ' -> ' + result.name);
             const content = $('<div/>');
@@ -3651,7 +3641,7 @@ var system = {
    * Opens the specified template window
    * 打开指定的模板
    * @param config 指定参数
-   * 	type: 0 窗口，1 tooltip；默认为 0
+   *  type: 0 窗口，1 tooltip；默认为 0
    */
   openDialogFromTemplate: function (config) {
     const defaultConfig = {
