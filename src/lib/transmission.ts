@@ -386,25 +386,22 @@ export const transmission = {
   torrents: {
     activeTorrentCount: 0,
     actively: null as null | Torrent[],
-    addTracker: function (item: any) {
+    addTracker: function (item: Torrent) {
       const trackerStats = item.trackerStats;
-      const trackers: Tracker[] = [];
+      const trackers: string[] = [];
 
       item.leecherCount = 0;
       item.seederCount = 0;
 
       if (trackerStats.length > 0) {
         const warnings = [];
-        for (const index in trackerStats) {
-          var trackerInfo = trackerStats[index];
+        for (const trackerInfo of trackerStats) {
           const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
-          const hostName = trackerInfo.host.getHostName();
-          const trackerUrl = hostName.split('.');
+          const hostName: string = trackerInfo.host.getHostName();
+          const trackerUrl: string[] = hostName.split('.');
           if ($.inArray(trackerUrl[0], 'www,tracker,announce'.split(',')) != -1) {
             trackerUrl.shift();
           }
-
-          /* eslint-disable */
 
           const name = trackerUrl.join('.');
           const id = 'tracker-' + name.replace(/\./g, '-');
@@ -427,7 +424,7 @@ export const transmission = {
           // 判断当前tracker状态
           if (
             !trackerInfo.lastAnnounceSucceeded &&
-            trackerInfo.announceState != transmission._trackerStatus.inactive
+            trackerInfo.announceState !== transmission._trackerStatus.inactive
           ) {
             warnings.push(trackerInfo.lastAnnounceResult);
 
@@ -449,6 +446,8 @@ export const transmission = {
           }
         }
 
+        /* eslint-disable */
+
         if (trackerStats.length > 5) {
           this.btItems.push(item);
         }
@@ -460,8 +459,11 @@ export const transmission = {
             item.warning = warnings.join(';');
           }
           // 设置下次更新时间
+          // @ts-ignore
           if (!item.nextAnnounceTime) item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
+          // @ts-ignore
           else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
+            // @ts-ignore
             item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
           }
 
@@ -471,8 +473,11 @@ export const transmission = {
         if (item.leecherCount < 0) item.leecherCount = 0;
         if (item.seederCount < 0) item.seederCount = 0;
 
+        // @ts-ignore
         item.leecher = item.leecherCount + ' (' + item.peersGettingFromUs + ')';
+        // @ts-ignore
         item.seeder = item.seederCount + ' (' + item.peersSendingToUs + ')';
+        // @ts-ignore
         item.trackers = trackers.join(';');
       }
     },
@@ -556,8 +561,6 @@ export const transmission = {
         },
       );
     },
-
-    /* eslint-disable */
 
     getMagnetLink: function (ids: string[], callback: any) {
       let result = '';
@@ -972,11 +975,24 @@ export interface Tracker {
   isBT: boolean;
 }
 
+export interface TrackerStat {
+  announce: string;
+  seederCount: number;
+  leecherCount: number;
+  announceState: number;
+  lastAnnounceSucceeded: boolean;
+  host: any;
+  lastAnnounceResult: string;
+}
+
 export interface Torrent {
+  warning: string;
+  seederCount: number;
+  leecherCount: number;
   id: number;
   name: string;
   status: number;
-  trackerStats: Tracker[];
+  trackerStats: TrackerStat[];
   nextAnnounceTime: number;
   downloadDir: string;
   remainingTime: number;
