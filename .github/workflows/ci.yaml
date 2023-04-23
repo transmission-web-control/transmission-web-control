@@ -27,6 +27,8 @@ jobs:
 
       - run: npx prettier --check ./
 
+      - run: npx tsc
+
       - run: yarn lint
 
   build:

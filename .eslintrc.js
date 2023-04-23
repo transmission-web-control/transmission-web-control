@@ -10,6 +10,10 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    '@typescript-eslint/ban-ts-comment': 1,
+    '@typescript-eslint/no-non-null-assertion': 1,
+    '@typescript-eslint/consistent-type-assertions': 0,
+    '@typescript-eslint/strict-boolean-expressions': 0,
     '@typescript-eslint/method-signature-style': ['error', 'method'],
     curly: 'error',
     'no-var': 0,

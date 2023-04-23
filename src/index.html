@@ -70,23 +70,17 @@
       type="text/javascript"
       src="tr-web-control/script/other/ua-parser.min.js?v=20200914"
     ></script>
-    <script
-      type="text/javascript"
-      src="tr-web-control/script/min/transmission.min.js?v=20200914"
-    ></script>
-    <script
-      type="text/javascript"
-      src="tr-web-control/script/min/transmission.torrents.min.js?v=20201001"
-    ></script>
+    <script type="module" src="./lib/transmission.ts"></script>
+    <script type="module" src="./lib/transmission.torrents.js"></script>
     <script
       type="text/javascript"
       src="tr-web-control/script/min/system.min.js?v=20201001"
     ></script>
     <script type="text/javascript" src="tr-web-control/config.js?v=20200914"></script>
-    <script type="text/javascript" src="./plugin.ts"></script>
+    <script type="text/javascript" src="./lib/plugin.ts"></script>
 
     <script type="module">
-      import { getQueryString } from './utils.ts';
+      import { getQueryString } from './lib/utils.ts';
 
       const nonpc = ['console', 'mobile', 'tablet', 'smarttv', 'wearable', 'embedded'];
       if (nonpc.includes($.ua.device.type) && getQueryString('devicetype') !== 'computer') {

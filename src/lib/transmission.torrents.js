@@ -1,3 +1,5 @@
+import { transmission } from './transmission.ts';
+
 // Torrent related information
 transmission.torrents = {
   all: null,
