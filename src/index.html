@@ -83,13 +83,13 @@
       src="tr-web-control/script/min/system.min.js?v=20201001"
     ></script>
     <script type="text/javascript" src="tr-web-control/config.js?v=20200914"></script>
-    <script type="text/javascript" src="tr-web-control/plugin.js?v=20200914"></script>
+    <script type="text/javascript" src="./plugin.ts"></script>
 
     <script type="module">
-      import { getQueryString } from './tr-web-control/utils.mjs';
+      import { getQueryString } from './utils.ts';
 
-      var nonpc = ['console', 'mobile', 'tablet', 'smarttv', 'wearable', 'embedded'];
-      if (nonpc.indexOf($.ua.device.type) !== -1 && getQueryString('devicetype') !== 'computer') {
+      const nonpc = ['console', 'mobile', 'tablet', 'smarttv', 'wearable', 'embedded'];
+      if (nonpc.includes($.ua.device.type) && getQueryString('devicetype') !== 'computer') {
         location.href = 'index.mobile.html';
       }
     </script>

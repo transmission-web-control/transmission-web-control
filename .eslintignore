@@ -1,7 +1,7 @@
 *.min.js
 *.mjs
 
-/src/tr-web-control/script/easyui/
-/src/tr-web-control/script/jquery/
-/src/tr-web-control/script/min/
-/src/tr-web-control/script/FileSaver.js
+/public/tr-web-control/script/easyui/
+/public/tr-web-control/script/jquery/
+/public/tr-web-control/script/min/
+/public/tr-web-control/script/FileSaver.js

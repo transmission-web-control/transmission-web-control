@@ -6,9 +6,11 @@ module.exports = {
   extends: ['standard-with-typescript', 'prettier'],
   overrides: [],
   parserOptions: {
+    project: './tsconfig.json',
     ecmaVersion: 'latest',
   },
   rules: {
+    '@typescript-eslint/method-signature-style': ['error', 'method'],
     curly: 'error',
     'no-var': 0,
     eqeqeq: 0,

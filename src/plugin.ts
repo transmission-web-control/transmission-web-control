@@ -20,7 +20,7 @@ system.plugin = {
         for (const i in rows) {
           ids.push(rows[i].id);
         }
-        if (!ids.length) {
+        if (ids.length === 0) {
           return;
         }
 

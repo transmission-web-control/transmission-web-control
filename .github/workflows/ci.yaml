@@ -3,11 +3,11 @@ name: CI
 on:
   pull_request:
     branches:
-      - '**'
+      - 'master'
 
   push:
     branches:
-      - '**'
+      - 'master'
       - '!renovate/**'
 
 jobs:
@@ -21,10 +21,41 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'yarn'
 
-      - run: npm ci
+      - run: yarn
 
       - run: npx prettier --check ./
 
-      - run: npm run lint
+      - run: yarn lint
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - run: yarn
+
+      - run: npx tsc --noEmit
+
+      - run: yarn build
+
+      - run: zip -r dist.zip ./dist/
+      - run: tar -czvf dist.tar.gz ./dist/
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-tar
+          path: dist.tar.gz
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-zip
+          path: dist.zip
