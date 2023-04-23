@@ -311,8 +311,9 @@ transmission.torrents = {
         }
         // 设置下次更新时间
         if (!item.nextAnnounceTime) item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
-        else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime)
+        else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
           item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
+        }
 
         this.warning.push(item);
       }

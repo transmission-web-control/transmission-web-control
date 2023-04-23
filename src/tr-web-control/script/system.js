@@ -2826,8 +2826,9 @@ var system = {
     this.showStatus(this.lang.system.status.queue + (index + 1) + '/' + count + '<br/>' + url, 0);
     transmission.addTorrentFromUrl(url, savepath, autostart, function (data) {
       system.addTorrentsToServer(urls, count, autostart, savepath, labels);
-      if (labels != null && data.hashString != null)
+      if (labels != null && data.hashString != null) {
         system.saveLabelsConfig(data.hashString, labels);
+      }
     });
   },
   // Starts / pauses the selected torrent

@@ -67,8 +67,9 @@ Number.prototype.formatNumber = function (f) {
           j--;
       }
     }
-    if (j != n.length && f.charAt(f.length - 1) != '0' && pos != f.length && f.charAt(pos) != '0')
+    if (j != n.length && f.charAt(f.length - 1) != '0' && pos != f.length && f.charAt(pos) != '0') {
       r = r.substr(0, pos + 1) + n.substr(j) + r.substr(pos + 1);
+    }
 
     r = (p ? r : r.split('').reverse().join('')).replace(/(^,)|(,$)|(,,+)/g, '');
     if (r.substr(0, 1) == ',') {

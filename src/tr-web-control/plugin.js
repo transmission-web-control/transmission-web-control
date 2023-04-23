@@ -20,7 +20,9 @@ system.plugin = {
         for (const i in rows) {
           ids.push(rows[i].id);
         }
-        if (ids.length == 0) return;
+        if (!ids.length) {
+          return;
+        }
 
         system.openDialogFromTemplate({
           id: 'dialog-auto-match-data-folder',

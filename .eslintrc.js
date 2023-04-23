@@ -9,6 +9,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    curly: 'error',
     'no-var': 0,
     eqeqeq: 0,
     'no-fallthrough': 0,
