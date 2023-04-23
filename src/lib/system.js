@@ -3,7 +3,8 @@ import { UAParser } from 'ua-parser-js';
 import { transmission } from './transmission';
 import { getQueryString } from './utils';
 import { APP_VERSION } from './version';
-import { Base64 } from 'js-base64';
+import { Base64 as B64 } from 'js-base64';
+import { Base64_ESM } from './Base64';
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
@@ -3079,7 +3080,7 @@ const system = {
       }
       system.panel.attribute.find('#torrent-attribute-value-' + key).html(value);
     });
-    const pieces = new Base64().decode_bytes(torrent.pieces);
+    const pieces = new Base64_ESM().decode_bytes(torrent.pieces);
     var piece = 0;
     const pieceCount = torrent.pieceCount;
     const pieceSize = torrent.pieceSize;
@@ -3477,7 +3478,7 @@ const system = {
       }
       // key += "--" + text.replace(/\./g,"。") + "--";
       path += name;
-      const _key = Base64.encode(name);
+      const _key = B64.encode(name);
       key += _key.replace(/[+|\/|=]/g, '0');
       let node = this.panel.left.tree('find', key);
       const folderinfos = transmission.torrents.folders[key];
@@ -3799,7 +3800,7 @@ const system = {
    */
   getValidTreeKey: function (text) {
     if (!text) return '';
-    const _key = Base64.encode(text);
+    const _key = B64.encode(text);
     return _key.replace(/[+|\/|=]/g, '0');
   },
 

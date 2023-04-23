@@ -2,6 +2,7 @@ import { transmission } from './transmission';
 import { getQueryString } from './utils';
 
 import { APP_VERSION } from './version';
+import { Base64_ESM } from './Base64.js';
 
 /*
 	移动版
@@ -22,7 +23,7 @@ const system = {
   autoReloadTimer: null,
   downloadDir: '',
   islocal: false,
-  B64: new Base64(),
+  B64: new Base64_ESM(),
   // 当前选中的种子编号
   currentTorrentId: 0,
   currentContentPage: 'home',
