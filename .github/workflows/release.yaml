@@ -20,5 +20,6 @@ jobs:
       - run: yarn build
 
       - run: zip -r dist.zip ./dist/
+      - run: tar -czvf dist.tar.gz ./dist/
 
-      - run: gh release create "${GITHUB_REF##*/}" dist.zip --generate-notes
+      - run: gh release create "${GITHUB_REF##*/}" dist.zip dist.tar.gz --generate-notes

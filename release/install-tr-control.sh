@@ -124,7 +124,7 @@ initValues() {
 		fi
 		showLog "$MSG_SPECIFIED_VERSION $VERSION"
 
-		DOWNLOAD_URL="https://github.com/ronggang/transmission-web-control/archive/$PACK_NAME"
+		DOWNLOAD_URL="https://github.com/transmission-web-control/transmission-web-control/archive/$PACK_NAME"
 	fi
 
 	if [ $SKIP_SEARCH = 0 ]; then

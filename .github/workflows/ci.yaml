@@ -46,3 +46,18 @@ jobs:
       - run: npx tsc --noEmit
 
       - run: yarn build
+
+      - run: zip -r dist.zip ./dist/
+      - run: tar -czvf dist.tar.gz ./dist/
+
+      - run: gh release create "${GITHUB_REF##*/}" dist.zip dist.tar.gz --generate-notes
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-tar
+          path: dist.tar.gz
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-zip
+          path: dist.zip
