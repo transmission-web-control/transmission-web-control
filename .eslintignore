@@ -1,4 +1,5 @@
 *.min.js
+*.mjs
 
 /src/tr-web-control/script/easyui/
 /src/tr-web-control/script/jquery/

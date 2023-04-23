@@ -17,7 +17,7 @@ Transmission 2.40 and above (RPC version: 14 and above)
 
 ## Browsers support
 
-A browser which supports HTML5. (Chrome 15.0.874，Firefox 8.0.1，IE 9.0.8112，Opera 11.52 etc.)
+A browser which supports HTML5 and ES Module. (Chrome 63，Firefox 67，Edge 79, Safari 11.1, Opera 50)
 
 ## Features
 

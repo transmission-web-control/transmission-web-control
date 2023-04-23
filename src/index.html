@@ -84,12 +84,12 @@
     ></script>
     <script type="text/javascript" src="tr-web-control/config.js?v=20200914"></script>
     <script type="text/javascript" src="tr-web-control/plugin.js?v=20200914"></script>
-    <script type="text/javascript">
+
+    <script type="module">
+      import { getQueryString } from './tr-web-control/utils.mjs';
+
       var nonpc = ['console', 'mobile', 'tablet', 'smarttv', 'wearable', 'embedded'];
-      if (
-        nonpc.indexOf($.ua.device.type) != -1 &&
-        location.search.getQueryString('devicetype') != 'computer'
-      ) {
+      if (nonpc.indexOf($.ua.device.type) !== -1 && getQueryString('devicetype') !== 'computer') {
         location.href = 'index.mobile.html';
       }
     </script>
