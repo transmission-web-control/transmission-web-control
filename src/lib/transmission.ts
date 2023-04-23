@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import { Base64 } from 'js-base64';
 
 export const transmission = {
   torrents: null as any,
@@ -90,7 +91,7 @@ export const transmission = {
     $.extend(this, config);
 
     if (this.username && this.password) {
-      this.headers.Authorization = 'Basic ' + btoa(this.username + ':' + this.password);
+      this.headers.Authorization = 'Basic ' + Base64.encode(this.username + ':' + this.password);
     }
 
     this.fullpath = this.rpcpath;
