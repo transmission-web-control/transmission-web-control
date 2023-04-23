@@ -40,7 +40,7 @@
     "*.{js,mjs,mts,html,css,ts,md,json,yml,yaml}": [
       "prettier --write"
     ],
-    "src/**/**.{js,}": [
+    "src/**/**.{js,ts}": [
       "eslint --fix",
       "prettier --write"
     ]
