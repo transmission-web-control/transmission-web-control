@@ -495,7 +495,7 @@ downloadInstallScript() {
 		rm "$SCRIPT_NAME"
 	fi
 	showLog "$MSG_DOWNLOADING_INSTALL_SCRIPT"
-	wget "https://github.com/ronggang/transmission-web-control/raw/master/release/$SCRIPT_NAME" --no-check-certificate
+	wget "https://github.com/transmission-web-control/transmission-web-control/raw/master/release/$SCRIPT_NAME" --no-check-certificate
 	# 判断是否下载成功
 	if [ $? -eq 0 ]; then
 		showLog "$MSG_INSTALL_SCRIPT_DOWNLOAD_COMPLETE"
