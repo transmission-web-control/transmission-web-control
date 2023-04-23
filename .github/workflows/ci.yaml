@@ -25,6 +25,6 @@ jobs:
 
       - run: npm ci
 
-      - run: npx prettier --list-different --check ./
+      - run: npx prettier --check ./
 
       - run: npm run lint
