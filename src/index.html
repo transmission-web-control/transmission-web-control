@@ -61,21 +61,20 @@
     <script type="text/javascript" src="tr-web-control/script/FileSaver.js"></script>
     <script type="text/javascript" src="tr-web-control/script/other/clipboard.min.js"></script>
     <script type="text/javascript" src="tr-web-control/script/public.js"></script>
-    <script
-      type="text/javascript"
-      src="tr-web-control/script/other/ua-parser.min.js?v=20200914"
-    ></script>
     <script type="module" src="./lib/version.ts"></script>
     <script type="module" src="./lib/transmission.ts"></script>
-    <script type="text/javascript" src="tr-web-control/script/system.js"></script>
-    <script type="text/javascript" src="tr-web-control/config.js?v=20200914"></script>
+    <script type="module" src="./lib/system.js"></script>
+    <script type="module" src="./lib/config.mjs"></script>
     <script type="module" src="./lib/plugin.ts"></script>
 
-    <script type="module">
+    <script type="module" lang="ts">
       import { getQueryString } from './lib/utils.ts';
+      import { UAParser } from 'ua-parser-js';
+
+      const { device } = UAParser(navigator.userAgent);
 
       const nonpc = ['console', 'mobile', 'tablet', 'smarttv', 'wearable', 'embedded'];
-      if (nonpc.includes($.ua.device.type) && getQueryString('devicetype') !== 'computer') {
+      if (nonpc.includes(device.type) && getQueryString('devicetype') !== 'computer') {
         location.href = 'index.mobile.html';
       }
     </script>

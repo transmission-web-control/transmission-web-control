@@ -1,5 +1,11 @@
+import { UAParser } from 'ua-parser-js';
+
+import { transmission } from './transmission';
+import { getQueryString } from './utils';
+
+const { browser } = UAParser(navigator.userAgent);
 // Current system global object
-var system = {
+const system = {
   rootPath: 'tr-web-control/',
   configHead: 'transmission-web-control',
   // default config, can be customized in config.js
@@ -182,7 +188,7 @@ var system = {
 
     $.each(items, function (key, item) {
       const name = $(item).attr('system-lang');
-      if (name.substr(0, 1) == '[') {
+      if (name.slice(0, 1) == '[') {
         $(item).html(eval('system.lang' + name));
       } else {
         $(item).html(eval('system.lang.' + name));
@@ -193,7 +199,7 @@ var system = {
 
     $.each(items, function (key, item) {
       const name = $(item).attr('system-tip-lang');
-      if (name.substr(0, 1) == '[') {
+      if (name.slice(0, 1) == '[') {
         $(item).attr('title', eval('system.lang' + name));
       } else {
         $(item).attr('title', eval('system.lang.' + name));
@@ -1857,7 +1863,7 @@ var system = {
 
     // FF browser displays the total size, will be moved down a row, so a separate treatment
     // 新版本已无此问题
-    if ($.ua.browser.name == 'Firefox' && $.ua.browser.major < 60) {
+    if (browser.name == 'Firefox' && browser.major < 60) {
       system.panel.left.find('span.nav-total-size').css({
         'margin-top': '-19px',
       });
@@ -3114,7 +3120,7 @@ var system = {
       const stats = fileStats[index];
       const percentDone = parseFloat((stats.bytesCompleted / file.length) * 100).toFixed(2);
       datas.push({
-        name: file.name == torrent.name ? file.name : file.name.substr(namelength),
+        name: file.name == torrent.name ? file.name : file.name.slice(namelength),
         index,
         bytesCompleted: stats.bytesCompleted,
         percentDone: system.getTorrentProgressBar(percentDone, transmission._status.download),
@@ -3432,14 +3438,14 @@ var system = {
         system.removeTreeNode(item.nodeid);
       }
     }
-    if (transmission.downloadDirs.length == 0) {
+    if (transmission.downloadDirs.length === 0) {
       return;
     }
 
     timedChunk(transmission.downloadDirs, this.appendFolder, this, 10, function () {
       // FF browser displays the total size, will be moved down a row, so a separate treatment
       // 新版本已无此问题
-      if ($.ua.browser.name == 'Firefox' && $.ua.browser.major < 60) {
+      if (browser.name === 'Firefox' && browser.major < 60) {
         system.panel.left.find('span.nav-total-size').css({
           'margin-top': '-19px',
         });
@@ -3567,7 +3573,7 @@ var system = {
       dataType: 'json',
       success: function (result) {
         if (result && result.tag_name) {
-          const update = result.created_at.substr(0, 10).replace(/-/g, '');
+          const update = result.created_at.slice(0, 10).replace(/-/g, '');
           const version = result.tag_name;
           if ($.inArray(version, system.config.ignoreVersion) != -1) {
             return;
@@ -3810,19 +3816,6 @@ var system = {
   },
 };
 
-$(document).ready(function () {
-  // Loads the default language content
-  $.getJSON(system.rootPath + 'i18n/en.json').done(function (result) {
-    system.defaultLang = result;
-  });
-
-  // Loads a list of available languages
-  $.getJSON(system.rootPath + 'i18n.json').done(function (result) {
-    system.languages = result;
-    system.init(location.search.getQueryString('lang'), location.search.getQueryString('local'));
-  });
-});
-
 function fileFilter(dataRows, filterString) {
   const filter = new RegExp(filterString || '.*');
   const rawDataFiltered = [];
@@ -3945,3 +3938,18 @@ function pagerFilter(data) {
 
   return data;
 }
+
+$(document).ready(function () {
+  // Loads the default language content
+  $.getJSON(system.rootPath + 'i18n/en.json').done(function (result) {
+    system.defaultLang = result;
+  });
+
+  // Loads a list of available languages
+  $.getJSON(system.rootPath + 'i18n.json').done(function (result) {
+    system.languages = result;
+    system.init(getQueryString('lang'), getQueryString('local'));
+  });
+});
+
+globalThis.system = system;

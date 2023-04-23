@@ -10,3 +10,4 @@ testFile/
 .idea/
 .vscode/
 dist/
+yarn-error.log

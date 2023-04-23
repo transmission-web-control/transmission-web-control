@@ -10,6 +10,7 @@
     "pretty": true,
     "noUncheckedIndexedAccess": true,
     "lib": ["DOM"],
+    "resolveJsonModule": true,
     "noImplicitAny": true
   },
   "files": ["./src/vite-env.d.ts"],

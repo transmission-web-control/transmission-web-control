@@ -1,12 +1,3 @@
-// Get "query string"
-String.prototype.getQueryString = function (name, split) {
-  if (split == undefined) split = '&';
-  const reg = new RegExp('(^|' + split + '|\\?)' + name + '=([^' + split + ']*)(' + split + '|$)');
-  let r;
-  if ((r = this.match(reg))) return unescape(r[2]);
-  return null;
-};
-
 String.prototype.right = function (len) {
   return this.substr(-len);
 };
@@ -79,9 +70,9 @@ Number.prototype.formatNumber = function (f) {
 /**
  * 根据指定的十六进制颜色值，返回RGB颜色数值
  */
-String.prototype.getRGB = function () {
+function getRGB(s) {
   const reg = /^#([0-9a-f]{3}|[0-9a-f]{6})$/;
-  let color = this.toLowerCase();
+  let color = s.toLowerCase();
   if (color && reg.test(color)) {
     if (color.length === 4) {
       let sColorNew = '#';
@@ -102,9 +93,9 @@ String.prototype.getRGB = function () {
       B: result[2],
     };
   } else {
-    return this;
+    return s;
   }
-};
+}
 
 /**
  * 获取一个颜色的人眼感知亮度，并以 0~1 之间的小数表示。
@@ -119,7 +110,7 @@ function getGrayLevel(color) {
     };
   }
   if (typeof color === 'string') {
-    color = color.getRGB();
+    color = getRGB(color);
   }
   return (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255;
 }
@@ -393,11 +384,13 @@ function loadFileContent(fileType, callback) {
 
           r.readAsText(file);
         }
+
         readFile();
       }
     })
     .click();
 }
+
 /**
  * 将指定的内容保存为文件
  * @param fileName 文件名
