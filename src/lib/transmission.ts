@@ -388,7 +388,7 @@ export const transmission = {
     actively: null as null | Torrent[],
     addTracker: function (item: any) {
       const trackerStats = item.trackerStats;
-      const trackers = [];
+      const trackers: Tracker[] = [];
 
       item.leecherCount = 0;
       item.seederCount = 0;
