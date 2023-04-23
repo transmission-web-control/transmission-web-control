@@ -3,8 +3,6 @@
 ![[GitHub Releases](https://github.com/transmission-web-control/transmission-web-control/releases)](https://img.shields.io/github/release/transmission-web-control/transmission-web-control.svg)
 ![Support Transmission Version](https://img.shields.io/badge/transmission-%3E=2.40%20(RPC%20%3E14)-green.svg)
 
----
-
 # English
 
 ## Introduction
@@ -38,6 +36,10 @@ A browser which supports HTML5. (Chrome 15.0.874，Firefox 8.0.1，IE 9.0.8112�
 
 - Support data folder display in the navigation bar.
 - Support "user label" feature, you can use it to classify torrent.
+
+## i18n
+
+submit your translation on transifex https://app.transifex.com/transmission-web-control/transmission-web-control-1/
 
 <!--
 ## 国内镜像源
