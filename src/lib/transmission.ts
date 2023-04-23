@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import { Base64 } from 'js-base64';
+import { getHostName } from './utils';
 
 export const transmission = {
   SessionId: '',
@@ -397,7 +398,7 @@ export const transmission = {
         const warnings = [];
         for (const trackerInfo of trackerStats) {
           const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
-          const hostName: string = trackerInfo.host.getHostName();
+          const hostName: string = getHostName(trackerInfo.host);
           const trackerUrl: string[] = hostName.split('.');
           if ($.inArray(trackerUrl[0], 'www,tracker,announce'.split(',')) != -1) {
             trackerUrl.shift();
@@ -981,7 +982,7 @@ export interface TrackerStat {
   leecherCount: number;
   announceState: number;
   lastAnnounceSucceeded: boolean;
-  host: any;
+  host: string;
   lastAnnounceResult: string;
 }
 
