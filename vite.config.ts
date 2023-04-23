@@ -32,7 +32,6 @@ export default defineConfig(({ mode }) => {
     css: {},
     define: {
       'import.meta.env.__APP_VERSION__': JSON.stringify(version),
-      'window.env.__APP_VERSION__': JSON.stringify(version),
     },
   };
 });
