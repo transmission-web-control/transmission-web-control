@@ -60,7 +60,7 @@ var system = {
     folders: null,
   },
   checkUpdateScript:
-    'https://api.github.com/repos/ronggang/transmission-web-control/releases/latest',
+    'https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest',
   contextMenus: {},
   panel: null,
   lang: null,
@@ -3590,14 +3590,14 @@ var system = {
 
             const toolbar = $("<div style='text-align:right;'/>").appendTo(content);
             $(
-              '<a href="https://github.com/ronggang/transmission-web-control/releases/latest" target="_blank" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-github\'"/>',
+              '<a href="https://github.com/transmission-web-control/transmission-web-control/releases/latest" target="_blank" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-github\'"/>',
             )
               .html(result.name + ' (' + update + ')')
               .appendTo(toolbar)
               .linkbutton();
             $('<span/>').html(' ').appendTo(toolbar);
             $(
-              '<a href="https://github.com/ronggang/transmission-web-control/wiki" target="_blank" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-help\'"/>',
+              '<a href="https://github.com/transmission-web-control/transmission-web-control/wiki" target="_blank" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-help\'"/>',
             )
               .html(system.lang.public['text-how-to-update'])
               .appendTo(toolbar)
