@@ -8,6 +8,7 @@
     "start": "vite --host 127.0.0.1",
     "prebuild": "rimraf ./dist/",
     "build": "vite build",
+    "tsc": "tsc",
     "format": "prettier --list-different -w .",
     "lint-staged": "lint-staged",
     "prepare": "husky install"
