@@ -396,9 +396,8 @@ export const transmission = {
       item.seederCount = 0;
 
       if (trackerStats.length > 0) {
-        var warnings = [];
-        for (var index in trackerStats) {
-          var trackerInfo = trackerStats[index]!;
+        const warnings: string[] = [];
+        for (const trackerInfo of trackerStats) {
           const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
           const hostName = getHostName(trackerInfo.host);
           const trackerUrl = hostName.split('.');
@@ -459,6 +458,7 @@ export const transmission = {
         }
 
         if (warnings.length == trackerStats.length) {
+          const trackerInfo = trackerStats[trackerStats.length - 1]!;
           if (warnings.join(';').replace(/;/g, '') == '') {
             item.warning = '';
           } else {
@@ -466,13 +466,8 @@ export const transmission = {
           }
           // 设置下次更新时间
           if (!item.nextAnnounceTime) {
-            // TODO: should fix this, trackerInfo is out of context
-            // @ts-ignore
             item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
-          }
-          // @ts-ignore
-          else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
-            // @ts-ignore
+          } else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
             item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
           }
 
@@ -482,11 +477,8 @@ export const transmission = {
         if (item.leecherCount < 0) item.leecherCount = 0;
         if (item.seederCount < 0) item.seederCount = 0;
 
-        // @ts-ignore
         item.leecher = item.leecherCount + ' (' + item.peersGettingFromUs + ')';
-        // @ts-ignore
         item.seeder = item.seederCount + ' (' + item.peersSendingToUs + ')';
-        // @ts-ignore
         item.trackers = trackers.join(';');
       }
     },
@@ -985,6 +977,7 @@ export interface Tracker {
 }
 
 export interface TrackerStat {
+  nextAnnounceTime: number;
   announce: string;
   seederCount: number;
   leecherCount: number;
@@ -995,6 +988,11 @@ export interface TrackerStat {
 }
 
 export interface Torrent {
+  peersGettingFromUs: string;
+  peersSendingToUs: string;
+  leecher: string;
+  seeder: string;
+  trackers: string;
   warning: string;
   seederCount: number;
   leecherCount: number;
