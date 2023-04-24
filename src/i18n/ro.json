@@ -1,23 +1,28 @@
 {
   "name": "ro",
+  "languageName": "English",
   "author": "Laurentiu Dinulescu, vodek3",
   "system": {
+    "title": "Transmission WEB Control",
     "status": {
       "connect": "Conectare în curs...",
       "connected": "Conectat",
       "queue": "Coadă:",
       "queuefinish": "Lista este finalizată.",
-      "notfinal": "Nefinalizat"
+      "notfinal": "Nefinalizat",
+      "checked": "%n data checked:"
     }
   },
   "error": {
     "data-error": "Eroare de date.",
-    "data-post-error": "Eroare de postare date."
+    "data-post-error": "Eroare de postare date.",
+    "rename-error": "Error renaming file/folder!"
   },
   "config": {
     "save-path": "Director pentru descărcare"
   },
   "toolbar": {
+    "start": "Start",
     "pause": "Pauză",
     "recheck": "Reverifică",
     "start-all": "Porneşte toate",
@@ -37,6 +42,13 @@
     "autoreload-enabled": "Dezactivat",
     "search-prompt": "Caută torrent local",
     "tracker-replace": "Înlocuieşte tracker",
+    "queue": "Queue",
+    "ui-mobile": "Mobile UI",
+    "ui-original": "Original UI",
+    "ui-computer": "Desktop UI",
+    "plugin": "Extensions/plugins",
+    "rename": "Rename",
+    "copy-path-to-clipboard": "Copy download location to clipboard",
     "tip": {
       "start": "Porneşte sarcinile bifate",
       "pause": "Pauză pentru sarcinile bifate",
@@ -57,27 +69,42 @@
       "autoreload-enabled": "Activează reîncarcarea automată",
       "tracker-replace": "Înlocuieşte tracker",
       "change-download-dir": "Setează directorul de descărcare",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Interfaţă mobile",
       "ui-original": "Interfaţă originală",
-      "more-peers": "Interoghează pentru mai multe legături"
+      "more-peers": "Interoghează pentru mai multe legături",
+      "rename": "Renaming a Torrent's Path",
+      "copy-path-to-clipboard": "Copy download location to clipboard"
     }
   },
   "menus": {
-    "queue": {},
-    "plugin": {}
+    "queue": {
+      "move-top": "Move to top",
+      "move-up": "Move up",
+      "move-down": "Move down",
+      "move-bottom": "Move to bottom"
+    },
+    "plugin": {
+      "auto-match-data-folder": "Automatically matches data directory"
+    },
+    "setLabels": "Set User Labels",
+    "copyMagnetLink": "Copy magnetLink to clipboard"
   },
   "title": {
     "left": "Navigare",
     "list": "Torrente",
-    "attribute": "Atribut"
+    "attribute": "Atribut",
+    "status": "Status"
   },
   "tree": {
     "all": "Toate",
+    "active": "Active",
     "paused": "În pauză",
     "downloading": "În descărcare",
     "sending": "În transmitere",
     "error": "Erori",
     "warning": "Avertizări",
+    "actively": "Active",
     "check": "În verificare",
     "wait": "Aştept",
     "search-result": "Rezultate căutare",
@@ -100,7 +127,8 @@
       "nav": {
         "folders": "Directoare"
       }
-    }
+    },
+    "labels": "User Labels"
   },
   "statusbar": {
     "downloadspeed": "Viteza de descărcare:",
@@ -110,7 +138,11 @@
   "dialog": {
     "torrent-add": {
       "download-dir": "Directorul de descărcare:",
+      "used-download-dir": "Used Download Dir:",
+      "torrent-url": "Torrent URL:",
       "tip-torrent-url": "Sfat: Separate cu 'Enter'",
+      "autostart": "Auto Start:",
+      "tip-autostart": "",
       "set-default-download-dir": "Configurează ca director implicit",
       "upload-file": "Fişiere Torrent :",
       "nosource": "Niciun fişier torrent sau URL.",
@@ -122,7 +154,10 @@
         "base": "Principal",
         "network": "Reţea",
         "limit": "Limită",
-        "alt-speed": "Programate"
+        "alt-speed": "Programate",
+        "dictionary-folders": "Folders Dictionary",
+        "more": "More",
+        "labels": "Labels"
       },
       "config-dir": "Locaţia fişierului de configurare al daemonului (settings.json):",
       "download-dir": "Calea implicită către directorul de descărcare:",
@@ -168,22 +203,58 @@
         "0": "Duminică"
       },
       "blocklist-enabled": "Folosește blocklist",
+      "blocklist-size": "Blocklist has %n rules.",
       "seedRatioLimited": "Rația implicită pentru încărcare:",
       "queue-stalled-enabled": "Torentele inactive sunt considerete blocate după:",
       "idle-seeding-limit-enabled": "Torentele la încărcare vor fi oprite dacă sunt inactive pentru:",
       "minutes": "Minute",
       "nochange": "Nicio schimbare",
       "saving": "Salvez...",
-      "labels-manage": {}
+      "show-bt-servers": "Show 'BT servers' on Trackers:",
+      "restore-default-settings": "Restore UI Default Settings",
+      "language": "Language:",
+      "loading": "Loading...",
+      "hide-subfolders": "When clicking on the data directory, hide subfolders content in the list:",
+      "simple-check-mode": "Checked only one torrent when you right-click on the torrent list:",
+      "nav-contents": "Navigation bar Display content:",
+      "labels-manage": {
+        "name": "Label Name",
+        "description": "Description",
+        "color": "Color",
+        "actions": "Actions",
+        "import-confirm": "Do you want to import labels? This overrides the current configuration."
+      },
+      "import-config": "Import configuration from file",
+      "export-config": "Export current configuration",
+      "import-config-confirm": "Do you want to import these configurations? This overrides the current configuration.",
+      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
+      "ipinfo": "IPinfo.io access token:",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
+      "button-ok": "OK",
       "button-cancel": "Renunță",
       "button-reload": "Reîncarcă",
       "button-save": "Salvează",
-      "button-close": "Închide"
+      "button-close": "Închide",
+      "button-update": "Update",
+      "button-config": "Config",
+      "button-addnew": "Add",
+      "button-edit": "Edit",
+      "button-delete": "Delete",
+      "button-export": "Export",
+      "button-import": "Import"
     },
     "about": {
-      "infos": "Autor：culturist<br/>Declarație：Dacă dețineți drepturi de autor pentru pictogramele folosite aici, vă rog, contactați-mă."
+      "infos": "Autor：culturist<br/>Declarație：Dacă dețineți drepturi de autor pentru pictogramele folosite aici, vă rog, contactați-mă.",
+      "check-update": "Check Update",
+      "home": "Project Home",
+      "help": "Wiki",
+      "donate": "Donate",
+      "pt-plugin": "PT Plugin"
     },
     "torrent-remove": {
       "title": "Confirmă ștergerea",
@@ -196,9 +267,19 @@
       "old-download-dir": "Vechiul director:",
       "new-download-dir": "Noul director:",
       "move-data": "Dacă bifat se va muta din locația anterioară sau setează director nou pentru fișiere.",
-      "set-error": "eroare !"
+      "set-error": "eroare !",
+      "recheck-data": "Recheck data."
     },
-    "torrent-changeSpeedLimit": {},
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
+    },
     "system-replaceTracker": {
       "title": "Înlocuiește trackerul",
       "old-tracker": "Vechiul tracker：",
@@ -207,19 +288,58 @@
       "not-found": "Tracker nu poate fi găsit."
     },
     "auto-match-data-folder": {
-      "work-mode": {}
+      "title": "Automatically matches data directory",
+      "torrent-count": "Torrent count:",
+      "folder-count": "Folder count:",
+      "dictionary": "Folders Dictionary",
+      "time-begin": "Begin time:",
+      "time-now": "Now:",
+      "status": "Status:",
+      "ignore": "Ignore",
+      "working-close-confirm": "Torrents are currently downloading, are sure you want to close Transmission?",
+      "time-interval": "Time interval (seconds):",
+      "work-mode-title": "Mode:",
+      "work-mode": {
+        "1": "Individually matched by torrent",
+        "2": "Individually matched by folder"
+      }
     },
-    "torrent-rename": {},
-    "torrent-attribute-add-tracker": {},
-    "torrent-setLabels": {},
-    "export-config": {},
-    "import-config": {}
+    "torrent-rename": {
+      "title": "Renaming a Torrent's Path",
+      "oldname": "Old",
+      "newname": "New"
+    },
+    "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
+      "title": "Add Trackers",
+      "tip": "One Line, One Tracker"
+    },
+    "torrent-setLabels": {
+      "title": "Set User Labels",
+      "available": "Available:",
+      "selected": "Selected:"
+    },
+    "export-config": {
+      "title": "Please select the details need to be exported",
+      "option-all": "All configuration",
+      "option-system": "Web Control configuration",
+      "option-dictionary": "Defined Folders Dictionary",
+      "option-server": "Transmission configuration (Download directory, cache, speed limit, etc.)"
+    },
+    "import-config": {
+      "title": "Please select the details need to be import",
+      "invalid-file": "Invalid profile"
+    }
   },
   "torrent": {
     "fields": {
+      "id": "#",
       "name": "Nume",
+      "hashString": "HASH",
       "downloadDir": "Director descărcare",
       "totalSize": "Mărime totală",
+      "status": "Status",
       "percentDone": "Procent finalizat",
       "remainingTime": "Timp rămas",
       "addedDate": "Data adăugare",
@@ -229,7 +349,12 @@
       "leecherCount": "Leecheri",
       "seederCount": "Seederi",
       "uploadedEver": "Total încărcat",
-      "uploadRatio": "Rația"
+      "uploadRatio": "Rația",
+      "queuePosition": "Queue",
+      "activityDate": "Activity Date",
+      "trackers": "Trackers",
+      "labels": "User Labels",
+      "doneDate": "Completed Date"
     },
     "status-text": {
       "0": "Pauză",
@@ -245,6 +370,7 @@
         "base": "Principal",
         "servers": "Trackere",
         "files": "Fișiere",
+        "users": "Peers",
         "config": "Setări"
       },
       "files-fields": {
@@ -257,16 +383,28 @@
       },
       "servers-fields": {
         "announce": "Link tracker",
+        "announceState": "Status",
         "lastAnnounceResult": "Info",
         "lastAnnounceSucceeded": "Succes",
         "lastAnnounceTime": "Timp pentru verificare tracker",
         "lastAnnounceTimedOut": "Erori la conectare tracker ?",
         "downloadCount": "Număr descărcări",
         "nextAnnounceTime": "Următoarea verificare tracker",
-        "announceStateText": {}
+        "leecherCount": "Leecher count",
+        "seederCount": "Seeder count",
+        "announceStateText": {
+          "0": "Inactive",
+          "1": "Waiting",
+          "2": "Queued",
+          "3": "Active"
+        }
       },
       "peers-fields": {
         "address": "Adresa IP",
+        "port": "Port",
+        "isUTP": "UTP enabled",
+        "clientName": "Client",
+        "flagStr": "Flag",
         "progress": "Progres",
         "rateToClient": "Viteza descărcare a conectatului",
         "rateToPeer": "Viteza de transfer către conectat"
@@ -280,18 +418,27 @@
         "1": "Mare",
         "-1": "Mică"
       },
-      "filter-template-text": {},
+      "filter-template-text": {
+        "1": "All",
+        "2": "BitComet padding file",
+        "3": "Unnecessary files"
+      },
       "label": {
         "name": "Nume:",
         "addedDate": "Data adăugării:",
         "totalSize": "Mărime totală:",
         "completeSize": "Mărime descărcat:",
         "leftUntilDone": "Rămas de finalizat:",
+        "hashString": "HASH:",
         "downloadDir": "Director pentru descărcare:",
+        "status": "Status:",
         "rateDownload": "Viteză descărcare:",
         "rateUpload": "Viteză încărcare:",
+        "leecherCount": "Leecher:",
+        "seederCount": "Seeder:",
         "uploadedEver": "Total încărcat:",
         "uploadRatio": "Rația încărcat:",
+        "creator": "Creator:",
         "dateCreated": "Data creării:",
         "comment": "Comentariu:",
         "errorString": "Eroare în șirȘ",
@@ -299,12 +446,18 @@
         "uploadLimited": "Viteza maximă de încărcare：",
         "peer-limit": "Număr maxim de peers/torrent：",
         "seedRatioMode": "Rația pentru încărcare：",
-        "seedIdleMode": "Torrentele la încărcat vor fi oprite dacă sunt inactive pentru："
+        "seedIdleMode": "Torrentele la încărcat vor fi oprite dacă sunt inactive pentru：",
+        "doneDate": "Finish Time:",
+        "seedTime": "Seed Time:"
       },
       "tip": {
         "button-allow": "Descărcarea fișierelor bifate",
         "button-deny": "Nu descărca fișierele :",
-        "button-priority": "Prioritate"
+        "button-priority": "Prioritate",
+        "button-filter": "Search files by regular expression",
+        "button-tracker-add": "Add New Tracker",
+        "button-tracker-edit": "Edit Tracker",
+        "button-tracker-remove": "Remove Tracker"
       },
       "other": {
         "tracker-remove-confim": "Confirmi ștergerea acestui tracker ?"
@@ -325,6 +478,11 @@
     "text-confirm": "Ești sigur ?",
     "text-browsers-not-support-features": "Browserul folosit nu suportă această funcție !",
     "text-download-update": "Descarcă această actualizare",
-    "text-have-update": "O actualizare este disponibilă"
+    "text-have-update": "O actualizare este disponibilă",
+    "text-on": "ON",
+    "text-off": "OFF",
+    "text-how-to-update": "How to update?",
+    "text-ignore-this-version": "Ignore this version",
+    "text-json-file-parsing-failed": "JSON file parsing failed!"
   }
 }
