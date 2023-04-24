@@ -3,7 +3,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  plugins: ['unicorn'],
+  plugins: ['unicorn', 'simple-import-sort'],
   extends: ['standard-with-typescript', 'prettier'],
   overrides: [],
   parserOptions: {
@@ -11,6 +11,8 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
     'prefer-const': 'error',
     'unicorn/prefer-string-slice': 'error',
     '@typescript-eslint/ban-ts-comment': 1,

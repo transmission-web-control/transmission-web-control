@@ -42,6 +42,14 @@ A browser which supports HTML5 and ES Module. (Chrome 63，Firefox 67，Edge 79,
 
 Submit your translation on transifex https://app.transifex.com/transmission-web-control/transmission-web-control-1/
 
+```shell
+git clone https://github.com/transmission-web-control/transmission-web-control
+cd transmission-web-control
+
+yarn
+yarn start
+```
+
 <!--
 ## 国内镜像源
 - https://gitee.com/culturist/transmission-web-control
