@@ -9,6 +9,7 @@ const TRANSMISSION_RPC = process.env.TRANSMISSION_RPC || 'http://192.168.1.3:909
 export default defineConfig(({ mode }) => {
   return {
     root: 'src',
+    base: './',
     publicDir: '../public/',
     build: {
       outDir: '../dist',

@@ -98,13 +98,7 @@ export const transmission = {
     // this.getSessionId(this).finally(callback);
     this.getSessionId(this, callback);
   },
-  /**
-   * 执行指定的命令
-   * @param  {[type]}   config   [description]
-   * @param  {Function} callback [description]
-   * @param  {[type]}   tags     [description]
-   * @return {[type]}            [description]
-   */
+
   exec(
     config: { method: string; arguments?: any },
     callback: (data: any, tags?: any) => void,
