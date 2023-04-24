@@ -756,7 +756,7 @@ export const transmission = {
             method: 'torrent-set',
             arguments: {
               ids: result[index].ids,
-              trackerReplace: [parseInt(index), result[index].tracker],
+              trackerReplace: result[index].tracker,
             },
           },
           function (data, tags) {
