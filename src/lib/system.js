@@ -1,3 +1,4 @@
+import ClipboardJS from 'clipboard';
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
@@ -17,14 +18,13 @@ const easyUILocale = import.meta.glob(
   },
 );
 
-// console.log(easyUILocale);
-
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
 const system = {
   rootPath: 'tr-web-control/',
   configHead: 'transmission-web-control',
   defaultLang: enLocal,
+  languages: i18nManifest,
   themes: [
     {
       value: 'default',
@@ -192,10 +192,14 @@ const system = {
   popoverCount: 0,
   // 当前数据目录，用于添加任务的快速保存路径选择
   currentListDir: '',
+  clipboard: undefined,
+  lastUIStatus: undefined,
+
   /**
    * 设置语言
+   * @param lang {string}
    */
-  setlang: function (lang, callback) {
+  setlang(lang) {
     // If no language is specified, acquires the current browser default language
     if (!lang) {
       if (this.config.defaultLang) {
@@ -224,16 +228,16 @@ const system = {
     } else {
       eval(easyUILocale[`../../public/tr-web-control/script/easyui/locale/easyui-lang-en.js`]);
     }
-
-    callback();
   },
   /**
    * 程序初始化
+   * @param lang {string}
+   * @param islocal {string}
    */
-  init: function (lang, islocal, devicetype) {
+  init(lang, islocal) {
     this.readConfig();
     this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
-    this.islocal = islocal == 1;
+    this.islocal = islocal === '1';
     this.panel = {
       main: $('#main'),
       top: $('#m_top'),
@@ -254,28 +258,24 @@ const system = {
     };
 
     if (!system.langInit) {
-      this.setlang(lang, function () {
-        system.langInit = true;
-        system.initdata();
-      });
-    } else {
-      this.initdata();
+      this.setlang(lang);
+      this.langInit = true;
     }
+
+    this.initdata();
 
     this.initThemes();
     // 剪切板组件
     this.clipboard = new ClipboardJS('#toolbar_copyPath');
   },
   // Set the language information
-  resetLangText: function (parent) {
-    if (!parent) {
-      parent = $;
-    }
+  resetLangText(el) {
+    const parent = el ?? $();
     let items = parent.find('*[system-lang]');
 
     $.each(items, function (key, item) {
-      const name = $(item).attr('system-lang');
-      if (name.slice(0, 1) == '[') {
+      const name = $(item).attr('system-lang') ?? '';
+      if (name.startsWith('[')) {
         $(item).html(eval('system.lang' + name));
       } else {
         $(item).html(eval('system.lang.' + name));
@@ -285,15 +285,16 @@ const system = {
     items = parent.find('*[system-tip-lang]');
 
     $.each(items, function (key, item) {
-      const name = $(item).attr('system-tip-lang');
-      if (name.slice(0, 1) == '[') {
+      const name = $(item).attr('system-tip-lang') ?? '';
+      if (name.startsWith('[')) {
         $(item).attr('title', eval('system.lang' + name));
       } else {
         $(item).attr('title', eval('system.lang.' + name));
       }
     });
   },
-  initdata: function () {
+
+  initdata() {
     // this.panel.title.text(this.lang.system.title+" "+this.version+" ("+this.codeupdate+")");
     $(document).attr('title', this.lang.system.title + ' ' + this.version);
 
@@ -3104,7 +3105,7 @@ const system = {
       datas = fileFilter(datas, tableData.filterString);
     }
 
-    if (isFileFilterMode == false && (rows.length == 0 || datas.length != tableData.total)) {
+    if (!isFileFilterMode && (rows.length == 0 || datas.length != tableData.total)) {
       sourceTable
         .datagrid({
           loadFilter: pagerFilter,
@@ -4084,7 +4085,6 @@ function pagerFilter(data) {
 
 $(document).ready(function () {
   // Loads a list of available languages
-  system.languages = i18nManifest;
   system.init(getUserLang(), getQueryString('local'));
 });
 
