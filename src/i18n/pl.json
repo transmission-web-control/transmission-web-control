@@ -1,7 +1,9 @@
 {
   "name": "pl",
+  "languageName": "English",
   "author": "Daniel Kolek, Piotr Kozica, vodek3, Mark eM aka Monter",
   "system": {
+    "title": "Transmission WEB Control",
     "status": {
       "connect": "Łączenie...",
       "connected": "Połączono",
@@ -20,6 +22,7 @@
     "save-path": "Katalog pobierania"
   },
   "toolbar": {
+    "start": "Start",
     "pause": "Wstrzymaj",
     "recheck": "Sprawdź",
     "start-all": "Pobieraj wszystkie",
@@ -66,6 +69,7 @@
       "autoreload-enabled": "Włącz auto-odświeżanie",
       "tracker-replace": "Zamień trackery",
       "change-download-dir": "Zmień katalog pobierania",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Mobilne UI",
       "ui-original": "Oryginalne UI",
       "more-peers": "Zapytaj tracker o więcej peerów",
@@ -89,7 +93,8 @@
   "title": {
     "left": "Nawigacja",
     "list": "Torrenty",
-    "attribute": "Szczegóły"
+    "attribute": "Szczegóły",
+    "status": "Status"
   },
   "tree": {
     "all": "Wszystkie torrenty",
@@ -137,6 +142,7 @@
       "torrent-url": "Link do torrenta:",
       "tip-torrent-url": "Wskazówka: każdy w nowej linii (oddziel klawiszem ENTER)",
       "autostart": "Uruchom pobieranie:",
+      "tip-autostart": "",
       "set-default-download-dir": "Zapisz jako katalog domyślny",
       "upload-file": "Pliki torrent:",
       "nosource": "Brak pliku torrent bądź linka.",
@@ -229,6 +235,7 @@
       "ipInfoDetailUrl": "URL pomocny w uzyskaniu szczegółowych informacji:"
     },
     "public": {
+      "button-ok": "OK",
       "button-cancel": "Anuluj",
       "button-reload": "Odśwież",
       "button-save": "Zapisz",
@@ -245,6 +252,7 @@
       "infos": "Autor: culturist, Tłumaczenie: Simplydan<br/>Poprawki + nowe tłumaczenia: vipKoza, Monter<br/>Oświadczenie: Jeżeli któraś ikona narusza twoje prawa, skontaktuj się z autorem.",
       "check-update": "Sprawdź aktualizację",
       "home": "Strona domowa",
+      "help": "Wiki",
       "donate": "Dotacja",
       "pt-plugin": "Plugin PT"
     },
@@ -302,6 +310,8 @@
       "newname": "Nowy:"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Dodaj trackery",
       "tip": "Jedna linia - jeden Tracker"
     },
@@ -324,9 +334,12 @@
   },
   "torrent": {
     "fields": {
+      "id": "#",
       "name": "Nazwa",
+      "hashString": "HASH",
       "downloadDir": "Katalog pobierania",
       "totalSize": "Rozmiar",
+      "status": "Status",
       "percentDone": "Ukończono",
       "remainingTime": "Pozostały czas",
       "addedDate": "Data dodania",
@@ -370,6 +383,7 @@
       },
       "servers-fields": {
         "announce": "Tracker",
+        "announceState": "Status",
         "lastAnnounceResult": "Status połączenia z trackerem",
         "lastAnnounceSucceeded": "Udane połączenie",
         "lastAnnounceTime": "Godzina połączenia",
@@ -387,6 +401,7 @@
       },
       "peers-fields": {
         "address": "Adres IP",
+        "port": "Port",
         "isUTP": "Włączone UTP",
         "clientName": "Klient",
         "flagStr": "Flaga",
@@ -414,7 +429,9 @@
         "totalSize": "Rozmiar:",
         "completeSize": "Pobrano:",
         "leftUntilDone": "Pozostało do pobrania:",
+        "hashString": "HASH:",
         "downloadDir": "Katalog pobierania:",
+        "status": "Status:",
         "rateDownload": "Prędkość pobierania:",
         "rateUpload": "Prędkość wysyłania:",
         "leecherCount": "Ilość peerów:",
