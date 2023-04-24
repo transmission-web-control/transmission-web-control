@@ -4,6 +4,7 @@ import { UAParser } from 'ua-parser-js';
 
 import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
+import torrentFields from './torrent-fields.json';
 import { transmission } from './transmission';
 import { getQueryString, getUserLang } from './utils';
 import { APP_VERSION } from './version';
@@ -808,141 +809,140 @@ const system = {
       .appendTo(this.panel.list);
     let headContextMenu = null;
     let selectedIndex = -1;
-    $.get(
-      system.rootPath + 'template/torrent-fields.json?time=' + new Date(),
-      function (data) {
-        let fields = data.fields;
-        const _fields = {};
-        for (let i = 0; i < fields.length; i++) {
-          var item = fields[i];
-          _fields[item.field] = item;
+
+    const onData = function () {
+      let fields = torrentFields.fields;
+      const _fields = {};
+      for (let i = 0; i < fields.length; i++) {
+        var item = fields[i];
+        _fields[item.field] = item;
+      }
+
+      if (system.userConfig.torrentList.fields.length != 0) {
+        fields = $.extend(fields, system.userConfig.torrentList.fields);
+      }
+
+      // User field settings
+      system.userConfig.torrentList.fields = fields;
+
+      for (const key in fields) {
+        var item = fields[key];
+        const _field = _fields[item.field];
+        if (_field && _field.formatter) {
+          item.formatter = _field.formatter;
+        } else if (item.formatter) {
+          delete item.formatter;
         }
 
-        if (system.userConfig.torrentList.fields.length != 0) {
-          fields = $.extend(fields, system.userConfig.torrentList.fields);
+        if (_field && _field.sortable) {
+          item.sortable = _field.sortable;
+        } else if (item.sortable) {
+          delete item.sortable;
         }
 
-        // User field settings
-        system.userConfig.torrentList.fields = fields;
+        item.title = system.lang.torrent.fields[item.field] || item.field;
+        system.setFieldFormat(item);
+      }
 
-        for (const key in fields) {
-          var item = fields[key];
-          const _field = _fields[item.field];
-          if (_field && _field.formatter) {
-            item.formatter = _field.formatter;
-          } else if (item.formatter) {
-            delete item.formatter;
+      // 初始化种子列表
+      system.control.torrentlist.datagrid({
+        autoRowHeight: false,
+        pagination: system.config.pagination,
+        rownumbers: true,
+        remoteSort: false,
+        checkOnSelect: false,
+        pageSize: system.config.pageSize,
+        pageList: system.config.pageList,
+        idField: 'id',
+        fit: true,
+        striped: true,
+        sortName: system.userConfig.torrentList.sortName,
+        sortOrder: system.userConfig.torrentList.sortOrder,
+        drophead: true,
+        columns: [fields],
+        onCheck: function (rowIndex, rowData) {
+          system.checkTorrentRow(rowIndex, rowData);
+        },
+        onUncheck: function (rowIndex, rowData) {
+          system.checkTorrentRow(rowIndex, rowData);
+        },
+        onCheckAll: function (rows) {
+          system.checkTorrentRow('all', false);
+        },
+        onUncheckAll: function (rows) {
+          system.checkTorrentRow('all', true);
+        },
+        onSelect: function (rowIndex, rowData) {
+          if (selectedIndex != -1) {
+            system.control.torrentlist.datagrid('unselectRow', selectedIndex);
+          }
+          system.getTorrentInfos(rowData.id);
+          selectedIndex = rowIndex;
+        },
+        onUnselect: function (rowIndex, rowData) {
+          system.currentTorrentId = 0;
+          selectedIndex = -1;
+        },
+        // Before loading data
+        onBeforeLoad: function (param) {
+          system.currentTorrentId = 0;
+        },
+        // Header sorting
+        onSortColumn: function (field, order) {
+          const field_func = field;
+          const datas = system.control.torrentlist
+            .datagrid('getData')
+            .originalRows.sort(arrayObjectSort(field_func, order));
+          system.control.torrentlist.datagrid('loadData', datas);
+
+          system.resetTorrentListFieldsUserConfig(
+            system.control.torrentlist.datagrid('options').columns[0],
+          );
+          system.userConfig.torrentList.sortName = field;
+          system.userConfig.torrentList.sortOrder = order;
+          system.saveUserConfig();
+        },
+        onRowContextMenu: function (e, rowIndex, rowData) {
+          // console.log("onRowContextMenu");
+          if (system.config.simpleCheckMode) {
+            system.control.torrentlist.datagrid('uncheckAll');
           }
 
-          if (_field && _field.sortable) {
-            item.sortable = _field.sortable;
-          } else if (item.sortable) {
-            delete item.sortable;
+          // 当没有种子被选中时，选中当前行
+          if (system.checkedRows.length == 0) {
+            system.control.torrentlist.datagrid('checkRow', rowIndex);
           }
+          e.preventDefault();
+          system.showContextMenu('torrent-list', e);
+        },
+        onHeadDrop: function (sourceField, targetField) {
+          // console.log("onHeadDrop");
+          system.resetTorrentListFieldsUserConfig(
+            system.control.torrentlist.datagrid('options').columns[0],
+          );
+          system.saveUserConfig();
+        },
+        onResizeColumn: function (field, width) {
+          system.resetTorrentListFieldsUserConfig(
+            system.control.torrentlist.datagrid('options').columns[0],
+          );
+          system.saveUserConfig();
+        },
+        onHeaderContextMenu: function (e, field) {
+          // console.log("onHeaderContextMenu");
+          e.preventDefault();
+          if (!headContextMenu) {
+            createHeadContextMenu();
+          }
+          headContextMenu.menu('show', {
+            left: e.pageX,
+            top: e.pageY,
+          });
+        },
+      });
+    };
 
-          item.title = system.lang.torrent.fields[item.field] || item.field;
-          system.setFieldFormat(item);
-        }
-
-        // 初始化种子列表
-        system.control.torrentlist.datagrid({
-          autoRowHeight: false,
-          pagination: system.config.pagination,
-          rownumbers: true,
-          remoteSort: false,
-          checkOnSelect: false,
-          pageSize: system.config.pageSize,
-          pageList: system.config.pageList,
-          idField: 'id',
-          fit: true,
-          striped: true,
-          sortName: system.userConfig.torrentList.sortName,
-          sortOrder: system.userConfig.torrentList.sortOrder,
-          drophead: true,
-          columns: [fields],
-          onCheck: function (rowIndex, rowData) {
-            system.checkTorrentRow(rowIndex, rowData);
-          },
-          onUncheck: function (rowIndex, rowData) {
-            system.checkTorrentRow(rowIndex, rowData);
-          },
-          onCheckAll: function (rows) {
-            system.checkTorrentRow('all', false);
-          },
-          onUncheckAll: function (rows) {
-            system.checkTorrentRow('all', true);
-          },
-          onSelect: function (rowIndex, rowData) {
-            if (selectedIndex != -1) {
-              system.control.torrentlist.datagrid('unselectRow', selectedIndex);
-            }
-            system.getTorrentInfos(rowData.id);
-            selectedIndex = rowIndex;
-          },
-          onUnselect: function (rowIndex, rowData) {
-            system.currentTorrentId = 0;
-            selectedIndex = -1;
-          },
-          // Before loading data
-          onBeforeLoad: function (param) {
-            system.currentTorrentId = 0;
-          },
-          // Header sorting
-          onSortColumn: function (field, order) {
-            const field_func = field;
-            const datas = system.control.torrentlist
-              .datagrid('getData')
-              .originalRows.sort(arrayObjectSort(field_func, order));
-            system.control.torrentlist.datagrid('loadData', datas);
-
-            system.resetTorrentListFieldsUserConfig(
-              system.control.torrentlist.datagrid('options').columns[0],
-            );
-            system.userConfig.torrentList.sortName = field;
-            system.userConfig.torrentList.sortOrder = order;
-            system.saveUserConfig();
-          },
-          onRowContextMenu: function (e, rowIndex, rowData) {
-            // console.log("onRowContextMenu");
-            if (system.config.simpleCheckMode) {
-              system.control.torrentlist.datagrid('uncheckAll');
-            }
-
-            // 当没有种子被选中时，选中当前行
-            if (system.checkedRows.length == 0) {
-              system.control.torrentlist.datagrid('checkRow', rowIndex);
-            }
-            e.preventDefault();
-            system.showContextMenu('torrent-list', e);
-          },
-          onHeadDrop: function (sourceField, targetField) {
-            // console.log("onHeadDrop");
-            system.resetTorrentListFieldsUserConfig(
-              system.control.torrentlist.datagrid('options').columns[0],
-            );
-            system.saveUserConfig();
-          },
-          onResizeColumn: function (field, width) {
-            system.resetTorrentListFieldsUserConfig(
-              system.control.torrentlist.datagrid('options').columns[0],
-            );
-            system.saveUserConfig();
-          },
-          onHeaderContextMenu: function (e, field) {
-            // console.log("onHeaderContextMenu");
-            e.preventDefault();
-            if (!headContextMenu) {
-              createHeadContextMenu();
-            }
-            headContextMenu.menu('show', {
-              left: e.pageX,
-              top: e.pageY,
-            });
-          },
-        });
-      },
-      'json',
-    );
+    setTimeout(onData);
 
     // 刷新当前页数据
     this.control.torrentlist.refresh = function () {
