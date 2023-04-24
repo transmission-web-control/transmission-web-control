@@ -4,6 +4,7 @@ import enLocal from '../i18n/en.json';
 import i18nManifest from '../i18n.json';
 
 import { APP_VERSION } from './version';
+import * as lo from 'lodash-es';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 
@@ -64,7 +65,7 @@ const system = {
 
     const langFile = `../i18n/${lang}.json`;
     if (langFile in i18n) {
-      system.lang = $.extend(true, system.defaultLang, i18n[langFile]);
+      system.lang = lo.extend(system.defaultLang, i18n[langFile]);
     }
 
     system.resetLangText();
@@ -781,9 +782,6 @@ const system = {
 };
 
 $(document).ready(function () {
-  // Loads the default language content
-  system.defaultLang = enLocal;
-
   // Loads a list of available languages
   system.languages = i18nManifest;
   system.init(getUserLang(), getQueryString('local'));

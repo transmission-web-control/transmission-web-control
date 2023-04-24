@@ -6,6 +6,7 @@ import { APP_VERSION } from './version';
 import { Base64 } from 'js-base64';
 import enLocal from '../i18n/en.json';
 import i18nManifest from '../i18n.json';
+import * as lo from 'lodash-es';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 
@@ -14,6 +15,7 @@ const { browser } = UAParser(navigator.userAgent);
 const system = {
   rootPath: 'tr-web-control/',
   configHead: 'transmission-web-control',
+  defaultLang: enLocal,
   // default config, can be customized in config.js
   config: {
     autoReload: true,
@@ -23,7 +25,7 @@ const system = {
     pageList: [10, 20, 30, 40, 50, 100, 150, 200, 250, 300, 5000],
     defaultSelectNode: null,
     autoExpandAttribute: false,
-    defaultLang: '',
+    defaultLang: 'en',
     foldersShow: false,
     // theme
     theme: 'default',
@@ -73,7 +75,7 @@ const system = {
     'https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest',
   contextMenus: {},
   panel: null,
-  lang: null,
+  lang: enLocal,
   reloading: false,
   autoReloadTimer: null,
   downloadDir: '',
@@ -123,7 +125,7 @@ const system = {
 
     const langFile = `../i18n/${lang}.json`;
     if (langFile in i18n) {
-      system.lang = $.extend(true, system.defaultLang, i18n[langFile]);
+      system.lang = lo.extend(system.defaultLang, i18n[langFile]);
     }
     system.resetLangText();
     // Set the easyui language
@@ -3997,9 +3999,6 @@ function pagerFilter(data) {
 }
 
 $(document).ready(function () {
-  // Loads the default language content
-  system.defaultLang = enLocal;
-
   // Loads a list of available languages
   system.languages = i18nManifest;
   system.init(getUserLang(), getQueryString('local'));
