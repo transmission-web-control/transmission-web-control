@@ -1,10 +1,10 @@
+import * as lo from 'lodash-es';
+
+import i18nManifest from '../i18n.json';
+import enLocal from '../i18n/en.json';
 import { transmission } from './transmission';
 import { getQueryString, getUserLang } from './utils';
-import enLocal from '../i18n/en.json';
-import i18nManifest from '../i18n.json';
-
 import { APP_VERSION } from './version';
-import * as lo from 'lodash-es';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 
@@ -54,7 +54,9 @@ const system = {
         lang = this.config.defaultLang;
       }
     }
-    if (!lang) lang = 'zh-CN';
+    if (!lang) {
+      lang = 'zh-CN';
+    }
 
     // 如果该语言包没有定义，则使用英文
     if (!this.languages[lang]) {
@@ -71,7 +73,9 @@ const system = {
 
     system.resetLangText();
 
-    if (callback) callback();
+    if (callback) {
+      callback();
+    }
   },
   // 设置语言信息
   resetLangText: function () {
@@ -173,7 +177,9 @@ const system = {
   },
   // 获取服务器当前状态
   getServerStatus: function () {
-    if (this.reloading) return;
+    if (this.reloading) {
+      return;
+    }
     clearTimeout(this.autoReloadTimer);
 
     this.reloading = true;
@@ -186,7 +192,9 @@ const system = {
   },
   // 重新获取种子信息
   reloadTorrentBaseInfos: function (ids) {
-    if (this.reloading) return;
+    if (this.reloading) {
+      return;
+    }
     clearTimeout(this.autoReloadTimer);
     this.reloading = true;
     var oldInfos = {
@@ -279,7 +287,9 @@ const system = {
     item.text(count);
     if (count == 0) {
       item.hide();
-    } else item.show();
+    } else {
+      item.show();
+    }
   },
   // 重新加载数据
   reloadData: function () {
@@ -303,7 +313,9 @@ const system = {
     if (typeof target == 'string') {
       _default.page = target;
       config = _default;
-    } else config = jQuery.extend(_default, target);
+    } else {
+      config = jQuery.extend(_default, target);
+    }
     if (config.page == this.currentContentPage && !config.reload) {
       return;
     }
@@ -318,7 +330,9 @@ const system = {
       this.torrentListChecked = false;
     }
     $('#torrent-page-bar').hide();
-    if (!this.torrentListChecked) $('#torrent-toolbar').hide();
+    if (!this.torrentListChecked) {
+      $('#torrent-toolbar').hide();
+    }
 
     this.currentContentPage = config.page;
     switch (config.type) {
@@ -332,7 +346,9 @@ const system = {
     $('#page-title').text(config.title);
     config.reload = false;
     this.currentContentConfig = config;
-    if (config.callback) config.callback();
+    if (config.callback) {
+      config.callback();
+    }
   },
   getTorrentFromType: function (type) {
     var torrents = null;
@@ -391,7 +407,9 @@ const system = {
   // 加载种子列表
   loadTorrentToList: function (config) {
     // 如果有种子选中，则不重新加载列表
-    if (this.torrentListChecked) return;
+    if (this.torrentListChecked) {
+      return;
+    }
     if (!transmission.torrents.all) {
       return;
     }
@@ -402,7 +420,9 @@ const system = {
     };
 
     jQuery.extend(def, config);
-    if (!config.target) return;
+    if (!config.target) {
+      return;
+    }
 
     var torrents = this.getTorrentFromType(config.target);
 
@@ -612,7 +632,9 @@ const system = {
       this.torrentListChecked = false;
       $('#torrent-toolbar').hide();
     }
-    if (item) this.currentTorrentId = item.id;
+    if (item) {
+      this.currentTorrentId = item.id;
+    }
   },
   // 种子列表分页处理
   torrentPager: {
@@ -662,7 +684,9 @@ const system = {
       }
       if (this.head == head) {
         this.gotoPage();
-      } else this.gotoPage(1);
+      } else {
+        this.gotoPage(1);
+      }
       this.head = head;
     },
     gotoPage: function (page) {
@@ -763,7 +787,9 @@ const system = {
       this.showStatus(this.lang.system.status.queuefinish);
       // this.config.autoReload = true;
       this.getServerStatus();
-      if (callback) callback();
+      if (callback) {
+        callback();
+      }
       return;
     }
     this.showStatus(this.lang.system.status.queue, count - index + 1);
@@ -778,8 +804,11 @@ const system = {
     }
     $('#status').show();
     $('#status-msg').html(msg);
-    if ($.isNumeric(count)) $('#status-count').html(count).show();
-    else $('#status-count').hide();
+    if ($.isNumeric(count)) {
+      $('#status-count').html(count).show();
+    } else {
+      $('#status-count').hide();
+    }
   },
 };
 

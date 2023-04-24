@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint ./src/",
+    "lint": "eslint src --ext .mjs,.js,.ts",
     "start": "vite --host 127.0.0.1",
     "prebuild": "rimraf ./dist/",
     "build": "vite build",
