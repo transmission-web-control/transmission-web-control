@@ -22,7 +22,8 @@ const system = {
     pageSize: 30,
     defaultSelectNode: null,
   },
-  lang: null,
+  lang: enLocal,
+  langInit: false,
   reloading: false,
   autoReloadTimer: null,
   downloadDir: '',
@@ -84,8 +85,9 @@ const system = {
   init: function (lang, islocal) {
     this.readConfig();
     transmission.options.getFolders = false;
-    if (this.lang == null) {
+    if (!this.langInit) {
       this.setlang(lang, function () {
+        system.langInit = true;
         system.initdata();
       });
     } else {

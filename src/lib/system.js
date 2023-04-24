@@ -9,6 +9,15 @@ import i18nManifest from '../i18n.json';
 import * as lo from 'lodash-es';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
+const easyUILocale = import.meta.glob(
+  '../../public/tr-web-control/script/easyui/locale/easyui-lang-*.js',
+  {
+    eager: true,
+    as: 'raw',
+  },
+);
+
+// console.log(easyUILocale);
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
@@ -76,6 +85,7 @@ const system = {
   contextMenus: {},
   panel: null,
   lang: enLocal,
+  langInit: false,
   reloading: false,
   autoReloadTimer: null,
   downloadDir: '',
@@ -127,22 +137,19 @@ const system = {
     if (langFile in i18n) {
       system.lang = lo.extend(system.defaultLang, i18n[langFile]);
     }
+
     system.resetLangText();
+
     // Set the easyui language
-    $.getScript(system.rootPath + 'script/easyui/locale/easyui-lang-' + lang + '.js')
-      .done(function (script, textStatus) {
-        if (callback) {
-          callback();
-        }
-        // If the loading fails, the English language is loaded
-      })
-      .fail(function (jqxhr, settings, exception) {
-        $.getScript(system.rootPath + 'script/easyui/locale/easyui-lang-en.js', function () {
-          if (callback) {
-            callback();
-          }
-        });
-      });
+    const easyUILangFile = `../../public/tr-web-control/script/easyui/locale/easyui-lang-${lang}.js`;
+    console.log(easyUILangFile);
+    if (easyUILangFile in easyUILocale) {
+      eval(easyUILocale[easyUILangFile]);
+    } else {
+      eval(easyUILocale[`../../public/tr-web-control/script/easyui/locale/easyui-lang-en.js`]);
+    }
+
+    callback();
   },
   /**
    * 程序初始化
@@ -170,8 +177,9 @@ const system = {
       droparea: $('#dropArea'),
     };
 
-    if (this.lang == null) {
+    if (!system.langInit) {
       this.setlang(lang, function () {
+        system.langInit = true;
         system.initdata();
       });
     } else {
