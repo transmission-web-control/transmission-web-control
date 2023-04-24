@@ -142,7 +142,6 @@ const system = {
 
     // Set the easyui language
     const easyUILangFile = `../../public/tr-web-control/script/easyui/locale/easyui-lang-${lang}.js`;
-    console.log(easyUILangFile);
     if (easyUILangFile in easyUILocale) {
       eval(easyUILocale[easyUILangFile]);
     } else {
