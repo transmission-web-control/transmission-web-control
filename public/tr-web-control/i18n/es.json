@@ -1,5 +1,6 @@
 {
   "name": "es",
+  "languageName": "English",
   "author": "Adrián González, malkavi, vodek3",
   "system": {
     "title": "Transmission WEB Control",
@@ -140,6 +141,7 @@
       "torrent-url": "URL(s):",
       "tip-torrent-url": "Consejo：Puedes introducir más de un archivo usando varias líneas",
       "autostart": "Iniciar descarga:",
+      "tip-autostart": "",
       "set-default-download-dir": "Establecer como carpeta predeterminada",
       "upload-file": "Archivos(s) torrent:",
       "nosource": "Sin torrent o URL.",
@@ -225,7 +227,11 @@
       "export-config": "Exportar configuración actual",
       "import-config-confirm": "¿Quieres importar estas configuraciones? Esto cambiará la configuración actual.",
       "script-torrent-done-enabled": "Ejecutar el siguiente script al completar una descarga:",
-      "ipinfo": "ipinfo.io Token"
+      "ipinfo": "ipinfo.io Token",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
       "button-ok": "Aceptar",
@@ -262,6 +268,16 @@
       "move-data": "Si se activa se moverán desde la ubicación anterior, en caso contrario busca archivos en 'Carpeta nueva'.",
       "set-error": "¡Error al establecer la carpeta!",
       "recheck-data": "Recomprobar datos."
+    },
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
     },
     "system-replaceTracker": {
       "title": "Reemplazar Trackers",
