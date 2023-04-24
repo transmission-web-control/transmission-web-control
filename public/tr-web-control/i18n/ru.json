@@ -1,5 +1,6 @@
 {
   "name": "ru",
+  "languageName": "English",
   "author": "Oleksandr Gureiev, irherder, Isseq, DarkAlexWang, vodek3",
   "system": {
     "title": "Transmission WEB Control",
@@ -68,6 +69,7 @@
       "autoreload-enabled": "Включить автообновление",
       "tracker-replace": "Заменить трекеры",
       "change-download-dir": "Изменить папку загрузки",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Мобильный UI",
       "ui-original": "Оригинальный UI",
       "more-peers": "Запросить у трекера больше пиров",
@@ -308,6 +310,8 @@
       "newname": "Новый"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Добавить трекеры",
       "tip": "Одна строка, один трекер"
     },
