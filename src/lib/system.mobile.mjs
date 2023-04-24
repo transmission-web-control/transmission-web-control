@@ -1,7 +1,11 @@
 import { transmission } from './transmission';
-import { getQueryString } from './utils';
+import { getQueryString, getUserLang } from './utils';
+import enLocal from '../i18n/en.json';
+import i18nManifest from '../i18n.json';
 
 import { APP_VERSION } from './version';
+
+const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 
 /*
 	移动版
@@ -34,27 +38,21 @@ const system = {
   serverSessionStats: null,
   // 种子列表已选中
   torrentListChecked: false,
-  debug: function(label, text) {
+  debug: function (label, text) {
     if (window.console) {
       if (window.console.log) {
         window.console.log(label, text);
       }
     }
   },
-  setlang: function(lang, callback) {
+  setlang: function (lang, callback) {
     // 如果未指定语言，则获取当前浏览器默认语言
     if (!lang) {
-      if (this.config.defaultLang) lang = this.config.defaultLang;
-      else lang = navigator.language || navigator.browserLanguage;
-      // this.debug("lang",lang);
+      if (this.config.defaultLang) {
+        lang = this.config.defaultLang;
+      }
     }
     if (!lang) lang = 'zh-CN';
-
-    // 如果语言代码中包含-，则需要将后半部份转为大写
-    if (lang.indexOf('-') != -1) {
-      // 因linux对文件有大小写限制，故重新赋值
-      lang = lang.split('-')[0].toLocaleLowerCase() + '-' + lang.split('-')[1].toLocaleUpperCase();
-    }
 
     // 如果该语言包没有定义，则使用英文
     if (!this.languages[lang]) {
@@ -64,43 +62,43 @@ const system = {
     // 统一使用 _ 替代 -
     lang = lang.replace('-', '_');
 
-    $.getJSON(system.rootPath + 'i18n/' + lang + '.json', function(result) {
-      if (result) {
-        system.lang = $.extend(true, system.defaultLang, result);
-      }
+    const langFile = `../i18n/${lang}.json`;
+    if (langFile in i18n) {
+      system.lang = $.extend(true, system.defaultLang, i18n[langFile]);
+    }
 
-      system.resetLangText();
-      if (callback) callback();
-    });
+    system.resetLangText();
+
+    if (callback) callback();
   },
   // 设置语言信息
-  resetLangText: function() {
+  resetLangText: function () {
     var items = $('*[system-lang]');
 
-    $.each(items, function(key, item) {
+    $.each(items, function (key, item) {
       var name = $(item).attr('system-lang');
       $(item).html(eval('system.lang.' + name));
     });
   },
-  init: function(lang, islocal) {
+  init: function (lang, islocal) {
     this.readConfig();
     transmission.options.getFolders = false;
     if (this.lang == null) {
-      this.setlang(lang, function() {
+      this.setlang(lang, function () {
         system.initdata();
       });
     } else {
       this.initdata();
     }
   },
-  initdata: function() {
+  initdata: function () {
     $(document).attr('title', this.lang.system.title + ' ' + APP_VERSION);
     // this.control.torrentlist = $("#content-torrent-list ul");
     this.control.torrentlist = $('#torrent-list');
     this.connect();
   },
   // 从 cookies 里加载配置
-  readConfig: function() {
+  readConfig: function () {
     // 将原来的cookies的方式改为本地存储的方式
     var config = this.getStorageData(this.configHead + '.system');
     if (config) {
@@ -108,23 +106,23 @@ const system = {
     }
   },
   // 在 cookies 里保存参数
-  saveConfig: function() {
+  saveConfig: function () {
     this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
   },
-  getStorageData: function(key, defaultValue) {
+  getStorageData: function (key, defaultValue) {
     return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
   },
-  setStorageData: function(key, value) {
+  setStorageData: function (key, value) {
     window.localStorage[key] = value;
   },
   // 连接服务器
-  connect: function() {
+  connect: function () {
     // 当种子总数发生变化时，重新获取种子信息
-    transmission.on.torrentCountChange = function() {
+    transmission.on.torrentCountChange = function () {
       system.reloadTorrentBaseInfos();
     };
     // 提交错误时
-    transmission.on.postError = function() {
+    transmission.on.postError = function () {
       // system.reloadTorrentBaseInfos();
     };
     // 初始化连接
@@ -132,15 +130,15 @@ const system = {
       {
         islocal: true,
       },
-      function() {
+      function () {
         system.reloadSession(true);
         system.getServerStatus();
       },
     );
   },
   // 重新加载服务器信息
-  reloadSession: function(isinit) {
-    transmission.getSession(function(result) {
+  reloadSession: function (isinit) {
+    transmission.getSession(function (result) {
       system.serverConfig = result;
       if (result['alt-speed-enabled'] == true) {
         $('#status_alt_speed').show();
@@ -152,7 +150,7 @@ const system = {
 
       // rpc-version 版本为 15 起，不再提供 download-dir-free-space 参数，需从新的方法获取
       if (parseInt(system.serverConfig['rpc-version']) >= 15) {
-        transmission.getFreeSpace(system.downloadDir, function(result) {
+        transmission.getFreeSpace(system.downloadDir, function (result) {
           system.serverConfig['download-dir-free-space'] = result.arguments['size-bytes'];
           system.showFreeSpace(result.arguments['size-bytes']);
         });
@@ -161,7 +159,7 @@ const system = {
       }
     });
   },
-  showFreeSpace: function(size) {
+  showFreeSpace: function (size) {
     var tmp = size;
     if (tmp == -1) {
       tmp = system.lang.public['text-unknown'];
@@ -171,12 +169,12 @@ const system = {
     $('#status_freespace').text(tmp);
   },
   // 获取服务器当前状态
-  getServerStatus: function() {
+  getServerStatus: function () {
     if (this.reloading) return;
     clearTimeout(this.autoReloadTimer);
 
     this.reloading = true;
-    transmission.getStatus(function(data) {
+    transmission.getStatus(function (data) {
       system.reloading = false;
       $('#status_downloadspeed').html(formatSize(data.downloadSpeed, false, 'speed'));
       $('#status_uploadspeed').html(formatSize(data.uploadSpeed, false, 'speed'));
@@ -184,7 +182,7 @@ const system = {
     });
   },
   // 重新获取种子信息
-  reloadTorrentBaseInfos: function(ids) {
+  reloadTorrentBaseInfos: function (ids) {
     if (this.reloading) return;
     clearTimeout(this.autoReloadTimer);
     this.reloading = true;
@@ -194,7 +192,7 @@ const system = {
     };
 
     // 获取所有种子id信息
-    transmission.torrents.getallids(function(resultTorrents) {
+    transmission.torrents.getallids(function (resultTorrents) {
       var ignore = [];
       for (var index in resultTorrents) {
         var item = resultTorrents[index];
@@ -205,7 +203,7 @@ const system = {
       var errorIds = transmission.torrents.getErrorIds(ignore, true);
 
       if (errorIds.length > 0) {
-        transmission.torrents.getallids(function() {
+        transmission.torrents.getallids(function () {
           system.resetTorrentInfos(oldInfos);
         }, errorIds);
       } else {
@@ -214,7 +212,7 @@ const system = {
     }, ids);
   },
   //
-  resetTorrentInfos: function(oldInfos) {
+  resetTorrentInfos: function (oldInfos) {
     var currentTorrentId = this.currentTorrentId;
 
     // 已暂停
@@ -258,7 +256,7 @@ const system = {
     system.reloading = false;
 
     if (system.config.autoReload) {
-      system.autoReloadTimer = setTimeout(function() {
+      system.autoReloadTimer = setTimeout(function () {
         system.reloadData();
       }, system.config.reloadStep);
     }
@@ -273,7 +271,7 @@ const system = {
     }
   },
   // 更新状态中
-  updateCount: function(nodeId, count) {
+  updateCount: function (nodeId, count) {
     var item = $('#count-' + nodeId);
     item.text(count);
     if (count == 0) {
@@ -281,7 +279,7 @@ const system = {
     } else item.show();
   },
   // 重新加载数据
-  reloadData: function() {
+  reloadData: function () {
     this.reloadSession();
     this.reloading = false;
     this.getServerStatus();
@@ -289,7 +287,7 @@ const system = {
     this.reloadTorrentBaseInfos();
   },
   // 显示指定的内容
-  showContent: function(target) {
+  showContent: function (target) {
     var _default = {
       page: '',
       type: '',
@@ -333,7 +331,7 @@ const system = {
     this.currentContentConfig = config;
     if (config.callback) config.callback();
   },
-  getTorrentFromType: function(type) {
+  getTorrentFromType: function (type) {
     var torrents = null;
     switch (type) {
       case 'torrent-all':
@@ -388,7 +386,7 @@ const system = {
     return torrents;
   },
   // 加载种子列表
-  loadTorrentToList: function(config) {
+  loadTorrentToList: function (config) {
     // 如果有种子选中，则不重新加载列表
     if (this.torrentListChecked) return;
     if (!transmission.torrents.all) {
@@ -417,12 +415,12 @@ const system = {
       var percentDone = parseFloat(torrents[index].percentDone * 100).toFixed(2);
       var status = this.lang.torrent['status-text'][torrents[index].status];
       if (torrents[index].error != 0) {
-        status = '<span class=\'text-status-error\'>' + status + '</span>';
+        status = "<span class='text-status-error'>" + status + '</span>';
       } else if (torrents[index].warning) {
         status =
-          '<span class=\'text-status-warning\' title=\'' +
+          "<span class='text-status-warning' title='" +
           torrents[index].warning +
-          '\'>' +
+          "'>" +
           status +
           '</span>';
       }
@@ -447,13 +445,13 @@ const system = {
       // this.appendTorrentToList(data);
     }
     if (datas.length == 0) {
-      setTimeout(function() {
+      setTimeout(function () {
         system.showContent('home');
       }, 100);
       return;
     }
     if (this.torrentPager.onGotoPage == null) {
-      this.torrentPager.onGotoPage = function(datas) {
+      this.torrentPager.onGotoPage = function (datas) {
         system.control.torrentlist.empty();
         $('#torrent-toolbar').hide();
         for (var key in datas) {
@@ -462,13 +460,13 @@ const system = {
         // 刷新列表并指定事件
         $(system.control.torrentlist)
           .listview('refresh')
-          .find('input[type=\'checkbox\']')
-          .click(function() {
+          .find("input[type='checkbox']")
+          .click(function () {
             system.changeTorrentToolbar(this, data);
             if (system.torrentListChecked) {
-              system.control.torrentlist.find('a[name=\'torrent\']').css('marginLeft', '0px');
+              system.control.torrentlist.find("a[name='torrent']").css('marginLeft', '0px');
             } else {
-              system.control.torrentlist.find('a[name=\'torrent\']').css('marginLeft', '0px');
+              system.control.torrentlist.find("a[name='torrent']").css('marginLeft', '0px');
             }
           })
           .checkboxradio();
@@ -478,7 +476,7 @@ const system = {
     this.torrentPager.setDatas(datas, config.target);
   },
   // 添加种子信息到列表
-  appendTorrentToList: function(data) {
+  appendTorrentToList: function (data) {
     var replaces = {
       id: data.id,
       name: data.name,
@@ -491,35 +489,35 @@ const system = {
 
     // 由于不能以对象的方式来创建 listview 子项，所以只能用拼接字符串的方式
     var templates =
-      '<li id=\'li-torrent-$id$\' torrentid=\'$id$\' style=\'padding:0px;\'><a name=\'torrent\' style=\'padding:0px;margin-left:0px;\'>' +
-      '<label data-corners=\'false\' style=\'margin:0px;border:0px;padding:0px;\'>' +
-      '<input type=\'checkbox\' id=\'torrent-$id$\'/><label for=\'torrent-$id$\'>' +
-      '<h3 style=\'margin:0px;\'>$name$</h3>' +
-      '<div style=\'padding:0px 10px 5px 0px;\'>$percentDone$</div>' +
-      '<p class=\'torrent-list-infos\'>↓$rateDownload$ ↑$rateUpload$|$completeSize$/$totalSize$</p>' +
+      "<li id='li-torrent-$id$' torrentid='$id$' style='padding:0px;'><a name='torrent' style='padding:0px;margin-left:0px;'>" +
+      "<label data-corners='false' style='margin:0px;border:0px;padding:0px;'>" +
+      "<input type='checkbox' id='torrent-$id$'/><label for='torrent-$id$'>" +
+      "<h3 style='margin:0px;'>$name$</h3>" +
+      "<div style='padding:0px 10px 5px 0px;'>$percentDone$</div>" +
+      "<p class='torrent-list-infos'>↓$rateDownload$ ↑$rateUpload$|$completeSize$/$totalSize$</p>" +
       '</label></label></a>' +
-      '<a class=\'more\'></a>';
+      "<a class='more'></a>";
 
     // 替换模板中以 $w$ 方式组成的内容
-    templates = templates.replace(/\$([^\$]*)\$/g, function(string, key) {
+    templates = templates.replace(/\$([^\$]*)\$/g, function (string, key) {
       return replaces[key];
     });
 
     var li = $(templates);
     // 向右划动
-    li.on('swiperight', function(event) {
+    li.on('swiperight', function (event) {
       // system.control.torrentlist.find("#torrent-"+$(this).attr("torrentid")).click();
-      system.control.torrentlist.find('a[name=\'torrent\']').css('marginLeft', '0px');
+      system.control.torrentlist.find("a[name='torrent']").css('marginLeft', '0px');
     });
-    li.on('swipeleft', function(event) {
+    li.on('swipeleft', function (event) {
       // system.control.torrentlist.find("#torrent-"+$(this).attr("torrentid")).click();
-      system.control.torrentlist.find('a[name=\'torrent\']').css('marginLeft', '0px');
+      system.control.torrentlist.find("a[name='torrent']").css('marginLeft', '0px');
     });
 
     li.appendTo(this.control.torrentlist);
   },
   // 获取种子名称显示区域的内容
-  getTorrentNameBar: function(torrent) {
+  getTorrentNameBar: function (torrent) {
     var className = '';
     var tip = torrent.name;
     switch (torrent.status) {
@@ -559,7 +557,7 @@ const system = {
     return '<span class="' + className + '" title="' + tip + '">' + torrent.name + '</span>';
   },
   // 获取指定种子的进度条
-  getTorrentProgressBar: function(progress, torrent) {
+  getTorrentProgressBar: function (progress, torrent) {
     progress = progress + '%';
     var className = '';
     switch (torrent.status) {
@@ -601,7 +599,7 @@ const system = {
     );
   },
   // 改变种子的工具栏
-  changeTorrentToolbar: function(source, item) {
+  changeTorrentToolbar: function (source, item) {
     var checked = this.control.torrentlist.find('input:checked');
     $('#torrent-checked-count').html(checked.length);
     if (checked.length > 0) {
@@ -629,14 +627,14 @@ const system = {
       number: null,
     },
     head: '',
-    init: function(datas) {
+    init: function (datas) {
       this.pageBar = $('#torrent-page-bar');
       this.controls.next = this.pageBar.find('#page-next');
-      this.controls.next.click(function() {
+      this.controls.next.click(function () {
         system.torrentPager.gotoPage('next');
       });
       this.controls.prev = this.pageBar.find('#page-prev');
-      this.controls.prev.click(function() {
+      this.controls.prev.click(function () {
         system.torrentPager.gotoPage('prev');
       });
 
@@ -645,7 +643,7 @@ const system = {
         this.setDatas(datas);
       }
     },
-    setDatas: function(datas, head) {
+    setDatas: function (datas, head) {
       if (!this.datas) {
         this.init();
       }
@@ -664,7 +662,7 @@ const system = {
       } else this.gotoPage(1);
       this.head = head;
     },
-    gotoPage: function(page) {
+    gotoPage: function (page) {
       if (typeof page == 'number') {
         this.pageNumber = page;
       } else {
@@ -706,7 +704,7 @@ const system = {
     },
   },
   // 开始/暂停已选择的种子
-  changeSelectedTorrentStatus: function(status, button, options) {
+  changeSelectedTorrentStatus: function (status, button, options) {
     var items = this.control.torrentlist.find('input:checked');
     var ids = [];
     if (!status) {
@@ -744,7 +742,7 @@ const system = {
           method: 'torrent-' + status,
           arguments: args,
         },
-        function(data) {
+        function (data) {
           button.attr('disabled', false);
           system.reloadTorrentBaseInfos();
         },
@@ -754,7 +752,7 @@ const system = {
     }
   },
   // 增加种子
-  addTorrentsToServer: function(urls, count, autostart, savepath, callback) {
+  addTorrentsToServer: function (urls, count, autostart, savepath, callback) {
     // this.config.autoReload = false;
     var index = count - urls.length;
     var url = urls.shift();
@@ -766,11 +764,11 @@ const system = {
       return;
     }
     this.showStatus(this.lang.system.status.queue, count - index + 1);
-    transmission.addTorrentFromUrl(url, savepath, autostart, function(data) {
+    transmission.addTorrentFromUrl(url, savepath, autostart, function (data) {
       system.addTorrentsToServer(urls, count, autostart, savepath, callback);
     });
   },
-  showStatus: function(msg, count) {
+  showStatus: function (msg, count) {
     if (!msg) {
       $('#status').hide();
       return;
@@ -782,18 +780,13 @@ const system = {
   },
 };
 
-$(document).ready(function() {
+$(document).ready(function () {
   // Loads the default language content
-  $.getJSON(system.rootPath + 'i18n/en.json').done(function(result) {
-    system.defaultLang = result;
-  });
+  system.defaultLang = enLocal;
 
   // Loads a list of available languages
-  $.getJSON(system.rootPath + 'i18n.json').done(function(result) {
-    system.languages = result;
-    system.init(getQueryString('lang'), getQueryString('local'));
-  });
+  system.languages = i18nManifest;
+  system.init(getUserLang(), getQueryString('local'));
 });
-
 
 globalThis.system = system;

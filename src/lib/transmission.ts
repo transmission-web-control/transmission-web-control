@@ -278,7 +278,9 @@ export const transmission = {
                     },
                     filecount,
                   );
-                } else callback('error');
+                } else {
+                  callback('error');
+                }
               }
               break;
             // 重复的种子
@@ -311,7 +313,9 @@ export const transmission = {
         },
       },
       function (data) {
-        if (callback != null) callback(data.result);
+        if (callback != null) {
+          callback(data.result);
+        }
       },
     );
   },
@@ -325,7 +329,9 @@ export const transmission = {
         },
       },
       function (result) {
-        if (callback != null) callback(result);
+        if (callback != null) {
+          callback(result);
+        }
       },
     );
   },
@@ -336,7 +342,9 @@ export const transmission = {
         method: 'blocklist-update',
       },
       function (data) {
-        if (callback != null) callback(data.result);
+        if (callback != null) {
+          callback(data.result);
+        }
       },
     );
   },
@@ -351,7 +359,9 @@ export const transmission = {
     callback?: (data: unknown) => void,
   ) {
     const torrent = this.torrents.all?.[torrentId];
-    if (!torrent) return false;
+    if (!torrent) {
+      return false;
+    }
 
     this.exec(
       {
@@ -363,7 +373,9 @@ export const transmission = {
         },
       },
       function (data) {
-        if (callback != null) callback(data);
+        if (callback != null) {
+          callback(data);
+        }
       },
     );
   },
@@ -374,7 +386,9 @@ export const transmission = {
         method: 'session-close',
       },
       function (result) {
-        if (callback != null) callback(result);
+        if (callback != null) {
+          callback(result);
+        }
       },
     );
   },
