@@ -11,6 +11,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    'prefer-const': 'error',
     'unicorn/prefer-string-slice': 'error',
     '@typescript-eslint/ban-ts-comment': 1,
     '@typescript-eslint/no-non-null-assertion': 1,
