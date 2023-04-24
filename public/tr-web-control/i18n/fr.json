@@ -69,6 +69,7 @@
       "autoreload-enabled": "Activer rafraîchissement auto",
       "tracker-replace": "Changer de trackers",
       "change-download-dir": "Définir dossier de téléchargement",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Interface Mobile",
       "ui-original": "Interface originale",
       "more-peers": "Interroger tracker pour plus de pairs",
@@ -309,6 +310,8 @@
       "newname": "Nouveau"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Ajouter des trackers",
       "tip": "Une ligne, un tracker"
     },
