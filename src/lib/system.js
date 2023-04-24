@@ -116,6 +116,84 @@ const system = {
   popoverCount: 0,
   // 当前数据目录，用于添加任务的快速保存路径选择
   currentListDir: '',
+
+  themes: [
+    {
+      value: 'default',
+      text: 'Default',
+      group: 'Base',
+    },
+    {
+      value: 'gray',
+      text: 'Gray',
+      group: 'Base',
+    },
+    {
+      value: 'metro',
+      text: 'Metro',
+      group: 'Base',
+    },
+    {
+      value: 'material',
+      text: 'Material',
+      group: 'Base',
+    },
+    {
+      value: 'bootstrap',
+      text: 'Bootstrap',
+      group: 'Base',
+    },
+    {
+      value: 'black;logo-white.png',
+      text: 'Black',
+      group: 'Base',
+    },
+    {
+      value: 'metro-blue',
+      text: 'Metro Blue',
+      group: 'Metro',
+    },
+    {
+      value: 'metro-gray',
+      text: 'Metro Gray',
+      group: 'Metro',
+    },
+    {
+      value: 'metro-green',
+      text: 'Metro Green',
+      group: 'Metro',
+    },
+    {
+      value: 'metro-orange',
+      text: 'Metro Orange',
+      group: 'Metro',
+    },
+    {
+      value: 'metro-red',
+      text: 'Metro Red',
+      group: 'Metro',
+    },
+    {
+      value: 'ui-cupertino',
+      text: 'Cupertino',
+      group: 'UI',
+    },
+    {
+      value: 'ui-dark-hive;logo-white.png',
+      text: 'Dark Hive',
+      group: 'UI',
+    },
+    {
+      value: 'ui-pepper-grinder',
+      text: 'Pepper Grinder',
+      group: 'UI',
+    },
+    {
+      value: 'ui-sunny',
+      text: 'Sunny',
+      group: 'UI',
+    },
+  ],
   /**
    * 设置语言
    */
