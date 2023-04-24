@@ -69,6 +69,7 @@
       "autoreload-enabled": "Activar actualización automática",
       "tracker-replace": "Reemplazar trackers",
       "change-download-dir": "Establecer ubicación",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "IU Móviles",
       "ui-original": "IU Original",
       "more-peers": "Solicitar más peers al trackers",
@@ -309,6 +310,8 @@
       "newname": "Nueva"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Añadir Trackers",
       "tip": "Una lina, Un Tracker"
     },
