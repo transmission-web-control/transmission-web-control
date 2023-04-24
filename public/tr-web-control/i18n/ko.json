@@ -1,5 +1,6 @@
 {
   "name": "ko",
+  "languageName": "English",
   "author": "kdsz330, vodek3",
   "system": {
     "title": "트랜스미션 웹 컨트롤",
@@ -68,6 +69,7 @@
       "autoreload-enabled": "자동 새로고침 활성화",
       "tracker-replace": "트래커 변경",
       "change-download-dir": "위치 설정",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "모바일 UI",
       "ui-original": "원래 UI",
       "more-peers": "더 많은 피어 탐색",
@@ -308,6 +310,8 @@
       "newname": "New"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Add Trackers",
       "tip": "One Line, One Tracker"
     },
