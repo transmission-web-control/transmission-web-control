@@ -1,7 +1,9 @@
 {
   "name": "ru",
+  "languageName": "English",
   "author": "Oleksandr Gureiev, irherder, Isseq, DarkAlexWang, vodek3",
   "system": {
+    "title": "Transmission WEB Control",
     "status": {
       "connect": "Соединение...",
       "connected": "Соединено",
@@ -67,6 +69,7 @@
       "autoreload-enabled": "Включить автообновление",
       "tracker-replace": "Заменить трекеры",
       "change-download-dir": "Изменить папку загрузки",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Мобильный UI",
       "ui-original": "Оригинальный UI",
       "more-peers": "Запросить у трекера больше пиров",
@@ -139,6 +142,7 @@
       "torrent-url": "Ссылка на .torrent или magnet:",
       "tip-torrent-url": "Новая ссылка с новой строки",
       "autostart": "Начать загрузку:",
+      "tip-autostart": "",
       "set-default-download-dir": "Выбрать как папку по умолчанию",
       "upload-file": "Файлы .torrent:",
       "nosource": "Указанный источник не является файлом .torrent.",
@@ -231,6 +235,7 @@
       "ipInfoDetailUrl": "URL для получения подробной информации:"
     },
     "public": {
+      "button-ok": "OK",
       "button-cancel": "Отмена",
       "button-reload": "Перегрузить",
       "button-save": "Сохранить",
@@ -247,7 +252,9 @@
       "infos": "Автор: culturist<br/>Дисклеймер: Большинство используемых изображений найдены в сети, если они нарушают Ваши авторские права, сообщите автору для удаления.",
       "check-update": "Проверить обновления",
       "home": "Домашняя страница проекта",
-      "donate": "Поддержать проект"
+      "help": "Wiki",
+      "donate": "Поддержать проект",
+      "pt-plugin": "PT Plugin"
     },
     "torrent-remove": {
       "title": "Удалить торрент",
@@ -303,6 +310,8 @@
       "newname": "Новый"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Добавить трекеры",
       "tip": "Одна строка, один трекер"
     },
@@ -325,6 +334,7 @@
   },
   "torrent": {
     "fields": {
+      "id": "#",
       "name": "Название",
       "hashString": "Хэш",
       "downloadDir": "Папка загрузки",
