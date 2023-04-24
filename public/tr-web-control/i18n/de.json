@@ -1,5 +1,6 @@
 {
   "name": "de",
+  "languageName": "English",
   "author": "LibertyX",
   "system": {
     "title": "Transmission WEB Control",
@@ -68,6 +69,7 @@
       "autoreload-enabled": "Klicken um aut. neuladen zu aktivieren",
       "tracker-replace": "Tracker ersetzten",
       "change-download-dir": "Downloadordner ändern",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Mobile UI",
       "ui-original": "Original UI",
       "more-peers": "Tracker nach mehr Peers fragen",
@@ -140,7 +142,7 @@
       "torrent-url": "Torrent URL:",
       "tip-torrent-url": "Tip: Mehrere Einträge durch Drücken der 'Eingabe' Taste trennen",
       "autostart": "Torrent starten:",
-      "tip-autostart": "Nach dem bestätigen mit 'OK' wird der Torrent direkt gestartet",
+      "tip-autostart": "",
       "set-default-download-dir": "Diesen Speicherordner als standard setzen",
       "upload-file": "Torrent Datei(en):",
       "nosource": "Keine torrent Datei oder URL.",
@@ -308,6 +310,8 @@
       "newname": "Neu"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Tracker hinzufügen",
       "tip": "Einen Tracker pro Zeile"
     },
