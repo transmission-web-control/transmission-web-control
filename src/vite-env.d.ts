@@ -1,8 +1,9 @@
 import 'vite/client';
 
+import type Semver from 'semver';
+
 import { type Transmission } from './lib/transmission';
 import { type System } from './type';
-import type Semver from 'semver';
 
 declare global {
   var transmission: Transmission;
