@@ -135,7 +135,7 @@ const system = {
 
     const langFile = `../i18n/${lang}.json`;
     if (langFile in i18n) {
-      system.lang = lo.extend(system.defaultLang, i18n[langFile]);
+      system.lang = lo.merge(system.defaultLang, i18n[langFile]);
     }
 
     system.resetLangText();
