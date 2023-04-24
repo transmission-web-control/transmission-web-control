@@ -40,7 +40,7 @@ A browser which supports HTML5 and ES Module. (Chrome 63，Firefox 67，Edge 79,
 
 ## i18n
 
-submit your translation on transifex https://app.transifex.com/transmission-web-control/transmission-web-control-1/
+Submit your translation on transifex https://app.transifex.com/transmission-web-control/transmission-web-control-1/
 
 <!--
 ## 国内镜像源
