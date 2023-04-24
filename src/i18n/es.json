@@ -1,16 +1,13 @@
 {
   "name": "es",
-  "languageName": "English",
   "author": "Adrián González, malkavi, vodek3",
   "system": {
-    "title": "Transmission WEB Control",
     "status": {
       "connect": "Conectando...",
       "connected": "Conectado",
       "queue": "Cola:",
       "queuefinish": "Cola(s) finalizada(s).",
-      "notfinal": "No final",
-      "checked": "%n data checked:"
+      "notfinal": "No final"
     }
   },
   "error": {
@@ -48,7 +45,6 @@
     "ui-computer": "IU Escritorio",
     "plugin": "Extensiones/plugins",
     "rename": "Renombrar",
-    "copy-path-to-clipboard": "Copy download location to clipboard",
     "tip": {
       "start": "Iniciar torrents seleccionados",
       "pause": "Pausar torrents seleccionados",
@@ -69,12 +65,10 @@
       "autoreload-enabled": "Activar actualización automática",
       "tracker-replace": "Reemplazar trackers",
       "change-download-dir": "Establecer ubicación",
-      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "IU Móviles",
       "ui-original": "IU Original",
       "more-peers": "Solicitar más peers al trackers",
-      "rename": "Renombrando ruta del Torrent",
-      "copy-path-to-clipboard": "Copy download location to clipboard"
+      "rename": "Renombrando ruta del Torrent"
     }
   },
   "menus": {
@@ -86,13 +80,10 @@
     },
     "plugin": {
       "auto-match-data-folder": "Elegir automáticamente directorio de datos"
-    },
-    "setLabels": "Set User Labels",
-    "copyMagnetLink": "Copy magnetLink to clipboard"
+    }
   },
   "title": {
     "left": "Navegación",
-    "list": "Torrents",
     "attribute": "Parámetros del torrent",
     "status": "Estado"
   },
@@ -121,14 +112,12 @@
       "sessionCount": "Sesiones:",
       "secondsActive": "Tiempo activo:"
     },
-    "servers": "Trackers",
     "folders": "Carpetas",
     "toolbar": {
       "nav": {
         "folders": "Carpetas"
       }
-    },
-    "labels": "User Labels"
+    }
   },
   "statusbar": {
     "downloadspeed": "Vel. descarga:",
@@ -142,7 +131,6 @@
       "torrent-url": "URL(s):",
       "tip-torrent-url": "Consejo：Puedes introducir más de un archivo usando varias líneas",
       "autostart": "Iniciar descarga:",
-      "tip-autostart": "",
       "set-default-download-dir": "Establecer como carpeta predeterminada",
       "upload-file": "Archivos(s) torrent:",
       "nosource": "Sin torrent o URL.",
@@ -220,7 +208,6 @@
       "labels-manage": {
         "name": "Nombre de etiqueta",
         "description": "Descripción",
-        "color": "Color",
         "actions": "Acciones",
         "import-confirm": "¿Quieres importar las etiquetas? Esto cambiará la configuración actual."
       },
@@ -228,11 +215,7 @@
       "export-config": "Exportar configuración actual",
       "import-config-confirm": "¿Quieres importar estas configuraciones? Esto cambiará la configuración actual.",
       "script-torrent-done-enabled": "Ejecutar el siguiente script al completar una descarga:",
-      "ipinfo": "ipinfo.io Token",
-      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
-      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
-      "ipInfoCountryCodeUrl": "URL to get country code:",
-      "ipInfoDetailUrl": "URL to get details:"
+      "ipinfo": "ipinfo.io Token"
     },
     "public": {
       "button-ok": "Aceptar",
@@ -250,11 +233,7 @@
     },
     "about": {
       "infos": "Autor：culturist<br/>Declaración：Most of the icons used in this program from the network, if any violation of your rights, please contact me delete.",
-      "check-update": "Comprobar actualización",
-      "home": "Project Home",
-      "help": "Wiki",
-      "donate": "Donate",
-      "pt-plugin": "PT Plugin"
+      "check-update": "Comprobar actualización"
     },
     "torrent-remove": {
       "title": "Confirmar eliminar",
@@ -270,16 +249,7 @@
       "set-error": "¡Error al establecer la carpeta!",
       "recheck-data": "Recomprobar datos."
     },
-    "torrent-changeSpeedLimit": {
-      "title": "Set torrents Max download speed and Max upload speed",
-      "downloadLimited": "Max global download speed:",
-      "uploadLimited": "Max global upload speed:",
-      "peer-limit": "Maximum peers for this torrent:",
-      "seedRatioMode": "Seed ratio for torrents to use:",
-      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
-      "doneDate": "Finish Time:",
-      "seedTime": "Seed Time:"
-    },
+    "torrent-changeSpeedLimit": {},
     "system-replaceTracker": {
       "title": "Reemplazar Trackers",
       "old-tracker": "Antiguo tracker：",
@@ -310,8 +280,6 @@
       "newname": "Nueva"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best IP",
-      "button-search-all-ip": "all IP",
       "title": "Añadir Trackers",
       "tip": "Una lina, Un Tracker"
     },
@@ -334,9 +302,7 @@
   },
   "torrent": {
     "fields": {
-      "id": "#",
       "name": "Nombre",
-      "hashString": "HASH",
       "downloadDir": "Carpeta desc.",
       "totalSize": "Tamaño",
       "status": "Estado",
@@ -351,10 +317,7 @@
       "uploadedEver": "Subido",
       "uploadRatio": "Proporción",
       "queuePosition": "Cola",
-      "activityDate": "Fecha de Actividad",
-      "trackers": "Trackers",
-      "labels": "User Labels",
-      "doneDate": "Completed Date"
+      "activityDate": "Fecha de Actividad"
     },
     "status-text": {
       "0": "Pausado",
@@ -368,9 +331,7 @@
     "attribute": {
       "tabs": {
         "base": "Básico",
-        "servers": "Trackers",
         "files": "Archivos",
-        "users": "Peers",
         "config": "Config."
       },
       "files-fields": {
@@ -414,7 +375,6 @@
         "false": "No"
       },
       "priority": {
-        "0": "Normal",
         "1": "Alta",
         "-1": "Baja"
       },
@@ -429,7 +389,6 @@
         "totalSize": "Tamaño:",
         "completeSize": "Completado:",
         "leftUntilDone": "Restante:",
-        "hashString": "HASH:",
         "downloadDir": "Destino:",
         "status": "Estado:",
         "rateDownload": "Vel. descarga:",
@@ -446,9 +405,7 @@
         "uploadLimited": "Vel. subida máxima：",
         "peer-limit": "Número máximo de peers por torrent：",
         "seedRatioMode": "Ratio de subida por torrent：",
-        "seedIdleMode": "Detener compartidos inactivos tras：",
-        "doneDate": "Finish Time:",
-        "seedTime": "Seed Time:"
+        "seedIdleMode": "Detener compartidos inactivos tras："
       },
       "tip": {
         "button-allow": "Descargar archivos(s) marcados",
@@ -478,11 +435,6 @@
     "text-confirm": "¿Está seguro?",
     "text-browsers-not-support-features": "El navegador actual no soporta esta función!",
     "text-download-update": "Descargar esta actualización",
-    "text-have-update": "Hay una actualización disponible",
-    "text-on": "ON",
-    "text-off": "OFF",
-    "text-how-to-update": "How to update?",
-    "text-ignore-this-version": "Ignore this version",
-    "text-json-file-parsing-failed": "JSON file parsing failed!"
+    "text-have-update": "Hay una actualización disponible"
   }
 }

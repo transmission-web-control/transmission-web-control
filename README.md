@@ -8,7 +8,8 @@
 
 ## Introduction
 
-Transmission Web Control is a custom web UI. The project was originally written by [ronggang](https://github.com/ronggang/transmission-web-control).
+Transmission Web Control is a custom web UI. The project was originally written
+by [ronggang](https://github.com/ronggang/transmission-web-control).
 Welcome to give me any feedback or submit a Pull Request.
 
 ## Support Transmission Version
@@ -40,7 +41,10 @@ A browser which supports HTML5 and ES Module. (Chrome 63，Firefox 67，Edge 79,
 
 ## i18n
 
-Submit your translation on transifex https://app.transifex.com/transmission-web-control/transmission-web-control-1/
+Please help us translation this project in to multiple language on transifex, so reviewing current translations can
+still help us.
+
+https://app.transifex.com/transmission-web-control/transmission-web-control-1/
 
 ```shell
 git clone https://github.com/transmission-web-control/transmission-web-control
@@ -57,10 +61,12 @@ yarn start
 
 ## 关于
 
-本项目主要目的是想加强[Transmission](https://www.transmissionbt.com/) Web 的操作能力，本项目原本在[Google Code](https://code.google.com/p/transmission-control/)托管，现迁移至 GitHub。
+本项目主要目的是想加强[Transmission](https://www.transmissionbt.com/) Web
+的操作能力，本项目原本在[Google Code](https://code.google.com/p/transmission-control/)托管，现迁移至 GitHub。
 本项目设计之初仅针对 PT 站，因此增加了 Tracker 服务器分组及状态，但这不并适用于普通 BT 种子。
 
-另外，本项目仅为一套自定义的 WebUI，不能代替 Transmission 工作，用户需要自行安装 Transmission 后才可正常使，Transmission 安装方法请移步至官网：https://www.transmissionbt.com/
+另外，本项目仅为一套自定义的 WebUI，不能代替 Transmission 工作，用户需要自行安装 Transmission 后才可正常使，Transmission
+安装方法请移步至官网：https://www.transmissionbt.com/
 
 ## 界面预览
 

@@ -1,9 +1,7 @@
 {
   "name": "uk",
-  "languageName": "English",
   "author": "Andrew Guk (https://github.com/gukandrew), vodek3",
   "system": {
-    "title": "Transmission WEB Control",
     "status": {
       "connect": "З&#39;єднання...",
       "connected": "З&#39;єднане",
@@ -69,7 +67,6 @@
       "autoreload-enabled": "Увімкнути авто-оновлення",
       "tracker-replace": "Замінити трекери",
       "change-download-dir": "Змінити директорію завантаження",
-      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Мобільний UI",
       "ui-original": "Оригінальний UI",
       "more-peers": "Запитати у трекера більше пірів",
@@ -142,7 +139,6 @@
       "torrent-url": "Посилання на .torrent або magnet:",
       "tip-torrent-url": "Нове посилання з нового рядка",
       "autostart": "Розпочати завантаження:",
-      "tip-autostart": "",
       "set-default-download-dir": "Вибрати як директорію за замовчуванням",
       "upload-file": "Файли .torrent:",
       "nosource": "Вказане джерело не є файлом .torrent.",
@@ -227,15 +223,9 @@
       "import-config": "Імпортувати конфігурацію із файлу",
       "export-config": "Експортувати поточну конфігурацію",
       "import-config-confirm": "Ви дійсно хочете імпортувати цю конфігурацію? Це перезапише поточну конфігурацію.",
-      "script-torrent-done-enabled": "Виконати наступний сценарій коли торрент завантажиться:",
-      "ipinfo": "IPinfo.io access token:",
-      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
-      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
-      "ipInfoCountryCodeUrl": "URL to get country code:",
-      "ipInfoDetailUrl": "URL to get details:"
+      "script-torrent-done-enabled": "Виконати наступний сценарій коли торрент завантажиться:"
     },
     "public": {
-      "button-ok": "OK",
       "button-cancel": "Скасувати",
       "button-reload": "Перевантажити",
       "button-save": "Зберегти",
@@ -252,9 +242,7 @@
       "infos": "Автор: culturist<br/>Дискеймер: Більшість використовуваних зображень знайдені в мережі, якщо вони порушують ваші авторські права, повідомте автора для видалення.",
       "check-update": "Перевірити оновлення",
       "home": "Домівка проекту",
-      "help": "Wiki",
-      "donate": "Пожертвувати",
-      "pt-plugin": "PT Plugin"
+      "donate": "Пожертвувати"
     },
     "torrent-remove": {
       "title": "Видалити торрент",
@@ -270,16 +258,7 @@
       "set-error": "помилка!",
       "recheck-data": "Перевірити дані"
     },
-    "torrent-changeSpeedLimit": {
-      "title": "Set torrents Max download speed and Max upload speed",
-      "downloadLimited": "Max global download speed:",
-      "uploadLimited": "Max global upload speed:",
-      "peer-limit": "Maximum peers for this torrent:",
-      "seedRatioMode": "Seed ratio for torrents to use:",
-      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
-      "doneDate": "Finish Time:",
-      "seedTime": "Seed Time:"
-    },
+    "torrent-changeSpeedLimit": {},
     "system-replaceTracker": {
       "title": "Замінити трекери",
       "old-tracker": "Старий трекер:",
@@ -310,8 +289,6 @@
       "newname": "Нове ім&#39;я"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best IP",
-      "button-search-all-ip": "all IP",
       "title": "Додати трекер",
       "tip": "Один новий рядок - один трекер"
     },
@@ -334,7 +311,6 @@
   },
   "torrent": {
     "fields": {
-      "id": "#",
       "name": "Назва",
       "hashString": "Хеш",
       "downloadDir": "Директорія",
@@ -401,8 +377,6 @@
       },
       "peers-fields": {
         "address": "IP адреса",
-        "port": "Port",
-        "isUTP": "UTP enabled",
         "clientName": "Клієнт",
         "flagStr": "Країна",
         "progress": "Прогрес",
@@ -454,7 +428,6 @@
         "button-allow": "Завантажити вибрані файли",
         "button-deny": "Пропустити вибрані файли",
         "button-priority": "Встановити пріоритет",
-        "button-filter": "Search files by regular expression",
         "button-tracker-add": "Додати новий трекер",
         "button-tracker-edit": "Редагувати трекер",
         "button-tracker-remove": "Видалити трекер"

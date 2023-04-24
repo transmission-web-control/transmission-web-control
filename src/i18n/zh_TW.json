@@ -1,6 +1,5 @@
 {
   "name": "zh-TW",
-  "languageName": "English",
   "author": "Sean, vodek3, Csineneo",
   "system": {
     "title": "Transmission WEB 控制台",
@@ -69,7 +68,6 @@
       "autoreload-enabled": "啟用自動重整",
       "tracker-replace": "取代 Tracker",
       "change-download-dir": "變更下載資料夾",
-      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "切換至行動介面",
       "ui-original": "切換至原版介面",
       "more-peers": "取得更多 Peer",
@@ -142,7 +140,6 @@
       "torrent-url": "磁力連結：",
       "tip-torrent-url": "註：貼上磁力連結，多個磁力連結用「換行」分隔。",
       "autostart": "自動開始：",
-      "tip-autostart": "",
       "set-default-download-dir": "設為預設儲存資料夾",
       "upload-file": "種子檔案：",
       "nosource": "沒有選擇種子或沒有輸入磁力連結",
@@ -310,8 +307,6 @@
       "newname": "新名稱"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best IP",
-      "button-search-all-ip": "all IP",
       "title": "新增 Tracker",
       "tip": "每行一個 Tracker"
     },
