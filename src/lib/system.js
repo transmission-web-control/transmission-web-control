@@ -1,15 +1,30 @@
 import { UAParser } from 'ua-parser-js';
 
 import { transmission } from './transmission';
-import { getQueryString } from './utils';
+import { getQueryString, getUserLang } from './utils';
 import { APP_VERSION } from './version';
 import { Base64 } from 'js-base64';
+import enLocal from '../i18n/en.json';
+import i18nManifest from '../i18n.json';
+import * as lo from 'lodash-es';
+
+const i18n = import.meta.glob('../i18n/*.json', { eager: true });
+const easyUILocale = import.meta.glob(
+  '../../public/tr-web-control/script/easyui/locale/easyui-lang-*.js',
+  {
+    eager: true,
+    as: 'raw',
+  },
+);
+
+// console.log(easyUILocale);
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
 const system = {
   rootPath: 'tr-web-control/',
   configHead: 'transmission-web-control',
+  defaultLang: enLocal,
   // default config, can be customized in config.js
   config: {
     autoReload: true,
@@ -19,7 +34,7 @@ const system = {
     pageList: [10, 20, 30, 40, 50, 100, 150, 200, 250, 300, 5000],
     defaultSelectNode: null,
     autoExpandAttribute: false,
-    defaultLang: '',
+    defaultLang: 'en',
     foldersShow: false,
     // theme
     theme: 'default',
@@ -69,7 +84,8 @@ const system = {
     'https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest',
   contextMenus: {},
   panel: null,
-  lang: null,
+  lang: enLocal,
+  langInit: false,
   reloading: false,
   autoReloadTimer: null,
   downloadDir: '',
@@ -105,44 +121,34 @@ const system = {
   setlang: function (lang, callback) {
     // If no language is specified, acquires the current browser default language
     if (!lang) {
-      if (this.config.defaultLang) lang = this.config.defaultLang;
-      else lang = navigator.language || navigator.browserLanguage;
-      // this.debug("lang",lang);
-    }
-    if (!lang) lang = 'zh-CN';
-
-    // If - contains the language code, you need to turn the second half to uppercase
-    if (lang.indexOf('-') != -1) {
-      // Because Linux file size restrictions
-      lang = lang.split('-')[0].toLocaleLowerCase() + '-' + lang.split('-')[1].toLocaleUpperCase();
+      if (this.config.defaultLang) {
+        lang = this.config.defaultLang;
+      }
     }
 
-    // If the language pack is not defined, English is used
-    if (!this.languages[lang]) {
-      lang = 'en';
+    if (!lang) {
+      lang = 'zh-CN';
     }
 
     // 统一使用 _ 替代 -
     lang = lang.replace('-', '_');
 
-    $.getJSON(system.rootPath + 'i18n/' + lang + '.json', function (result) {
-      if (result) {
-        system.lang = $.extend(true, system.defaultLang, result);
-      }
+    const langFile = `../i18n/${lang}.json`;
+    if (langFile in i18n) {
+      system.lang = lo.merge(system.defaultLang, i18n[langFile]);
+    }
 
-      system.resetLangText();
-      // Set the easyui language
-      $.getScript(system.rootPath + 'script/easyui/locale/easyui-lang-' + lang + '.js')
-        .done(function (script, textStatus) {
-          if (callback) callback();
-          // If the loading fails, the English language is loaded
-        })
-        .fail(function (jqxhr, settings, exception) {
-          $.getScript(system.rootPath + 'script/easyui/locale/easyui-lang-en.js', function () {
-            if (callback) callback();
-          });
-        });
-    });
+    system.resetLangText();
+
+    // Set the easyui language
+    const easyUILangFile = `../../public/tr-web-control/script/easyui/locale/easyui-lang-${lang}.js`;
+    if (easyUILangFile in easyUILocale) {
+      eval(easyUILocale[easyUILangFile]);
+    } else {
+      eval(easyUILocale[`../../public/tr-web-control/script/easyui/locale/easyui-lang-en.js`]);
+    }
+
+    callback();
   },
   /**
    * 程序初始化
@@ -170,8 +176,9 @@ const system = {
       droparea: $('#dropArea'),
     };
 
-    if (this.lang == null) {
+    if (!system.langInit) {
       this.setlang(lang, function () {
+        system.langInit = true;
         system.initdata();
       });
     } else {
@@ -184,7 +191,9 @@ const system = {
   },
   // Set the language information
   resetLangText: function (parent) {
-    if (!parent) parent = $;
+    if (!parent) {
+      parent = $;
+    }
     let items = parent.find('*[system-lang]');
 
     $.each(items, function (key, item) {
@@ -447,7 +456,9 @@ const system = {
     });
   },
   layoutResize: function (target, size) {
-    if (!system.uiIsInitialized) return;
+    if (!system.uiIsInitialized) {
+      return;
+    }
     if (system.config.ui.status.size[target]) {
       system.config.ui.status.size[target] = size;
       system.saveConfig();
@@ -506,11 +517,15 @@ const system = {
   },
   // Check the dragged files
   checkDropFiles: function (sources) {
-    if (!sources || !sources.length) return;
+    if (!sources || !sources.length) {
+      return;
+    }
     const files = [];
     for (let i = 0; i < sources.length; i++) {
       const file = sources[i];
-      if (file.name.split('.').pop().toLowerCase() == 'torrent') files.push(file);
+      if (file.name.split('.').pop().toLowerCase() == 'torrent') {
+        files.push(file);
+      }
     }
 
     if (files.length > 0) {
@@ -706,7 +721,9 @@ const system = {
    * 初始化界面状态
    */
   initUIStatus: function () {
-    if (this.uiIsInitialized) return;
+    if (this.uiIsInitialized) {
+      return;
+    }
     system.uiIsInitialized = true;
     let status = this.lastUIStatus.tree;
     for (var key in status) {
@@ -1114,7 +1131,9 @@ const system = {
             for (const i in rows) {
               values.push(rows[i].hashString);
             }
-            if (values.length == 0) return;
+            if (values.length == 0) {
+              return;
+            }
 
             system.openDialogFromTemplate({
               id: 'dialog-torrent-setLabels',
@@ -1339,7 +1358,9 @@ const system = {
     // Create a "hidden" input
     const id = 'copy_to_clipboard_textarea';
     let aux = document.getElementById(id);
-    if (!aux) aux = document.createElement('textarea'); // <input/> 不接受换行
+    if (!aux) {
+      aux = document.createElement('textarea');
+    } // <input/> 不接受换行
     aux.id = id;
     aux.style.display = 'block';
     // Assign it the value of the specified element
@@ -1563,7 +1584,9 @@ const system = {
         for (const i in rows) {
           ids.push(rows[i].id);
         }
-        if (ids.length == 0) return;
+        if (ids.length == 0) {
+          return;
+        }
 
         system.openDialogFromTemplate({
           id: 'dialog-torrent-remove-confirm',
@@ -1586,7 +1609,9 @@ const system = {
       })
       .click(function () {
         const rows = system.control.torrentlist.datagrid('getChecked');
-        if (rows.length == 0) return;
+        if (rows.length == 0) {
+          return;
+        }
 
         system.openDialogFromTemplate({
           id: 'dialog-torrent-rename',
@@ -1615,7 +1640,9 @@ const system = {
         for (const i in rows) {
           ids.push(rows[i].id);
         }
-        if (ids.length == 0) return;
+        if (ids.length == 0) {
+          return;
+        }
 
         system.openDialogFromTemplate({
           id: 'dialog-torrent-changeDownloadDir',
@@ -1642,7 +1669,9 @@ const system = {
         for (const i in rows) {
           ids.push(rows[i].id);
         }
-        if (ids.length == 0) return;
+        if (ids.length == 0) {
+          return;
+        }
 
         system.openDialogFromTemplate({
           id: 'dialog-torrent-changeSpeedLimit',
@@ -1822,7 +1851,9 @@ const system = {
   },
   // Retrieve the torrent information again
   reloadTorrentBaseInfos: function (ids, moreFields) {
-    if (this.reloading) return;
+    if (this.reloading) {
+      return;
+    }
     clearTimeout(this.autoReloadTimer);
     this.reloading = true;
     const oldInfos = {
@@ -2269,7 +2300,9 @@ const system = {
   },
   // Gets the current state of the server
   getServerStatus: function () {
-    if (this.reloading) return;
+    if (this.reloading) {
+      return;
+    }
     clearTimeout(this.autoReloadTimer);
 
     this.reloading = true;
@@ -2330,7 +2363,9 @@ const system = {
     let parent = null;
     if (typeof parentid === 'string') {
       parent = this.panel.left.tree('find', parentid);
-    } else parent = parentid;
+    } else {
+      parent = parentid;
+    }
 
     if (parent) {
       this.panel.left.tree('append', {
@@ -2363,7 +2398,9 @@ const system = {
     };
 
     jQuery.extend(def, config);
-    if (!config.node) return;
+    if (!config.node) {
+      return;
+    }
 
     let torrents = null;
     const parent = this.panel.left.tree('getParent', config.node.target) || {
@@ -2817,7 +2854,9 @@ const system = {
       this.showStatus(this.lang.system.status.queuefinish);
       // this.config.autoReload = true;
       this.getServerStatus();
-      if (labels != null) system.saveConfig();
+      if (labels != null) {
+        system.saveConfig();
+      }
       return;
     }
     this.showStatus(this.lang.system.status.queue + (index + 1) + '/' + count + '<br/>' + url, 0);
@@ -2911,10 +2950,16 @@ const system = {
   },
   // Get the torrent details
   getTorrentInfos: function (id) {
-    if (!transmission.torrents.all[id]) return;
-    if (transmission.torrents.all[id].infoIsLoading) return;
+    if (!transmission.torrents.all[id]) {
+      return;
+    }
+    if (transmission.torrents.all[id].infoIsLoading) {
+      return;
+    }
     if (this.currentTorrentId > 0 && transmission.torrents.all[this.currentTorrentId]) {
-      if (transmission.torrents.all[this.currentTorrentId].infoIsLoading) return;
+      if (transmission.torrents.all[this.currentTorrentId].infoIsLoading) {
+        return;
+      }
     }
     this.currentTorrentId = id;
     // Loads only when expanded
@@ -2933,7 +2978,9 @@ const system = {
       transmission.torrents.getMoreInfos(fields, id, function (result) {
         torrent.infoIsLoading = false;
         // system.panel.attribute.panel({iconCls:""});
-        if (result == null) return;
+        if (result == null) {
+          return;
+        }
         // Merge the currently returned value to the current torrent
         jQuery.extend(torrent, result[0]);
         if (system.currentTorrentId == 0 || system.currentTorrentId != id) {
@@ -3104,7 +3151,9 @@ const system = {
     for (var cell = 0, piece = 0; cell < cellCount; ++cell) {
       let done = piecePerCell;
       for (let i = 0; i < piecePerCell; ++i, ++piece) {
-        if (piecesFlag[piece]) --done;
+        if (piecesFlag[piece]) {
+          --done;
+        }
       }
       const percent = parseInt((done * 100) / piecePerCell);
       const rate = percent / 100;
@@ -3295,12 +3344,16 @@ const system = {
       return;
     }
     transmission.torrents.getConfig(torrent.id, function (result) {
-      if (result == null) return;
+      if (result == null) {
+        return;
+      }
 
       const torrent = transmission.torrents.all[system.currentTorrentId];
       // Merge the currently returned value to the current torrent
       jQuery.extend(torrent, result[0]);
-      if (system.currentTorrentId == 0) return;
+      if (system.currentTorrentId == 0) {
+        return;
+      }
       $.each(result[0], function (key, value) {
         let indeterminate = false;
         let checked = false;
@@ -3467,7 +3520,9 @@ const system = {
 		} */
   },
   appendFolder: function (fullkey) {
-    if (!fullkey) return;
+    if (!fullkey) {
+      return;
+    }
 
     const rootkey = 'folders';
     let parentkey = rootkey;
@@ -3636,7 +3691,9 @@ const system = {
   },
   // Set the language to reload the page
   changeLanguages: function (lang) {
-    if (lang == this.lang.name || !lang) return;
+    if (lang == this.lang.name || !lang) {
+      return;
+    }
 
     this.config.defaultLang = lang;
     this.saveConfig();
@@ -3664,7 +3721,9 @@ const system = {
     };
     config = $.extend(true, defaultConfig, config);
 
-    if (config.id == null) return;
+    if (config.id == null) {
+      return;
+    }
 
     const dialogId = config.id;
     let options = config.options;
@@ -3802,7 +3861,9 @@ const system = {
    * 根据指定的文本获取有效的树形目录Key
    */
   getValidTreeKey: function (text) {
-    if (!text) return '';
+    if (!text) {
+      return '';
+    }
     const _key = Base64.encode(text);
     return _key.replace(/[+|\/|=]/g, '0');
   },
@@ -3945,16 +4006,9 @@ function pagerFilter(data) {
 }
 
 $(document).ready(function () {
-  // Loads the default language content
-  $.getJSON(system.rootPath + 'i18n/en.json').done(function (result) {
-    system.defaultLang = result;
-  });
-
   // Loads a list of available languages
-  $.getJSON(system.rootPath + 'i18n.json').done(function (result) {
-    system.languages = result;
-    system.init(getQueryString('lang'), getQueryString('local'));
-  });
+  system.languages = i18nManifest;
+  system.init(getUserLang(), getQueryString('local'));
 });
 
 globalThis.system = system;

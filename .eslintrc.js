@@ -18,7 +18,7 @@ module.exports = {
     '@typescript-eslint/consistent-type-assertions': 0,
     '@typescript-eslint/strict-boolean-expressions': 0,
     '@typescript-eslint/method-signature-style': ['error', 'method'],
-    curly: 'error',
+    curly: ['error', 'all'],
     'no-var': 0,
     eqeqeq: 0,
     'no-fallthrough': 0,

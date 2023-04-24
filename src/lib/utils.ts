@@ -1,3 +1,5 @@
+import i18nManifest from '../i18n.json';
+
 export function getQueryString(s: string): string | null {
   const u = new URLSearchParams(location.search);
   return u.get(s);
@@ -17,3 +19,66 @@ export function getHostName(url: string): string {
   }
   return result;
 }
+
+export function getUserLang(): string {
+  const qsLang = getQueryString('lang');
+
+  if (qsLang) {
+    if (qsLang in i18nManifest) {
+      return qsLang;
+    }
+
+    if (qsLang.includes('-')) {
+      // Because Linux file size restrictions
+      const lang = qsLang
+        .split('-')
+        .map((x, index) => {
+          if (index == 0) {
+            return x.toLocaleLowerCase();
+          }
+          return x.toLocaleUpperCase();
+        })
+        .join('-');
+
+      if (lang in i18nManifest) {
+        return lang;
+      }
+    }
+
+    return '';
+  }
+
+  const browserLang = navigator.language;
+
+  if (browserLang in i18nManifest) {
+    return browserLang;
+  }
+
+  const mappedLang = browserLangMap[browserLang];
+  if (mappedLang) {
+    return mappedLang;
+  }
+
+  if (browserLang.includes('-')) {
+    // Because Linux file size restrictions
+    const lang = browserLang
+      .split('-')
+      .map((x, index) => {
+        if (index == 0) {
+          return x.toLocaleLowerCase();
+        }
+        return x.toLocaleUpperCase();
+      })
+      .join('-');
+
+    if (lang in i18nManifest) {
+      return lang;
+    }
+  }
+
+  return '';
+}
+
+const browserLangMap: Record<string, string> = {
+  zh: 'zh-CN',
+};

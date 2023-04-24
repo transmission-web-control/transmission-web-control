@@ -2,5 +2,5 @@ filters:
   - filter_type: file
     file_format: KEYVALUEJSON
     source_language: en
-    source_file: public/tr-web-control/i18n/en.json
-    translation_files_expression: 'public/tr-web-control/i18n/<lang>.json'
+    source_file: src/i18n/en.json
+    translation_files_expression: 'src/i18n/<lang>.json'
