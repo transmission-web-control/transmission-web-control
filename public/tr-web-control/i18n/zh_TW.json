@@ -69,6 +69,7 @@
       "autoreload-enabled": "啟用自動重整",
       "tracker-replace": "取代 Tracker",
       "change-download-dir": "變更下載資料夾",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "切換至行動介面",
       "ui-original": "切換至原版介面",
       "more-peers": "取得更多 Peer",
@@ -309,6 +310,8 @@
       "newname": "新名稱"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "新增 Tracker",
       "tip": "每行一個 Tracker"
     },
