@@ -285,7 +285,7 @@
       "old-tracker": "原 Tracker：",
       "new-tracker": "新 Tracker：",
       "tip": "此功能将查找<b>所有种子</b>的 Tracker，如果找到相等的，则替换。",
-      "placeholder": "请注意跟原来的行为不一致，会更换单种的所有Tracker，请填写所有Tracker,一行一个。",
+      "placeholder": "请注意跟原来的行为不一致，会更换单种的所有Tracker，请填写所有Tracker，一行一个。",
       "not-found": "未找到符合条件的 Tracker。"
     },
     "auto-match-data-folder": {
