@@ -1,5 +1,6 @@
 {
   "name": "fr",
+  "languageName": "English",
   "author": "Amaury Aubry, ewan34500, vodek3",
   "system": {
     "title": "Interface Web Transmission",
@@ -68,6 +69,7 @@
       "autoreload-enabled": "Activer rafraîchissement auto",
       "tracker-replace": "Changer de trackers",
       "change-download-dir": "Définir dossier de téléchargement",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Interface Mobile",
       "ui-original": "Interface originale",
       "more-peers": "Interroger tracker pour plus de pairs",
@@ -136,9 +138,11 @@
   "dialog": {
     "torrent-add": {
       "download-dir": "Dossier de téléchargement:",
+      "used-download-dir": "Used Download Dir:",
       "torrent-url": "URL du torrent:",
       "tip-torrent-url": "Astuce：Séparer les URLs avec une virgule \",\"",
       "autostart": "Démarrage auto:",
+      "tip-autostart": "",
       "set-default-download-dir": "Définir comme dossier de téléchargement par défaut",
       "upload-file": "Fichier(s) torrents:",
       "nosource": "Aucun torrent ou URL.",
@@ -219,7 +223,16 @@
         "color": "Couleur",
         "actions": "Actions",
         "import-confirm": "Voulez-vous importer les étiquettes? Cela remplacera la configuration courante."
-      }
+      },
+      "import-config": "Import configuration from file",
+      "export-config": "Export current configuration",
+      "import-config-confirm": "Do you want to import these configurations? This overrides the current configuration.",
+      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
+      "ipinfo": "IPinfo.io access token:",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
       "button-ok": "OK",
@@ -257,6 +270,16 @@
       "set-error": "Erreur!",
       "recheck-data": "Vérifier les données."
     },
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
+    },
     "system-replaceTracker": {
       "title": "Changer de tracker",
       "old-tracker": "Ancien tracker:",
@@ -287,6 +310,8 @@
       "newname": "Nouveau"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Ajouter des trackers",
       "tip": "Une ligne, un tracker"
     },
@@ -294,6 +319,17 @@
       "title": "Définir les étiquettes",
       "available": "Disponible :",
       "selected": "Sélectionné(s) :"
+    },
+    "export-config": {
+      "title": "Please select the details need to be exported",
+      "option-all": "All configuration",
+      "option-system": "Web Control configuration",
+      "option-dictionary": "Defined Folders Dictionary",
+      "option-server": "Transmission configuration (Download directory, cache, speed limit, etc.)"
+    },
+    "import-config": {
+      "title": "Please select the details need to be import",
+      "invalid-file": "Invalid profile"
     }
   },
   "torrent": {
@@ -317,7 +353,8 @@
       "queuePosition": "File",
       "activityDate": "Date d'activité",
       "trackers": "Trackers",
-      "labels": "Etiquettes"
+      "labels": "Etiquettes",
+      "doneDate": "Completed Date"
     },
     "status-text": {
       "0": "En pause",
@@ -352,10 +389,20 @@
         "lastAnnounceTime": "Temps d'annonce",
         "lastAnnounceTimedOut": "Durée dépassée",
         "downloadCount": "Nombre de téléchargement",
-        "nextAnnounceTime": "Prochaine annonce"
+        "nextAnnounceTime": "Prochaine annonce",
+        "leecherCount": "Leecher count",
+        "seederCount": "Seeder count",
+        "announceStateText": {
+          "0": "Inactive",
+          "1": "Waiting",
+          "2": "Queued",
+          "3": "Active"
+        }
       },
       "peers-fields": {
         "address": "Adresse IP",
+        "port": "Port",
+        "isUTP": "UTP enabled",
         "clientName": "Client",
         "flagStr": "Drapeau",
         "progress": "Progression",
@@ -370,6 +417,11 @@
         "0": "Normale",
         "1": "Haute",
         "-1": "Basse"
+      },
+      "filter-template-text": {
+        "1": "All",
+        "2": "BitComet padding file",
+        "3": "Unnecessary files"
       },
       "label": {
         "name": "Nom:",
@@ -402,6 +454,7 @@
         "button-allow": "Télécharger le(s) fichier(s) sélectionné(s)",
         "button-deny": "Passer le(s) fichier(s) sélectionné(s)",
         "button-priority": "Définir la priorité",
+        "button-filter": "Search files by regular expression",
         "button-tracker-add": "Ajouter un nouveau tracker",
         "button-tracker-edit": "Modifier le tracker",
         "button-tracker-remove": "Supprimer le tracker"
@@ -429,6 +482,7 @@
     "text-on": "ON",
     "text-off": "OFF",
     "text-how-to-update": "How to update?",
-    "text-ignore-this-version": "Ignore this version"
+    "text-ignore-this-version": "Ignore this version",
+    "text-json-file-parsing-failed": "JSON file parsing failed!"
   }
 }
