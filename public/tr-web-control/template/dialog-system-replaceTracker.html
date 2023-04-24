@@ -59,7 +59,7 @@
     });
 
     thisDialog.find('#text-nochange').html(system.lang['public']['text-nochange']);
-    $('#new-tracker-url').attr("placeholder", system.lang.dialog['system-replaceTracker']['placeholder']);
+    $('#new-tracker-url').attr("placeholder", system.lang.dialog['system-replaceTracker']['warning']);
     // 确
     thisDialog.find('#replaceTracker-button-ok').click(function () {
       var oldValue = thisDialog.find('#old-tracker-url').val();
