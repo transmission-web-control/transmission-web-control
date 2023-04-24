@@ -41,8 +41,7 @@ A browser which supports HTML5 and ES Module. (Chrome 63，Firefox 67，Edge 79,
 
 ## i18n
 
-Please help us translation this project in to multiple language on transifex, so reviewing current translations can
-still help us.
+Please help us translation this project in to multiple language on transifex, or review current translations.
 
 https://app.transifex.com/transmission-web-control/transmission-web-control-1/
 
