@@ -387,19 +387,21 @@ export const transmission = {
   torrents: {
     activeTorrentCount: 0,
     actively: null as null | Torrent[],
+    /* eslint-disable */
     addTracker: function (item: Torrent) {
-      const trackerStats = item.trackerStats;
-      const trackers: string[] = [];
+      var trackerStats = item.trackerStats;
+      var trackers: string[] = [];
 
       item.leecherCount = 0;
       item.seederCount = 0;
 
       if (trackerStats.length > 0) {
-        const warnings = [];
-        for (const trackerInfo of trackerStats) {
+        var warnings = [];
+        for (var index in trackerStats) {
+          var trackerInfo = trackerStats[index]!;
           const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
-          const hostName: string = getHostName(trackerInfo.host);
-          const trackerUrl: string[] = hostName.split('.');
+          const hostName = getHostName(trackerInfo.host);
+          const trackerUrl = hostName.split('.');
           if ($.inArray(trackerUrl[0], 'www,tracker,announce'.split(',')) != -1) {
             trackerUrl.shift();
           }
@@ -408,24 +410,29 @@ export const transmission = {
           const id = 'tracker-' + name.replace(/\./g, '-');
           let tracker = transmission.trackers[id];
           if (!tracker) {
+            // @ts-expect-error
             tracker = {
               count: 0,
               torrents: [],
               size: 0,
               connected: true,
               isBT: trackerStats.length > 5,
-            } as unknown as Tracker;
+            } as Tracker;
+            // @ts-ignore
             transmission.trackers[id] = tracker;
           }
 
+          // @ts-ignore
           tracker.name = name;
+          // @ts-ignore
           tracker.nodeid = id;
+          // @ts-ignore
           tracker.host = trackerInfo.host;
 
           // 判断当前tracker状态
           if (
             !trackerInfo.lastAnnounceSucceeded &&
-            trackerInfo.announceState !== transmission._trackerStatus.inactive
+            trackerInfo.announceState != transmission._trackerStatus.inactive
           ) {
             warnings.push(trackerInfo.lastAnnounceResult);
 
@@ -447,8 +454,6 @@ export const transmission = {
           }
         }
 
-        /* eslint-disable */
-
         if (trackerStats.length > 5) {
           this.btItems.push(item);
         }
@@ -460,8 +465,11 @@ export const transmission = {
             item.warning = warnings.join(';');
           }
           // 设置下次更新时间
-          // @ts-ignore
-          if (!item.nextAnnounceTime) item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
+          if (!item.nextAnnounceTime) {
+            // TODO: should fix this, trackerInfo is out of context
+            // @ts-ignore
+            item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
+          }
           // @ts-ignore
           else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
             // @ts-ignore
@@ -595,7 +603,7 @@ export const transmission = {
         },
         function (data) {
           if (data.result == 'success') {
-            for (let item of data.arguments.torrents) {
+            for (const item of data.arguments.torrents) {
               transmission.torrents.all![item.id]!.magnetLink = item.magnetLink;
               result += item.magnetLink + '\n';
             }
