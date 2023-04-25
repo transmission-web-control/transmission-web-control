@@ -63,7 +63,7 @@
     <script type="module" src="./lib/system.js"></script>
     <script type="module" src="./lib/plugin.ts"></script>
 
-    <script type="module" lang="ts">
+    <script type="module">
       import { getQueryString } from './lib/utils.ts';
       import { UAParser } from 'ua-parser-js';
 
@@ -297,6 +297,7 @@
           </div>
         </div>
       </div>
+
       <div id="m_left_layout" title="." data-options="region:'west',split:true,border:0">
         <div id="layout_left" class="easyui-layout" data-options="fit:true">
           <div
@@ -319,6 +320,7 @@
           </div>
         </div>
       </div>
+
       <div id="m_body" title="." data-options="region:'center',border:0">
         <div id="layout_body" class="easyui-layout" data-options="fit:true">
           <div id="m_list" data-options="region:'center',border:0"></div>
@@ -404,5 +406,6 @@
       </div>
     </div>
     <textarea id="clipboard-source"></textarea>
+    <script type="module" src="./lib/main.ts"></script>
   </body>
 </html>

@@ -1,0 +1,20 @@
+diff --git a/node_modules/vuex/package.json b/node_modules/vuex/package.json
+index 5b27bd8..67466de 100644
+--- a/node_modules/vuex/package.json
++++ b/node_modules/vuex/package.json
+@@ -5,6 +5,7 @@
+   "main": "dist/vuex.cjs.js",
+   "exports": {
+     ".": {
++      "types": "./types/index.d.ts",
+       "module": "./dist/vuex.esm-bundler.js",
+       "require": "./dist/vuex.cjs.js",
+       "import": "./dist/vuex.mjs"
+@@ -17,6 +18,7 @@
+   "unpkg": "dist/vuex.global.js",
+   "jsdelivr": "dist/vuex.global.js",
+   "typings": "types/index.d.ts",
++  "types": "types/index.d.ts",
+   "sideEffects": false,
+   "files": [
+     "dist",

@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
 import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
 import { version } from './package.json';
 
@@ -29,7 +30,7 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    plugins: [],
+    plugins: [vue()],
     css: {},
     define: {
       'import.meta.env.__APP_VERSION__': JSON.stringify(version),

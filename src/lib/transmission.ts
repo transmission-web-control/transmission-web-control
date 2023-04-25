@@ -492,6 +492,10 @@ export const transmission = {
       }
     },
 
+    allTorrents(): Record<string, Torrent> {
+      return this.all ?? {};
+    },
+
     all: null as Record<string, Torrent> | null,
     btItems: [] as Torrent[],
     count: 0,
@@ -997,6 +1001,9 @@ export interface TrackerStat {
 }
 
 export interface Torrent {
+  id: number;
+  name: string;
+  totalSize: number;
   peersGettingFromUs: string;
   peersSendingToUs: string;
   leecher: string;
@@ -1005,8 +1012,6 @@ export interface Torrent {
   warning: string;
   seederCount: number;
   leecherCount: number;
-  id: number;
-  name: string;
   status: number;
   trackerStats: TrackerStat[];
   nextAnnounceTime: number;
@@ -1015,7 +1020,6 @@ export interface Torrent {
   magnetLink: string;
   rateDownload: number;
   leftUntilDone: number;
-  totalSize: number;
   uploadRatio: number;
 }
 

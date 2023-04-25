@@ -38,14 +38,12 @@ export function getUserLang(): string {
           }
           return x.toLocaleUpperCase();
         })
-        .join('-');
+        .join('_');
 
       if (lang in i18nManifest) {
         return lang;
       }
     }
-
-    return '';
   }
 
   const browserLang = navigator.language;
@@ -69,16 +67,16 @@ export function getUserLang(): string {
         }
         return x.toLocaleUpperCase();
       })
-      .join('-');
+      .join('_');
 
     if (lang in i18nManifest) {
       return lang;
     }
   }
 
-  return '';
+  return 'en';
 }
 
 const browserLangMap: Record<string, string> = {
-  zh: 'zh-CN',
+  zh: 'zh_CN',
 };

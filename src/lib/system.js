@@ -2,11 +2,9 @@ import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
 
-import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
 import torrentFields from './torrent-fields.json';
 import { transmission } from './transmission';
-import { getQueryString, getUserLang } from './utils';
 import { APP_VERSION } from './version';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
@@ -24,7 +22,7 @@ const templateFiles = import.meta.glob('../../public/tr-web-control/template/*.h
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
-const system = {
+export const system = {
   rootPath: 'tr-web-control/',
   configHead: 'transmission-web-control',
   defaultLang: enLocal,
@@ -234,7 +232,7 @@ const system = {
   /**
    * 程序初始化
    */
-  init: function (lang, islocal, devicetype) {
+  init(lang, islocal, devicetype) {
     this.readConfig();
     this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
     this.islocal = islocal == 1;
@@ -4091,11 +4089,5 @@ function pagerFilter(data) {
 
   return data;
 }
-
-$(document).ready(function () {
-  // Loads a list of available languages
-  system.languages = i18nManifest;
-  system.init(getUserLang(), getQueryString('local'));
-});
 
 globalThis.system = system;
