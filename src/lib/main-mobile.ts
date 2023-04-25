@@ -1,6 +1,6 @@
 import i18nManifest from '../i18n.json';
 // @ts-expect-error
-import { system } from './system.mobile.js';
+import { system } from './system.mobile.mjs';
 import { transmission } from './transmission';
 import { getQueryString, getUserLang } from './utils';
 
