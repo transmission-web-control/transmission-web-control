@@ -1,22 +1,16 @@
 import $ from 'jquery';
 import { Base64 } from 'js-base64';
+import * as lo from 'lodash-es';
 
 import { getHostName } from './utils';
 
 export const transmission = {
-  SessionId: '',
-  isInitialized: false,
-  host: '',
-  port: '9091',
-  path: '/transmission/rpc',
-  rpcpath: '../rpc',
-  fullpath: '',
+  SessionId: null as null | string,
+  fullpath: '../rpc',
   on: {
     torrentCountChange: null,
-    postError: null,
+    postError: null as null | ((req: unknown) => void),
   },
-  username: '',
-  password: '',
   // 种子状态
   _status: {
     stopped: 0,
@@ -42,110 +36,60 @@ export const transmission = {
   },
   headers: {} as Record<string, string>,
   trackers: {} as Record<string, Tracker>,
-  islocal: false,
   // The list of directories that currently exist
   downloadDirs: [] as string[],
-  // async getSessionId(me: Transmission) {
-  //   console.log(this.headers);
-  //   const res = await fetch(this.fullpath, {
-  //     method: 'POST',
-  //     credentials: 'include',
-  //     headers: this.headers,
-  //   });
-  //
-  //   if (res.status === 404) {
-  //     const SessionId = res.headers.get('X-Transmission-Session-Id');
-  //     me.isInitialized = true;
-  //     me.SessionId = SessionId;
-  //     me.headers['X-Transmission-Session-Id'] = SessionId;
-  //   }
-  // },
-  getSessionId(
-    me: {
-      isInitialized: boolean;
-      SessionId: string | null;
-      headers: Record<string, string>;
-    },
-    callback?: () => void,
-  ) {
-    void $.ajax({
-      type: 'POST',
-      url: this.fullpath,
-      error: function (request) {
-        let SessionId: string | null = '';
-        if (
-          request.status === 409 &&
-          (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
-        ) {
-          me.isInitialized = true;
-          me.SessionId = SessionId;
-          me.headers['X-Transmission-Session-Id'] = SessionId;
-          if (callback != null) {
-            callback();
-          }
-        }
+
+  async getSessionId() {
+    await this.execAsync();
+  },
+
+  async init() {
+    await this.getSessionId();
+  },
+
+  async execAsync(config?: { method: string; arguments?: any }) {
+    const data = lo.merge(
+      {
+        method: '',
+        arguments: {},
+        tag: '',
       },
-      headers: this.headers,
+      config,
+    );
+
+    for (let i = 0; i < 3; i++) {
+      const res = await fetch(this.fullpath, {
+        method: 'post',
+        headers: {
+          ...this.headers,
+          'X-Transmission-Session-Id': this.SessionId ?? '',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (res.status === 409) {
+        this.SessionId = res.headers.get('X-Transmission-Session-Id');
+        if (this.SessionId === null) {
+          throw new Error('failed to get X-Transmission-Session-Id');
+        }
+        continue;
+      } else if (res.status >= 400) {
+        transmission.on.postError?.(res);
+      }
+
+      return await res.json();
+    }
+
+    throw new Error('failed to complete request');
+  },
+
+  exec(config: { method: string; arguments?: any }, callback: (data: any, tags?: any) => void) {
+    this.execAsync(config).then(callback, (err) => {
+      console.error('failed to connect transmission', err);
     });
   },
-  init(config: unknown, callback: () => void) {
-    $.extend(this, config);
 
-    if (this.username && this.password) {
-      this.headers.Authorization = 'Basic ' + Base64.encode(this.username + ':' + this.password);
-    }
-
-    this.fullpath = this.rpcpath;
-    // this.getSessionId(this).finally(callback);
-    this.getSessionId(this, callback);
-  },
-
-  exec(
-    config: { method: string; arguments?: any },
-    callback: (data: any, tags?: any) => void,
-    tags?: any,
-  ) {
-    if (!this.isInitialized) {
-      return false;
-    }
-    const data = {
-      method: '',
-      arguments: {},
-      tag: '',
-    };
-
-    $.extend(data, config);
-
-    const settings: JQueryAjaxSettings = {
-      type: 'POST',
-      url: this.fullpath,
-      dataType: 'json',
-      data: JSON.stringify(data),
-      success: function (resultData: unknown, textStatus: unknown) {
-        if (callback) {
-          callback(resultData, tags);
-        }
-      },
-      error: function (request, event, page) {
-        let SessionId: string | null = '';
-        if (
-          request.status === 409 &&
-          (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
-        ) {
-          transmission.SessionId = SessionId;
-          transmission.headers['X-Transmission-Session-Id'] = SessionId;
-          void $.ajax(settings);
-        } else {
-          if (transmission.on.postError) {
-            // @ts-expect-error
-            transmission.on.postError(request);
-          }
-        }
-      },
-      headers: this.headers,
-    };
-    void $.ajax(settings);
-  },
   getStatus(callback: (data: unknown) => void) {
     this.exec(
       {
@@ -172,7 +116,7 @@ export const transmission = {
       },
     );
   },
-  getSession: function (callback?: (data: unknown) => void) {
+  getSession(callback?: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-get',
@@ -186,8 +130,9 @@ export const transmission = {
       },
     );
   },
+
   // 添加种子
-  addTorrentFromUrl: function (
+  addTorrentFromUrl(
     url: string,
     savepath: string,
     autostart: boolean,
@@ -237,7 +182,7 @@ export const transmission = {
     });
   },
   // 从文件内容增加种子
-  addTorrentFromFile: function (
+  addTorrentFromFile(
     file: Blob,
     savePath: string,
     paused: boolean,
@@ -296,7 +241,7 @@ export const transmission = {
     };
     fileReader.readAsDataURL(file);
   },
-  _onTorrentCountChange: function () {
+  _onTorrentCountChange() {
     this.torrents.loadSimpleInfo = false;
     if (this.on.torrentCountChange) {
       // @ts-expect-error
@@ -304,7 +249,7 @@ export const transmission = {
     }
   },
   // 删除种子
-  removeTorrent: function (ids: string[], removeData: boolean, callback?: (data: any) => void) {
+  removeTorrent(ids: string[], removeData: boolean, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'torrent-remove',
@@ -321,7 +266,7 @@ export const transmission = {
     );
   },
   // 獲取指定目錄的大小
-  getFreeSpace: function (path: string, callback?: (data: any) => void) {
+  getFreeSpace(path: string, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'free-space',
@@ -337,7 +282,7 @@ export const transmission = {
     );
   },
   // 更新黑名單
-  updateBlocklist: function (callback?: (data: any) => void) {
+  updateBlocklist(callback?: (data: any) => void) {
     this.exec(
       {
         method: 'blocklist-update',
@@ -353,7 +298,7 @@ export const transmission = {
   // torrentId 		只能指定一个
   // oldpath 			原文件路径或目录，如：opencd/info.txt 或 opencd/cd1
   // newname			新的文件或目录名，如：into1.txt 或 disc1
-  renameTorrent: function (
+  renameTorrent(
     torrentId: string,
     oldpath: string,
     newname: string,
@@ -381,7 +326,7 @@ export const transmission = {
     );
   },
   // 关闭连接？
-  closeSession: function (callback?: (data: unknown) => void) {
+  closeSession(callback?: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-close',
@@ -396,8 +341,7 @@ export const transmission = {
   torrents: {
     activeTorrentCount: 0,
     actively: null as null | Torrent[],
-    /* eslint-disable */
-    addTracker: function (item: Torrent) {
+    addTracker(item: Torrent) {
       var trackerStats = item.trackerStats;
       var trackers: string[] = [];
 
@@ -425,16 +369,15 @@ export const transmission = {
               size: 0,
               connected: true,
               isBT: trackerStats.length > 5,
+              name,
+              nodeid: id,
+              host: trackerInfo.host,
             } as Tracker;
-            // @ts-ignore
             transmission.trackers[id] = tracker;
           }
 
-          // @ts-ignore
           tracker.name = name;
-          // @ts-ignore
           tracker.nodeid = id;
-          // @ts-ignore
           tracker.host = trackerInfo.host;
 
           // 判断当前tracker状态
@@ -462,57 +405,119 @@ export const transmission = {
           }
         }
 
-        if (trackerStats.length > 5) {
+        if (!item.isPrivate) {
           this.btItems.push(item);
         }
 
-        if (warnings.length == trackerStats.length) {
-          const trackerInfo = trackerStats[trackerStats.length - 1]!;
-          if (warnings.join(';').replace(/;/g, '') == '') {
-            item.warning = '';
-          } else {
-            item.warning = warnings.join(';');
+        // private tracker, show any warning
+        if (item.isPrivate) {
+          if (warnings.length) {
+            this.warning?.push(item);
           }
-          // 设置下次更新时间
-          if (!item.nextAnnounceTime) {
-            item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
-          } else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
-            item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
-          }
-
+        } else if (warnings.length == trackerStats.length) {
           this.warning?.push(item);
         }
 
-        if (item.leecherCount < 0) item.leecherCount = 0;
-        if (item.seederCount < 0) item.seederCount = 0;
+        if (item.leecherCount < 0) {
+          item.leecherCount = 0;
+        }
+        if (item.seederCount < 0) {
+          item.seederCount = 0;
+        }
 
-        item.leecher = item.leecherCount + ' (' + item.peersGettingFromUs + ')';
-        item.seeder = item.seederCount + ' (' + item.peersSendingToUs + ')';
+        item.leecher = `${item.leecherCount} (${item.peersGettingFromUs})`;
+        item.seeder = `${item.seederCount} (${item.peersSendingToUs})`;
         item.trackers = trackers.join(';');
       }
     },
 
-    all: null as Record<string, Torrent> | null,
+    all: {} as Record<string, Torrent>,
     btItems: [] as Torrent[],
     count: 0,
     datas: {} as Record<string, Torrent> | null,
     downloading: null as Torrent[] | null,
     error: null as Torrent[] | null,
     fields: {
-      base:
-        'id,name,status,hashString,totalSize,percentDone,addedDate,trackerStats,leftUntilDone,rateDownload,rateUpload,recheckProgress' +
-        ',rateDownload,rateUpload,peersGettingFromUs,peersSendingToUs,uploadRatio,uploadedEver,downloadedEver,downloadDir,error,errorString,doneDate,queuePosition,activityDate',
-      status:
-        'id,name,status,totalSize,percentDone,trackerStats,leftUntilDone,rateDownload,rateUpload,recheckProgress' +
-        ',rateDownload,rateUpload,peersGettingFromUs,peersSendingToUs,uploadRatio,uploadedEver,downloadedEver,error,errorString,doneDate,queuePosition,activityDate',
-      config:
-        'id,name,downloadLimit,downloadLimited,peer-limit,seedIdleLimit,seedIdleMode,seedRatioLimit,seedRatioMode,uploadLimit,uploadLimited',
+      base: [
+        'id',
+        'name',
+        'status',
+        'hashString',
+        'totalSize',
+        'percentDone',
+        'addedDate',
+        'trackerStats',
+        'leftUntilDone',
+        'rateDownload',
+        'rateUpload',
+        'recheckProgress',
+        'rateDownload',
+        'rateUpload',
+        'peersGettingFromUs',
+        'peersSendingToUs',
+        'uploadRatio',
+        'uploadedEver',
+        'downloadedEver',
+        'downloadDir',
+        'error',
+        'errorString',
+        'doneDate',
+        'queuePosition',
+        'activityDate',
+        'isPrivate',
+      ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
+      status: [
+        'id',
+        'name',
+        'status',
+        'totalSize',
+        'trackerStats',
+        'leftUntilDone',
+        'rateDownload',
+        'rateDownload',
+        'peersGettingFromUs',
+        'peersSendingToUs',
+        'uploadRatio',
+
+        'rateUpload',
+        'percentDone',
+        'recheckProgress',
+        'rateUpload',
+        'uploadedEver',
+        'downloadedEver',
+        'error',
+        'errorString',
+        'doneDate',
+        'queuePosition',
+        'activityDate',
+      ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
+      config: [
+        'id',
+        'name',
+        'downloadLimit',
+        'downloadLimited',
+        'peer-limit',
+        'seedIdleLimit',
+        'seedIdleMode',
+        'seedRatioLimit',
+        'seedRatioMode',
+        'uploadLimit',
+        'uploadLimited',
+      ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
     },
-    folders: {},
+    folders: {} as Record<
+      string,
+      {
+        count: number;
+        torrents: Torrent[];
+        size: number;
+        nodeid: string;
+      }
+    >,
     getConfig(id: string, callback: (torrents: Torrent[] | null) => void) {
       this.getMoreInfos(this.fields.config, id, callback);
     },
-    getErrorIds: function (ignore: any, needUpdateOnly: boolean) {
+    getErrorIds(ignore: any, needUpdateOnly: boolean) {
       const result = [];
       const nowDate = new Date();
       let now = 0;
@@ -555,7 +560,8 @@ export const transmission = {
 
       return result;
     },
-    getFiles: function (id: any, callback: any) {
+
+    getFiles(id: any, callback: any) {
       transmission.exec(
         {
           method: 'torrent-get',
@@ -566,31 +572,46 @@ export const transmission = {
         },
         function (data) {
           if (data.result == 'success') {
-            if (callback) callback(data.arguments.torrents);
-          } else if (callback) callback(null);
+            if (callback) {
+              callback(data.arguments.torrents);
+            }
+          } else if (callback) {
+            callback(null);
+          }
         },
       );
     },
 
-    getMagnetLink: function (ids: string[], callback: any) {
+    getMagnetLink(ids: string[], callback: any) {
       let result = '';
       // is single number
-      if (!Array.isArray(ids)) ids = [ids];
+      if (!Array.isArray(ids)) {
+        ids = [ids];
+      }
       if (ids.length == 0) {
-        if (callback) callback(result);
+        if (callback) {
+          callback(result);
+        }
         return;
       }
       // 跳过己获取的
-      const req_list = [];
+      const reqList = [];
       for (const id of ids) {
         const t = this.all?.[id];
-        if (!t) continue;
-        if (!t.magnetLink) req_list.push(id);
-        else result += t.magnetLink + '\n';
+        if (!t) {
+          continue;
+        }
+        if (!t.magnetLink) {
+          reqList.push(id);
+        } else {
+          result += t.magnetLink + '\n';
+        }
       }
 
-      if (req_list.length == 0) {
-        if (callback) callback(result.trim());
+      if (reqList.length == 0) {
+        if (callback) {
+          callback(result.trim());
+        }
         return;
       }
 
@@ -599,39 +620,51 @@ export const transmission = {
           method: 'torrent-get',
           arguments: {
             fields: ['id', 'magnetLink'],
-            ids: req_list,
+            ids: reqList,
           },
         },
         function (data) {
           if (data.result == 'success') {
-            for (const item of data.arguments.torrents) {
-              transmission.torrents.all![item.id]!.magnetLink = item.magnetLink;
+            for (const item of data.arguments.torrents as Array<
+              Pick<Torrent, 'id' | 'magnetLink'>
+            >) {
+              transmission.torrents.all[item.id]!.magnetLink = item.magnetLink;
               result += item.magnetLink + '\n';
             }
-            if (callback) callback(result.trim());
+            if (callback) {
+              callback(result.trim());
+            }
           }
         },
       );
     },
     // List of all the torrents that have been acquired
-    getMoreInfos: function (fields: any, ids: any, callback: (torrents: Torrent[] | null) => void) {
+    getMoreInfos(
+      fields: string | string[],
+      ids: any,
+      callback: (torrents: Torrent[] | null) => void,
+    ) {
       transmission.exec(
         {
           method: 'torrent-get',
           arguments: {
-            fields: fields.split(','),
+            fields: typeof fields === 'string' ? fields.split(',') : fields,
             ids,
           },
         },
         function (data) {
           if (data.result == 'success') {
-            if (callback) callback(data.arguments.torrents);
-          } else if (callback) callback(null);
+            if (callback) {
+              callback(data.arguments.torrents);
+            }
+          } else if (callback) {
+            callback(null);
+          }
         },
       );
     },
     // The list of recently acquired torrents
-    getPeers: function (ids: string[]) {
+    getPeers(ids: string[]) {
       transmission.exec(
         {
           method: 'torrent-get',
@@ -646,15 +679,17 @@ export const transmission = {
       );
     },
     // The recently removed seed
-    getallids: function (
+    getAllIDs(
       callback: null | ((data: Torrent[] | null) => void),
       ids: string[] | undefined,
-      moreFields?: string[],
+      moreFields?: Array<keyof Torrent>,
     ) {
       let tmp = this.fields.base;
-      if (this.loadSimpleInfo && this.all) tmp = this.fields.status;
+      if (this.loadSimpleInfo && this.all) {
+        tmp = this.fields.status;
+      }
 
-      let fields = tmp.split(',');
+      let fields = tmp;
       if (Array.isArray(moreFields)) {
         fields = Array.from(new Set([...fields, ...moreFields]));
       }
@@ -664,15 +699,13 @@ export const transmission = {
 
       this.isRecentlyActive = false;
       // If it has been acquired
-      if (this.all && ids == undefined) {
+      if (this.all.length && ids == undefined) {
         args.ids = 'recently-active';
         this.isRecentlyActive = true;
       } else if (ids) {
         args.ids = ids;
       }
-      if (!this.all) {
-        this.all = {};
-      }
+
       transmission.exec(
         {
           method: 'torrent-get',
@@ -684,7 +717,7 @@ export const transmission = {
             transmission.torrents.loadSimpleInfo = true;
             transmission.torrents.recently = data.arguments.torrents;
             transmission.torrents.removed = data.arguments.removed;
-            transmission.torrents.splitid();
+            transmission.torrents.splitID();
             if (callback) {
               callback(data.arguments.torrents);
             }
@@ -711,7 +744,7 @@ export const transmission = {
     removed: null,
     // 获取更多信息
 
-    search: function (key: any, source: any) {
+    search(key: any, source: any) {
       if (!key) {
         return null;
       }
@@ -733,11 +766,12 @@ export const transmission = {
     },
     // 从当前已获取的种子列表中搜索指定关键的种子
 
-    searchAndReplaceTrackers: function (
+    searchAndReplaceTrackers(
       oldTracker: string,
       newTracker: string,
       callback: (result: null, count?: number) => void,
     ) {
+      /* eslint-disable */
       if (!oldTracker || !newTracker) {
         return;
       }
@@ -785,16 +819,15 @@ export const transmission = {
               }
             }
           },
-          result[index].ids,
         );
       }
+      /* eslint-enable */
     },
     // 获取指定种子的文件列表
-    /* eslint-disable */
     searchResult: null,
     // 获取指定种子的设置信息
 
-    splitid: function () {
+    splitID() {
       // Downloading
       this.downloading = [];
       // Paused
@@ -820,7 +853,7 @@ export const transmission = {
 
       // Merge two numbers
       for (const item of this.recently ?? []) {
-        // @ts-ignore
+        // @ts-expect-error
         this.datas[item.id] = item;
       }
 
@@ -837,39 +870,37 @@ export const transmission = {
           return;
         }
         if ($.inArray(item.id, removed) != -1 && removed.length > 0) {
-          if (this.all![item.id]) {
-            delete this.all![item.id];
+          if (this.all[item.id]) {
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+            delete this.all[item.id];
           }
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete this.datas[index];
 
           continue;
         }
         // If the current torrent is being acquired and there is no such torrent in the previous torrent list, that is, the new torrent needs to be reloaded with the basic information
-        // @ts-ignore
         if (this.isRecentlyActive && !this.all[item.id]) {
-          // @ts-ignore
+          // @ts-expect-error
           this.newIds.push(item.id);
         }
-        // @ts-ignore
         item = $.extend(this.all[item.id], item);
         // 没有活动数据时，将分享率标记为 -1
-        // @ts-ignore
         if (item.uploadedEver == 0 && item.downloadedEver == 0) {
-          // @ts-ignore
           item.uploadRatio = -1;
         }
         // 转为数值
-        // @ts-ignore
+        // @ts-expect-error
         item.uploadRatio = parseFloat(item.uploadRatio);
-        // @ts-ignore
+        // @ts-expect-error
         item.infoIsLoading = false;
-        // @ts-ignore
+        // @ts-expect-error
         let type = this.status[item.status];
         this.addTracker(item);
         if (!type) {
-          // @ts-ignore
+          // @ts-expect-error
           this.status[item.status] = [];
-          // @ts-ignore
+          // @ts-expect-error
           type = this.status[item.status];
         }
 
@@ -888,13 +919,11 @@ export const transmission = {
 
         type.push(item);
         // The seed for which the error occurred
-        // @ts-ignore
         if (item.error != 0) {
           this.error.push(item);
         }
 
         // There is currently a number of seeds
-        // @ts-ignore
         if (item.rateUpload > 0 || item.rateDownload > 0) {
           this.actively.push(item);
         }
@@ -909,7 +938,6 @@ export const transmission = {
             break;
         }
 
-        // @ts-ignore
         this.all[item.id] = item;
 
         // Set the directory
@@ -922,16 +950,11 @@ export const transmission = {
             // 统一使用 / 来分隔目录
             const folder = item.downloadDir.replace(/\\/g, '/').split('/');
             let folderkey = 'folders-';
-            for (const i in folder) {
-              const text = folder[i];
-              if (!text) {
-                continue;
-              }
+            for (const text of folder) {
               const key = Base64.encode(text);
               // 去除特殊字符
               folderkey += key.replace(/[+|\/|=]/g, '0');
-              // @ts-ignore
-              let node = this.folders![folderkey];
+              let node = this.folders[folderkey];
               if (!node) {
                 node = {
                   count: 0,
@@ -942,9 +965,7 @@ export const transmission = {
               }
               node.torrents.push(item);
               node.count++;
-              // @ts-ignore
               node.size += item.totalSize;
-              // @ts-ignore
               this.folders[folderkey] = node;
             }
           }
@@ -956,7 +977,7 @@ export const transmission = {
 
       // If there a need to acquire new seeds
       if (this.newIds.length > 0) {
-        this.getallids(null, this.newIds);
+        this.getAllIDs(null, this.newIds);
       }
     },
     // 获取错误/警告的ID列表
@@ -970,8 +991,6 @@ export const transmission = {
     warning: null as Torrent[] | null,
   },
 };
-
-/* eslint-enable */
 
 export interface Tracker {
   announce: string;
@@ -997,6 +1016,9 @@ export interface TrackerStat {
 }
 
 export interface Torrent {
+  hashString: string;
+  isPrivate: boolean;
+  addedDate: number;
   peersGettingFromUs: string;
   peersSendingToUs: string;
   leecher: string;
@@ -1017,8 +1039,25 @@ export interface Torrent {
   leftUntilDone: number;
   totalSize: number;
   uploadRatio: number;
+  downloadLimit: number;
+  downloadLimited: number;
+  'peer-limit': number;
+  seedIdleLimit: number;
+  seedIdleMode: number;
+  seedRatioLimit: number;
+  seedRatioMode: number;
+  uploadLimit: number;
+  uploadLimited: boolean;
+  percentDone: number;
+  recheckProgress: number;
+  rateUpload: number;
+  uploadedEver: number;
+  downloadedEver: number;
+  error: unknown;
+  errorString: string;
+  doneDate: number;
+  queuePosition: number;
+  activityDate: number;
 }
 
 export type Transmission = typeof transmission;
-
-globalThis.transmission = transmission;
