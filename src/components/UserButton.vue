@@ -1,20 +1,13 @@
 <template>
   <div :class="{ 'btn-border': border }">
-    <div
-      v-if="icon"
-      :class="{ [icon]: true }"
-      class="icon"
-    >
+    <div v-if="icon" :class="{ [icon]: true }" class="icon">
       <span style="top: 50%">
         {{ text }}
       </span>
     </div>
 
     <div v-else-if="iconfont">
-      <span
-        class="iconfont"
-        :class="iconfont"
-      />
+      <span class="iconfont" :class="iconfont" />
       <span>{{ text }}</span>
     </div>
 

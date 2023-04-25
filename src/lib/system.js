@@ -1,28 +1,26 @@
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
-import { createApp } from 'vue';
-import { createI18n } from 'vue-i18n';
 
-import i18nManifest from '../i18n.json';
-import enLocal from '../i18n/en.json';
-import app from './app.vue';
-import { i18n, SystemBase } from './system-base';
+import { App } from '../app';
+import { useTorrentListStore } from '../state';
+import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
 import { APP_VERSION } from './version';
 
 const { browser } = UAParser(navigator.userAgent);
 
+const torrentListStore = useTorrentListStore();
+
 // Current system global object
 export class System extends SystemBase {
   /**
    * 程序初始化
    */
-  init(lang, isLocal, devicetype) {
+  init(lang) {
     this.readConfig();
     this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
-    this.islocal = isLocal == 1;
     this.panel = {
       main: $('#main'),
       top: $('#m_top'),
@@ -42,10 +40,10 @@ export class System extends SystemBase {
       droparea: $('#dropArea'),
     };
 
-    if (!system.langInit) {
+    if (!this.langInit) {
       this.setLang(lang);
-      system.langInit = true;
-      system.initdata();
+      this.langInit = true;
+      this.initdata();
     } else {
       this.initdata();
     }
@@ -646,6 +644,7 @@ export class System extends SystemBase {
 
   // Initialize the torrent list display table
   initTorrentTable() {
+    App.mount('#m_body');
     const system = this;
     const torrentList = $('<table/>').attr('class', 'torrent-list').appendTo(this.panel.list);
     this.control.torrentlist = torrentList;
@@ -821,7 +820,7 @@ export class System extends SystemBase {
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i];
         const col = torrentList.datagrid('getColumnOption', field);
-        if (col.allowCustom.toString() !== 'false') {
+        if (col.allowCustom?.toString() !== 'false') {
           headContextMenu.menu('appendItem', {
             text: col.title,
             name: field,
@@ -1039,25 +1038,6 @@ export class System extends SystemBase {
       title: system.lang.dialog['torrent-setLabels'].title,
     });
     return box.get(0).outerHTML;
-  }
-
-  /**
-   * 快速设置当前种子标签
-   */
-  setTorrentLabels(button, hashString) {
-    system.openDialogFromTemplate({
-      id: 'dialog-torrent-setLabels',
-      options: {
-        title: system.lang.dialog['torrent-setLabels'].title,
-        width: 520,
-        height: 200,
-      },
-      datas: {
-        hashs: [hashString],
-      },
-      type: 1,
-      source: $(button),
-    });
   }
 
   /**
@@ -1639,7 +1619,7 @@ export class System extends SystemBase {
 
   // Reload the server information
   reloadSession(isinit) {
-    transmission.getSession(function (result) {
+    transmission.getSession().then(function ({ arguments: result }) {
       system.serverConfig = result;
       // Version Information
       $('#status_version').html(
@@ -2439,6 +2419,8 @@ export class System extends SystemBase {
     this.panel.toolbar.find("#toolbar_morepeers").linkbutton({disabled:true});
     this.panel.toolbar.find("#toolbar_queue").menubutton("disable");
     */
+
+    torrentListStore.setValue(datas);
 
     this.updateTorrentCurrentPageDatas(datas);
     this.initShiftCheck();
@@ -3621,7 +3603,7 @@ export class System extends SystemBase {
             'href',
             'tr-web-control/script/easyui/themes/' + theme + '/easyui.css',
           );
-          $('#logo').attr('src', 'tr-web-control/' + logo);
+          $('#logo').attr('src', logo);
           system.config.theme = value;
           system.saveConfig();
         },

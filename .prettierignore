@@ -1,4 +1,8 @@
 *.html
 
+/public/tr-web-control/script/easyui/
+/public/tr-web-control/script/jquery/
+/public/tr-web-control/script/min/
+/public/tr-web-control/script/FileSaver.js
 /dist/
-
+/src/easyui/

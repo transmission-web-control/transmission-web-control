@@ -1,14 +1,7 @@
 <template>
   <div class="flex flex-row justify-between align-middle">
-    <RouterLink
-      to="/"
-      class="order-first"
-    >
-      <img
-        id="logo"
-        src="logo.png"
-        alt="LOGO"
-      >
+    <RouterLink to="/" class="order-first">
+      <img id="logo" src="logo.png" alt="LOGO" />
     </RouterLink>
 
     <div class="order-last flex flex-col justify-center align-middle">
@@ -23,11 +16,7 @@
         <span class="mx-2"> | </span>
 
         <!-- 关于 -->
-        <RouterLink
-          to="/about"
-          :title="$t('toolbar.about')"
-          class="mr-2"
-        >
+        <RouterLink to="/about" :title="$t('toolbar.about')" class="mr-2">
           <span class="l-btn-left l-btn-icon-left">
             <span class="l-btn-text">
               <span>{{ $t('toolbar.about') }}</span>

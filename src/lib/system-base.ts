@@ -4,19 +4,18 @@ import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
 
 export const i18n = import.meta.glob('../i18n/*.json', { eager: true });
-const easyUILocale = import.meta.glob(
-  '../../public/tr-web-control/script/easyui/locale/easyui-lang-*.js',
+const easyUILocale = import.meta.glob('../easyui/locale/easyui-lang-*.js', {
+  eager: true,
+  as: 'raw',
+});
+
+const templateFiles: Record<`../template/${string}.html`, string> = import.meta.glob(
+  '../template/*.html',
   {
     eager: true,
     as: 'raw',
   },
 );
-
-const templateFiles: Record<`../../public/tr-web-control/template/${string}.html`, string> =
-  import.meta.glob('../../public/tr-web-control/template/*.html', {
-    eager: true,
-    as: 'raw',
-  });
 
 export class SystemBase {
   rootPath = 'tr-web-control/';
@@ -91,7 +90,6 @@ export class SystemBase {
   reloading = false;
   autoReloadTimer = null;
   downloadDir = '';
-  islocal = false;
   // The currently selected torrent number
   public currentTorrentId = 0;
   flags = [];
@@ -226,7 +224,7 @@ export class SystemBase {
     this.resetLangText();
 
     // Set the easyui language
-    const easyUILangFile = `../../public/tr-web-control/script/easyui/locale/easyui-lang-${lang}.js`;
+    const easyUILangFile = `../easyui/locale/easyui-lang-${lang}.js`;
     if (easyUILangFile in easyUILocale) {
       eval(easyUILocale[easyUILangFile] as string);
     } else {
@@ -305,7 +303,9 @@ export class SystemBase {
       }
 
       if (config.type == 0 && dialog.attr('type') === '0') {
+        // @ts-expect-error
         dialog.dialog('open');
+        // @ts-expect-error
         dialog.dialog({
           content: this.templates[dialogId],
         });
@@ -337,6 +337,7 @@ export class SystemBase {
 
     const sys = this;
     if (config.type === 0) {
+      // @ts-expect-error
       dialog.dialog(opt);
     } else {
       dialog
@@ -344,6 +345,7 @@ export class SystemBase {
           width: opt.width,
           height: opt.height,
         })
+        // @ts-expect-error
         .data('popoverSource', config.source);
 
       // @ts-expect-error
@@ -378,18 +380,20 @@ export class SystemBase {
       }
 
       if (config.type == 0) {
+        // @ts-expect-error
         $('#' + dialogId).dialog({
           content: data,
         });
       } else {
         dialog.html(data);
+        // @ts-expect-error
         $.parser.parse('#' + dialogId);
         // @ts-expect-error
         $(config.source).webuiPopover('show');
       }
     };
 
-    const templateContent = templateFiles[`../../public/tr-web-control/template/${dialogId}.html`];
+    const templateContent = templateFiles[`../template/${dialogId}.html`];
     if (templateContent) {
       dialogFileLoaded(templateContent);
     } else {

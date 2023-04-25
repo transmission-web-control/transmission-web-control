@@ -80,3 +80,17 @@ export function getUserLang(): string {
 const browserLangMap: Record<string, string> = {
   zh: 'zh_CN',
 };
+
+export function formatBytes(bytes: number) {
+  if (bytes == 0) {
+    return '0 Bytes';
+  }
+  const k = 1000;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (i > sizes.length - 1) {
+    return `${parseFloat((bytes / Math.pow(k, sizes.length - 1)).toFixed(1))}YB`;
+  }
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))}${sizes[i]}`;
+}

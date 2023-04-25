@@ -1,26 +1,12 @@
 <template>
   <div class="mt-5 flex h-full flex-row justify-center align-middle">
-    <div
-      class="w-fit"
-      style="min-width: 250px"
-    >
-      <img
-        id="logo"
-        src="images/logo.png"
-        alt="logo"
-      >
+    <div class="w-fit" style="min-width: 250px">
+      <img id="logo" src="images/logo.png" alt="logo" />
       <div>Transmission: {{ serverInfo.version }}, RPC: {{ serverInfo.rpc }}</div>
-      <div id="dialog-about-version">
-        Web Control: {{ APP_VERSION }}
-      </div>
+      <div id="dialog-about-version">Web Control: {{ APP_VERSION }}</div>
       <div>
         Copyright © 2012-2023
-        <a
-          class="text-black no-underline"
-          href="https://github.com/trim21"
-        >
-          trim21
-        </a>
+        <a class="text-black no-underline" href="https://github.com/trim21"> trim21 </a>
       </div>
 
       <div class="flex flex-row justify-around">
@@ -29,22 +15,14 @@
           target="_blank"
           title="github"
         >
-          <UserButton
-            :border="true"
-            iconfont="tr-icon-github"
-            :text="$t('dialog.about.home')"
-          />
+          <UserButton :border="true" iconfont="tr-icon-github" :text="$t('dialog.about.home')" />
         </a>
         <a
           href="https://github.com/transmission-web-control/transmission-web-control/wiki"
           target="_blank"
           title="github"
         >
-          <UserButton
-            :border="true"
-            iconfont="tr-icon-help"
-            :text="$t('dialog.about.help')"
-          />
+          <UserButton :border="true" iconfont="tr-icon-help" :text="$t('dialog.about.help')" />
         </a>
 
         <a
@@ -60,10 +38,7 @@
         </a>
       </div>
 
-      <hr
-        class="my-5"
-        style="color: #444; height: 4px"
-      >
+      <hr class="my-5" style="color: #444; height: 4px" />
 
       <div class="flex flex-row">
         <span style="padding-right: 5px">Thanks: </span>
@@ -75,10 +50,7 @@
           class="easyui-linkbutton l-btn l-btn-small"
           group=""
         >
-          <UserButton
-            :border="true"
-            text="Transmission"
-          />
+          <UserButton :border="true" text="Transmission" />
         </a>
       </div>
     </div>

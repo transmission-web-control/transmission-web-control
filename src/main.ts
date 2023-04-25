@@ -1,61 +1,18 @@
-import 'reset-css';
-import './index.css';
-import './iconfont/iconfont.css';
+import './app.ts';
 
-import { createApp } from 'vue';
-import { createI18n } from 'vue-i18n';
-
-import app from './app.vue';
-import i18nManifest from './i18n.json';
-import enLocal from './i18n/en.json';
+// @ts-expect-error
+import { System } from './lib/system.js';
 import { transmission } from './lib/transmission';
-import { getUserLang } from './lib/utils';
-import { router } from './routes';
-import { pinia, useServerInfoStore } from './state';
+import { getQueryString, getUserLang } from './lib/utils';
 
-export const i18n = import.meta.glob('./i18n/*.json', { eager: true });
+const system = new System();
 
-const messages = {
-  'en-US': enLocal,
-  ...Object.fromEntries(
-    Object.keys(i18nManifest).map((key) => {
-      key = key.replace('-', '_');
-      return [key, i18n[`./i18n/${key}.json`]];
-    }),
-  ),
-};
+// @ts-expect-error
+globalThis.transmission = transmission;
+// @ts-expect-error
+globalThis.system = system;
 
-async function main() {
-  try {
-    await transmission.init();
-  } catch (e) {
-    document.body.innerHTML = 'failed to connect transmission server';
-    return;
-  }
-
-  transmission.getSession().then(
-    (data) => {
-      if (data.result == 'success') {
-        const state = data.arguments;
-        useServerInfoStore().setInfo({ version: state.version, rpc: state['rpc-version'] });
-      }
-    },
-    (err) => {
-      console.error('failed to get session', err);
-    },
-  );
-
-  createApp(app)
-    .use(
-      createI18n({
-        locale: getUserLang(),
-        fallbackLocale: 'en',
-        messages,
-      }),
-    )
-    .use(router)
-    .use(pinia)
-    .mount('#app');
-}
-
-await main();
+$(document).ready(function () {
+  // Loads a list of available languages
+  system.init(getUserLang(), getQueryString('local'));
+});
