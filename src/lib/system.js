@@ -1,8 +1,9 @@
 import { Base64 } from 'js-base64';
+import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
 
 import { SystemBase } from './system-base';
-import torrentFields from './torrent-fields.json';
+import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
 import { APP_VERSION } from './version';
 
@@ -566,12 +567,12 @@ export class System extends SystemBase {
     system.uiIsInitialized = true;
     let status = this.lastUIStatus.tree;
     for (var key in status) {
-      var node = this.panel.left.tree('find', key);
-      if (node && node.target) {
+      const node1 = this.panel.left.tree('find', key);
+      if (node1 && node1.target) {
         if (status[key] == 'open') {
-          this.panel.left.tree('expand', node.target);
+          this.panel.left.tree('expand', node1.target);
         } else {
-          this.panel.left.tree('collapse', node.target);
+          this.panel.left.tree('collapse', node1.target);
         }
       }
     }
@@ -584,12 +585,9 @@ export class System extends SystemBase {
 
     // node that specifies the default selection
     if (this.config.defaultSelectNode) {
-      var node = this.panel.left.tree('find', this.config.defaultSelectNode);
+      let node = this.panel.left.tree('find', this.config.defaultSelectNode);
       // 当不显示目录时，如果最后选择的为目录，则显示所有种子；
-      if (
-        node &&
-        (this.config.foldersShow || this.config.defaultSelectNode.indexOf('folders') == -1)
-      ) {
+      if (node && (this.config.foldersShow || !this.config.defaultSelectNode.includes('folders'))) {
         this.panel.left.tree('select', node.target);
       } else {
         node = this.panel.left.tree('find', 'torrent-all');
@@ -614,8 +612,8 @@ export class System extends SystemBase {
 
     // 恢复展开状态
     status = this.lastUIStatus.layout.body;
-    for (var key in status) {
-      if (status[key] == 'open') {
+    for (const key in status) {
+      if (status[key] === 'open') {
         this.panel.layout_body.layout('expand', key);
       } else {
         this.panel.layout_body.layout('collapse', key);
@@ -623,8 +621,8 @@ export class System extends SystemBase {
     }
 
     status = this.lastUIStatus.layout.left;
-    for (var key in status) {
-      if (status[key] == 'open') {
+    for (const key in status) {
+      if (status[key] === 'open') {
         this.panel.layout_left.layout('expand', key);
       } else {
         this.panel.layout_left.layout('collapse', key);
@@ -632,8 +630,8 @@ export class System extends SystemBase {
     }
 
     status = this.lastUIStatus.layout.main;
-    for (var key in status) {
-      if (status[key] == 'open') {
+    for (const key in status) {
+      if (status[key] === 'open') {
         this.panel.main.layout('expand', key);
       } else {
         this.panel.main.layout('collapse', key);
@@ -643,29 +641,30 @@ export class System extends SystemBase {
 
   // Initialize the torrent list display table
   initTorrentTable() {
-    this.control.torrentlist = $('<table/>')
-      .attr('class', 'torrent-list')
-      .appendTo(this.panel.list);
+    const system = this;
+    const torrentList = $('<table/>').attr('class', 'torrent-list').appendTo(this.panel.list);
+    this.control.torrentlist = torrentList;
+
     let headContextMenu = null;
     let selectedIndex = -1;
 
-    const onData = function () {
+    {
       let fields = torrentFields.fields;
       const _fields = {};
-      for (let i = 0; i < fields.length; i++) {
-        var item = fields[i];
+
+      for (const item of fields) {
         _fields[item.field] = item;
       }
 
-      if (system.userConfig.torrentList.fields.length != 0) {
-        fields = $.extend(fields, system.userConfig.torrentList.fields);
+      if (system.userConfig.torrentList.fields.length) {
+        fields = lo.merge(fields, system.userConfig.torrentList.fields);
       }
 
       // User field settings
       system.userConfig.torrentList.fields = fields;
 
       for (const key in fields) {
-        var item = fields[key];
+        const item = fields[key];
         const _field = _fields[item.field];
         if (_field && _field.formatter) {
           item.formatter = _field.formatter;
@@ -684,7 +683,7 @@ export class System extends SystemBase {
       }
 
       // 初始化种子列表
-      system.control.torrentlist.datagrid({
+      torrentList.datagrid({
         autoRowHeight: false,
         pagination: system.config.pagination,
         rownumbers: true,
@@ -779,12 +778,10 @@ export class System extends SystemBase {
           });
         },
       });
-    };
-
-    setTimeout(onData);
+    }
 
     // 刷新当前页数据
-    this.control.torrentlist.refresh = function () {
+    torrentList.refresh = function () {
       system.control.torrentlist.datagrid('getPager').find('.pagination-load').click();
     };
 
@@ -818,8 +815,8 @@ export class System extends SystemBase {
       const fields = system.control.torrentlist.datagrid('getColumnFields');
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i];
-        const col = system.control.torrentlist.datagrid('getColumnOption', field);
-        if (col.allowCustom != false && col.allowCustom != 'false') {
+        const col = torrentList.datagrid('getColumnOption', field);
+        if (col.allowCustom.toString() !== 'false') {
           headContextMenu.menu('appendItem', {
             text: col.title,
             name: field,
@@ -828,14 +825,7 @@ export class System extends SystemBase {
         }
       }
     }
-
-    /*
-		this.panel.list.bind('contextmenu',function(e){
-			 e.preventDefault();
-			 system.showContextMenu("torrent-list",e);
-		});
-		*/
-  }
+  } // end initTorrentTable
 
   resetTorrentListFieldsUserConfig(columns) {
     const fields = {};

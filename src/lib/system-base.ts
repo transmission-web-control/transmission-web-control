@@ -220,7 +220,7 @@ export class SystemBase {
 
     const langFile = `../i18n/${lang}.json`;
     if (langFile in i18n) {
-      system.lang = lo.merge(this.defaultLang, i18n[langFile]);
+      this.lang = lo.merge(this.defaultLang, i18n[langFile]);
     }
 
     this.resetLangText();
@@ -307,13 +307,13 @@ export class SystemBase {
       if (config.type == 0 && dialog.attr('type') === '0') {
         dialog.dialog('open');
         dialog.dialog({
-          content: system.templates[dialogId],
+          content: this.templates[dialogId],
         });
         return;
       } else {
-        if (system.popoverCount != 0) {
-          setTimeout(function () {
-            system.openDialogFromTemplate(config);
+        if (this.popoverCount !== 0) {
+          setTimeout(() => {
+            this.openDialogFromTemplate(config);
           }, 350);
           return;
         }
@@ -327,7 +327,7 @@ export class SystemBase {
       height: 100,
       resizable: false,
       cache: true,
-      content: system.lang.dialog['system-config'].loading,
+      content: this.lang.dialog['system-config'].loading,
       modal: true,
     };
 
@@ -335,6 +335,7 @@ export class SystemBase {
 
     dialog = $('<div/>').attr({ id: dialogId, type: config.type }).appendTo(document.body);
 
+    const sys = this;
     if (config.type === 0) {
       dialog.dialog(opt);
     } else {
@@ -357,13 +358,13 @@ export class SystemBase {
           $(config.source).webuiPopover('destroy');
           $(`#${dialogId}`).remove();
           $(e).remove();
-          system.popoverCount--;
+          sys.popoverCount--;
           if (config.onClose) {
             config.onClose(config.source);
           }
         },
         onShow() {
-          system.popoverCount++;
+          sys.popoverCount++;
         },
       });
     }
@@ -401,7 +402,7 @@ export class SystemBase {
       this.openDialogFromTemplate({
         id: 'dialog-system-replaceTracker',
         options: {
-          title: system.lang.dialog['system-replaceTracker'].title,
+          title: this.lang.dialog['system-replaceTracker'].title,
           width: 600,
           height: 220,
         },
@@ -416,7 +417,7 @@ export class SystemBase {
         return;
       }
 
-      system.openDialogFromTemplate({
+      this.openDialogFromTemplate({
         id: 'dialog-auto-match-data-folder',
         options: {
           title: this.lang.dialog['auto-match-data-folder'].title,

@@ -22,6 +22,7 @@ module.exports = {
     'object-shorthand': ['error', 'always'],
     '@typescript-eslint/ban-ts-comment': 0,
     '@typescript-eslint/method-signature-style': 0,
+    '@typescript-eslint/no-this-alias': 0,
     curly: ['error', 'all'],
     'no-var': 0,
     eqeqeq: 0,
