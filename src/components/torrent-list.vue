@@ -3,8 +3,12 @@
     <table>
       <thead>
         <tr>
-          <th style="width: 100px">{{ $t('torrent.fields.name') }}</th>
-          <th style="width: 200px">{{ $t('torrent.fields.totalSize') }}</th>
+          <th style="width: 100px">
+            {{ $t('torrent.fields.name') }}
+          </th>
+          <th style="width: 200px">
+            {{ $t('torrent.fields.totalSize') }}
+          </th>
         </tr>
       </thead>
       <tbody>

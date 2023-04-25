@@ -3,14 +3,21 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  plugins: ['unicorn', 'simple-import-sort'],
+  plugins: ['unicorn', 'simple-import-sort', 'vue'],
   extends: ['standard-with-typescript', 'prettier'],
-  overrides: [],
   parserOptions: {
+    extraFileExtensions: ['.vue'],
     project: './tsconfig.json',
     ecmaVersion: 'latest',
   },
   rules: {
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
+      {
+        prefer: 'type-imports',
+        fixStyle: 'separate-type-imports',
+      },
+    ],
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'prefer-const': 'error',
@@ -39,4 +46,31 @@ module.exports = {
     'no-new': 0,
     'no-undef': 0,
   },
+  overrides: [
+    {
+      files: ['*.vue'],
+      parserOptions: {
+        parser: '@typescript-eslint/parser',
+        project: './tsconfig.json',
+        sourceType: 'module',
+      },
+      extends: [
+        // add more generic rulesets here, such as:
+        // 'eslint:recommended',
+        'plugin:vue/vue3-recommended',
+        // 'plugin:vue/recommended' // Use this if you are using Vue.js 2.x.
+      ],
+      rules: {
+        'vue/multi-word-component-names': 0,
+        'vue/multiline-html-element-content-newline': [
+          'error',
+          {
+            ignoreWhenEmpty: true,
+            ignores: ['pre', 'textarea'],
+            allowEmptyLines: false,
+          },
+        ],
+      },
+    },
+  ],
 };

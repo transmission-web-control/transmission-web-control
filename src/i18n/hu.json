@@ -208,7 +208,7 @@
     },
     "about": {
       "infos": "Szerző：culturist<br/>Nyilatkozat：A programban használt ikonok nagy része az internetről származik. Ha bármelyik sérti a jogaidat, kérlek vedd fel a kapcsolatot velem.",
-      "check-update": "Frissítés keresése"
+      "checkUpdate": "Frissítés keresése"
     },
     "torrent-remove": {
       "title": "Törlés megerősítése",

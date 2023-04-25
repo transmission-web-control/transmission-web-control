@@ -223,7 +223,7 @@
     },
     "about": {
       "infos": "Auteur：culturist<br/>Statement：La plupart des icônes utilisées proviennent d'internet, toutefois, si vous constatez une violation de vos droits, contactez moi !",
-      "check-update": "Rechercher mise à jour",
+      "checkUpdate": "Rechercher mise à jour",
       "home": "Page d'accueil",
       "donate": "Don",
       "pt-plugin": "Plugin PT"

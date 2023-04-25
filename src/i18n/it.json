@@ -234,7 +234,7 @@
     },
     "about": {
       "infos": "Autore：culturist<br/>Nota: Molte delle icone usate in questo programma sono prese dalla rete, se una di questa è di vostra proprietà contattatemi e provvederò a rimuoverla/e.",
-      "check-update": "Controlla aggiornamenti",
+      "checkUpdate": "Controlla aggiornamenti",
       "home": "Homepage del progetto",
       "donate": "Dona",
       "pt-plugin": "Plugin PT"

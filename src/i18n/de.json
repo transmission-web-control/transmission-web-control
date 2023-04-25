@@ -229,7 +229,7 @@
     },
     "about": {
       "infos": "Author：culturist<br/>Statement：Die meisten der in diesem Programm verwendeten Symbole sind aus dem Netz, wenn eine Verletzung Ihrer Rechte vorliegt, kontaktieren Sie mich zur Löschung.",
-      "check-update": "Auf Update prüfen",
+      "checkUpdate": "Auf Update prüfen",
       "home": "Project Seite",
       "donate": "Spenden"
     },

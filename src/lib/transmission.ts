@@ -116,19 +116,10 @@ export const transmission = {
       },
     );
   },
-  getSession(callback?: (data: unknown) => void) {
-    this.exec(
-      {
-        method: 'session-get',
-      },
-      function (data) {
-        if (data.result == 'success') {
-          if (callback != null) {
-            callback(data.arguments);
-          }
-        }
-      },
-    );
+  async getSession() {
+    return await this.execAsync({
+      method: 'session-get',
+    });
   },
 
   // 添加种子

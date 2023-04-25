@@ -233,7 +233,7 @@
     },
     "about": {
       "infos": "Autor：culturist<br/>Declaración：Most of the icons used in this program from the network, if any violation of your rights, please contact me delete.",
-      "check-update": "Comprobar actualización"
+      "checkUpdate": "Comprobar actualización"
     },
     "torrent-remove": {
       "title": "Confirmar eliminar",

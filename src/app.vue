@@ -1,61 +1,57 @@
 <template>
-  <div class="flex-row justify-between">
-    <img
-      id="logo"
-      src="logo.png"
-      alt="LOGO"
+  <div class="flex flex-row justify-between align-middle">
+    <RouterLink
+      to="/"
       class="order-first"
-    />
-
-    <div
-      style="float: right; padding: 13px"
-      class="order-last"
     >
-      <!-- 切换到原版 -->
-      <a
-        id=""
-        href="javascript:location.href = 'index.original.html';"
-        class="easyui-linkbutton l-btn l-btn-small l-btn-plain"
-        data-options="iconCls:'icon-transmission',plain:true"
-        system-tip-lang="toolbar.tip['ui-original']"
-        group=""
-        title="切换到原版界面"
+      <img
+        id="logo"
+        src="logo.png"
+        alt="LOGO"
       >
-        <span class="l-btn-left l-btn-icon-left">
-          <span class="l-btn-text">
-            <span system-lang="toolbar['ui-original']">原版UI</span>
+    </RouterLink>
+
+    <div class="order-last flex flex-col justify-center align-middle">
+      <div class="flex flex-row">
+        <UserButton
+          icon="icon-transmission"
+          :title="$t(`toolbar.tip['ui-original']`)"
+          :text="$t(`toolbar['ui-original']`)"
+          @click="console.log('click')"
+        />
+
+        <span class="mx-2"> | </span>
+
+        <!-- 关于 -->
+        <RouterLink
+          to="/about"
+          :title="$t('toolbar.about')"
+          class="mr-2"
+        >
+          <span class="l-btn-left l-btn-icon-left">
+            <span class="l-btn-text">
+              <span>{{ $t('toolbar.about') }}</span>
+            </span>
+            <span class="l-btn-icon icon-about">&nbsp;</span>
           </span>
-          <span class="l-btn-icon"></span
-        ></span>
-      </a>
-      <span class="button-split">|</span>
-      <!-- 关于 -->
-      <RouterLink
-        id="toolbar_about"
-        to="/about"
-        href="javascript:void(0);"
-        class="easyui-linkbutton l-btn l-btn-small l-btn-plain"
-        data-options="iconCls:'icon-about',plain:true"
-        system-tip-lang="toolbar.about"
-        group=""
-        title="关于"
-      >
-        <span class="l-btn-left l-btn-icon-left">
-          <span class="l-btn-text"><span system-lang="toolbar.about">关于</span> </span>
-          <span class="l-btn-icon icon-about">&nbsp;</span>
-        </span>
-      </RouterLink>
+        </RouterLink>
+      </div>
     </div>
   </div>
 
-  <RouterView></RouterView>
+  <RouterView />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+
+import UserButton from './components/UserButton.vue';
 import { transmission } from './lib/transmission';
 
 export default defineComponent({
+  components: {
+    UserButton,
+  },
   data() {
     return {
       transmission,
@@ -63,5 +59,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style></style>

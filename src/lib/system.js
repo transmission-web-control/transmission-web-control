@@ -1,16 +1,16 @@
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
+import { createApp } from 'vue';
+import { createI18n } from 'vue-i18n';
 
+import i18nManifest from '../i18n.json';
+import enLocal from '../i18n/en.json';
+import app from './app.vue';
 import { i18n, SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
 import { APP_VERSION } from './version';
-import enLocal from '../i18n/en.json';
-import i18nManifest from '../i18n.json';
-import { createApp } from 'vue';
-import app from './app.vue';
-import { createI18n } from 'vue-i18n';
 
 const { browser } = UAParser(navigator.userAgent);
 

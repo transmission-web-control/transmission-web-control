@@ -243,7 +243,7 @@
     },
     "about": {
       "infos": "Autor: culturist, Tłumaczenie: Simplydan<br/>Poprawki + nowe tłumaczenia: vipKoza, Monter<br/>Oświadczenie: Jeżeli któraś ikona narusza twoje prawa, skontaktuj się z autorem.",
-      "check-update": "Sprawdź aktualizację",
+      "checkUpdate": "Sprawdź aktualizację",
       "home": "Strona domowa",
       "donate": "Dotacja",
       "pt-plugin": "Plugin PT"
