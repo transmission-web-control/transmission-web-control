@@ -1,5 +1,6 @@
 {
   "name": "fr",
+  "languageName": "English",
   "author": "Amaury Aubry, ewan34500, vodek3",
   "system": {
     "title": "Interface Web Transmission",
@@ -22,6 +23,7 @@
   },
   "toolbar": {
     "start": "Démarrer",
+    "pause": "Pause",
     "recheck": "Revérifier",
     "start-all": "Tout démarrer",
     "pause-all": "Tout en pause",
@@ -44,6 +46,7 @@
     "ui-mobile": "Interface Mobile",
     "ui-original": "Interface originale",
     "ui-computer": "Interface bureau",
+    "plugin": "Extensions/plugins",
     "rename": "Renommer",
     "copy-path-to-clipboard": "Copier le dossier de téléchargement dans le presse papier",
     "tip": {
@@ -66,6 +69,7 @@
       "autoreload-enabled": "Activer rafraîchissement auto",
       "tracker-replace": "Changer de trackers",
       "change-download-dir": "Définir dossier de téléchargement",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Interface Mobile",
       "ui-original": "Interface originale",
       "more-peers": "Interroger tracker pour plus de pairs",
@@ -83,9 +87,12 @@
     "plugin": {
       "auto-match-data-folder": "Correspondance auto des dossiers de données"
     },
-    "setLabels": "Personnaliser les étiquettes"
+    "setLabels": "Personnaliser les étiquettes",
+    "copyMagnetLink": "Copy magnetLink to clipboard"
   },
   "title": {
+    "left": "Navigation",
+    "list": "Torrents",
     "attribute": "Attributs",
     "status": "Statut"
   },
@@ -114,6 +121,7 @@
       "sessionCount": "Nombre de sessions: ",
       "secondsActive": "Actif depuis: "
     },
+    "servers": "Trackers",
     "folders": "Dossiers",
     "toolbar": {
       "nav": {
@@ -124,14 +132,17 @@
   },
   "statusbar": {
     "downloadspeed": "Vitesse de téléchargement:",
-    "uploadspeed": "Vitesse d'envoi:"
+    "uploadspeed": "Vitesse d'envoi:",
+    "version": "Version:"
   },
   "dialog": {
     "torrent-add": {
       "download-dir": "Dossier de téléchargement:",
+      "used-download-dir": "Used Download Dir:",
       "torrent-url": "URL du torrent:",
       "tip-torrent-url": "Astuce：Séparer les URLs avec une virgule \",\"",
       "autostart": "Démarrage auto:",
+      "tip-autostart": "",
       "set-default-download-dir": "Définir comme dossier de téléchargement par défaut",
       "upload-file": "Fichier(s) torrents:",
       "nosource": "Aucun torrent ou URL.",
@@ -140,6 +151,7 @@
     "system-config": {
       "title": "Configuration serveur",
       "tabs": {
+        "base": "Base",
         "network": "Réseau",
         "limit": "Limites",
         "alt-speed": "Planificateur",
@@ -195,6 +207,7 @@
       "seedRatioLimited": "Le ratio de partage des torrents par défaut:",
       "queue-stalled-enabled": "Durée d'inactivité après laquelle le torrent est considéré comme bloqué:",
       "idle-seeding-limit-enabled": "Durée d'inactivité après laquelle le torrent en seed est stoppé :",
+      "minutes": "Minutes",
       "nochange": "Pas de changement",
       "saving": "Sauvegarde...",
       "show-bt-servers": "Afficher les 'serveurs BT' sur les Trackers:",
@@ -206,11 +219,23 @@
       "nav-contents": "Afficher les éléments dans la barre de navigation:",
       "labels-manage": {
         "name": "Nom",
+        "description": "Description",
         "color": "Couleur",
+        "actions": "Actions",
         "import-confirm": "Voulez-vous importer les étiquettes? Cela remplacera la configuration courante."
-      }
+      },
+      "import-config": "Import configuration from file",
+      "export-config": "Export current configuration",
+      "import-config-confirm": "Do you want to import these configurations? This overrides the current configuration.",
+      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
+      "ipinfo": "IPinfo.io access token:",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
+      "button-ok": "OK",
       "button-cancel": "Annuler",
       "button-reload": "Recharger",
       "button-save": "Sauvegarder",
@@ -219,12 +244,15 @@
       "button-config": "Configuration",
       "button-addnew": "Ajouter",
       "button-edit": "Modifier",
-      "button-delete": "Supprimer"
+      "button-delete": "Supprimer",
+      "button-export": "Export",
+      "button-import": "Import"
     },
     "about": {
       "infos": "Auteur：culturist<br/>Statement：La plupart des icônes utilisées proviennent d'internet, toutefois, si vous constatez une violation de vos droits, contactez moi !",
       "check-update": "Rechercher mise à jour",
       "home": "Page d'accueil",
+      "help": "Wiki",
       "donate": "Don",
       "pt-plugin": "Plugin PT"
     },
@@ -242,7 +270,16 @@
       "set-error": "Erreur!",
       "recheck-data": "Vérifier les données."
     },
-    "torrent-changeSpeedLimit": {},
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
+    },
     "system-replaceTracker": {
       "title": "Changer de tracker",
       "old-tracker": "Ancien tracker:",
@@ -261,6 +298,7 @@
       "ignore": "Ignorer",
       "working-close-confirm": "Est en fonctionnement, êtes-vous sûr de vouloir fermer?",
       "time-interval": "Intervalle (secondes):",
+      "work-mode-title": "Mode:",
       "work-mode": {
         "1": "Correspondance par torrent",
         "2": "Correspondance par dossier"
@@ -272,6 +310,8 @@
       "newname": "Nouveau"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Ajouter des trackers",
       "tip": "Une ligne, un tracker"
     },
@@ -280,12 +320,23 @@
       "available": "Disponible :",
       "selected": "Sélectionné(s) :"
     },
-    "export-config": {},
-    "import-config": {}
+    "export-config": {
+      "title": "Please select the details need to be exported",
+      "option-all": "All configuration",
+      "option-system": "Web Control configuration",
+      "option-dictionary": "Defined Folders Dictionary",
+      "option-server": "Transmission configuration (Download directory, cache, speed limit, etc.)"
+    },
+    "import-config": {
+      "title": "Please select the details need to be import",
+      "invalid-file": "Invalid profile"
+    }
   },
   "torrent": {
     "fields": {
+      "id": "#",
       "name": "Nom",
+      "hashString": "HASH",
       "downloadDir": "Dossier de téléchargement",
       "totalSize": "Taille totale",
       "status": "Statut",
@@ -295,10 +346,15 @@
       "completeSize": "Téléchargé",
       "rateDownload": "Vitesse de téléchargement",
       "rateUpload": "Vitesse d'envoi",
+      "leecherCount": "Leecher",
+      "seederCount": "Seeder",
       "uploadedEver": "Envoyé",
+      "uploadRatio": "Ratio",
       "queuePosition": "File",
       "activityDate": "Date d'activité",
-      "labels": "Etiquettes"
+      "trackers": "Trackers",
+      "labels": "Etiquettes",
+      "doneDate": "Completed Date"
     },
     "status-text": {
       "0": "En pause",
@@ -311,6 +367,8 @@
     },
     "attribute": {
       "tabs": {
+        "base": "Base",
+        "servers": "Trackers",
         "files": "Fichiers",
         "users": "Pairs",
         "config": "Configuration"
@@ -320,20 +378,32 @@
         "length": "Taille",
         "percentDone": "Pourcentage effectué",
         "bytesCompleted": "Taille totale",
+        "wanted": "Wanted",
         "priority": "Priorité"
       },
       "servers-fields": {
         "announce": "Annonce",
         "announceState": "Statut",
+        "lastAnnounceResult": "Infos",
         "lastAnnounceSucceeded": "Réussie",
         "lastAnnounceTime": "Temps d'annonce",
         "lastAnnounceTimedOut": "Durée dépassée",
         "downloadCount": "Nombre de téléchargement",
         "nextAnnounceTime": "Prochaine annonce",
-        "announceStateText": {}
+        "leecherCount": "Leecher count",
+        "seederCount": "Seeder count",
+        "announceStateText": {
+          "0": "Inactive",
+          "1": "Waiting",
+          "2": "Queued",
+          "3": "Active"
+        }
       },
       "peers-fields": {
         "address": "Adresse IP",
+        "port": "Port",
+        "isUTP": "UTP enabled",
+        "clientName": "Client",
         "flagStr": "Drapeau",
         "progress": "Progression",
         "rateToClient": "Taux client",
@@ -348,22 +418,30 @@
         "1": "Haute",
         "-1": "Basse"
       },
-      "filter-template-text": {},
+      "filter-template-text": {
+        "1": "All",
+        "2": "BitComet padding file",
+        "3": "Unnecessary files"
+      },
       "label": {
         "name": "Nom:",
         "addedDate": "Date d'ajout:",
         "totalSize": "Taille totale:",
         "completeSize": "Taille complétée:",
         "leftUntilDone": "Restant:",
+        "hashString": "HASH:",
         "downloadDir": "Dossier de téléchargement:",
         "status": "Statut:",
         "rateDownload": "Taux de téléchargement:",
         "rateUpload": "Taux d'envoi:",
+        "leecherCount": "Leecher:",
+        "seederCount": "Seeder:",
         "uploadedEver": "Envoyé:",
         "uploadRatio": "Ratio d'envoi:",
         "creator": "Créateur:",
         "dateCreated": "Date de création:",
         "comment": "Commentaire:",
+        "errorString": "Error string:",
         "downloadLimited": "Vitesse limite de téléchargement：",
         "uploadLimited": "Vitesse limite d'envoie：",
         "peer-limit": "Nombre de pairs maximum：",
@@ -376,6 +454,7 @@
         "button-allow": "Télécharger le(s) fichier(s) sélectionné(s)",
         "button-deny": "Passer le(s) fichier(s) sélectionné(s)",
         "button-priority": "Définir la priorité",
+        "button-filter": "Search files by regular expression",
         "button-tracker-add": "Ajouter un nouveau tracker",
         "button-tracker-edit": "Modifier le tracker",
         "button-tracker-remove": "Supprimer le tracker"
@@ -395,9 +474,15 @@
     "text-drop-title": "Glisser-déposer le fichier dans la zone pour l'ajouter à Transmission.",
     "text-saved": "Sauvegardé",
     "text-nochange": "Pas de changement",
+    "text-info": "Infos",
     "text-confirm": "Etes-vous sûr?",
     "text-browsers-not-support-features": "Votre navigateur ne supporte pas cette fonctionnalité!",
     "text-download-update": "Télécharger cette mise à jour",
-    "text-have-update": "Une mise à jour est disponible"
+    "text-have-update": "Une mise à jour est disponible",
+    "text-on": "ON",
+    "text-off": "OFF",
+    "text-how-to-update": "How to update?",
+    "text-ignore-this-version": "Ignore this version",
+    "text-json-file-parsing-failed": "JSON file parsing failed!"
   }
 }
