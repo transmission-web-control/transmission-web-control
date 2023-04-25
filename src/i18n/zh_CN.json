@@ -282,8 +282,8 @@
       "title": "替换 Tracker 地址",
       "old-tracker": "原 Tracker：",
       "new-tracker": "新 Tracker：",
-      "tip": "此功能将查找<b>所有种子</b>的 Tracker，如果找到相等的，则替换。",
-      "warning": "请注意跟原来的行为不一致，会更换单种的所有Tracker，请填写所有Tracker，一行一个。",
+      "tip": "此功能將查找<b>所有種子</b>的 Tracker，對匹配上種子的 Trackers 的全部重寫。",
+      "warning": "请注意跟原来的行为不一致，会替换匹配上的单种的所有 Trackers，请填写所有的 Tracker，一行一个。",
       "not-found": "未找到符合条件的 Tracker。"
     },
     "auto-match-data-folder": {

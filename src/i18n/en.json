@@ -284,8 +284,8 @@
       "title": "Replace Trackers",
       "old-tracker": "Old tracker:",
       "new-tracker": "New tracker:",
-      "tip": "This function will find <b>all torrents</b> Tracker.",
-      "warning": "Warning! New Replace will set one torrent's all trackers. Use string of announce URLs, one per line, and a blank line between tiers.",
+      "tip": "This function will find <b>all torrent's</b> Trackers that had matched.",
+      "warning": "Warning! New Replace will replace torrent's all trackers which matched. Use string of announce URLs, one per line, and a blank line between tiers.",
       "not-found": "Tracker is not found."
     },
     "auto-match-data-folder": {

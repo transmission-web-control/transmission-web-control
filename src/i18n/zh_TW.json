@@ -281,8 +281,8 @@
       "title": "取代 Tracker 地址",
       "old-tracker": "原 Tracker：",
       "new-tracker": "新 Tracker：",
-      "tip": "此功能將搜尋<b>全部任務</b>的 Tracker，如果找到相等的，則取代。",
-      "warning": "請注意跟原來的行為不一致，會更換單種的所有Tracker，請填寫所有Tracker,一行一個。",
+      "tip": "此功能將搜尋<b>全部任務</b>的 Tracker，如果找到相等的，則。",
+      "warning": "注意跟原來的行為不一致，會替換匹配上的單種的所有 Trackers，請填寫所有的 Tracker，一行一個。",
       "not-found": "未找到符合條件的 Tracker。"
     },
     "auto-match-data-folder": {
