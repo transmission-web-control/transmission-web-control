@@ -17,8 +17,7 @@ const easyUILocale = import.meta.glob(
     as: 'raw',
   },
 );
-
-// console.log(easyUILocale);
+const templateFiles = import.meta.glob('../template/*.html', { eager: true, as: 'raw' });
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
@@ -3880,7 +3879,7 @@ const system = {
       });
     }
 
-    $.get(system.rootPath + 'template/' + dialogId + '.html?time=' + new Date(), function (data) {
+    const dialogFileLoaded = function (data) {
       system.templates[dialogId] = data;
       if (datas) {
         $.each(datas, function (key, value) {
@@ -3897,7 +3896,14 @@ const system = {
         $.parser.parse('#' + dialogId);
         $(config.source).webuiPopover('show');
       }
-    });
+    };
+
+    const dialogFilePath = `../template/${dialogId}.html`;
+    if (dialogFilePath in templateFiles) {
+      dialogFileLoaded(templateFiles[dialogFilePath]);
+    } else {
+      alert(`can't find dialog template ${dialogId}`);
+    }
   },
   // Debugging information
   debug: function (label, text) {
