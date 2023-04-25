@@ -146,6 +146,7 @@ export const transmission = {
     };
     void $.ajax(settings);
   },
+
   getStatus(callback: (data: unknown) => void) {
     this.exec(
       {
@@ -486,9 +487,8 @@ export const transmission = {
       }
     },
 
-    /* eslint-disable */
-
-    all: null as Record<string, Torrent> | null,
+    all: {} as Record<string, Torrent>,
+    allInited: false,
     btItems: [] as Torrent[],
     count: 0,
     datas: {} as Record<string, Torrent> | null,
@@ -562,7 +562,15 @@ export const transmission = {
         'uploadLimited',
       ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
     },
-    folders: {},
+    folders: {} as Record<
+      string,
+      {
+        count: number;
+        torrents: Torrent[];
+        size: number;
+        nodeid: string;
+      }
+    >,
     getConfig(id: string, callback: (torrents: Torrent[] | null) => void) {
       this.getMoreInfos(this.fields.config, id, callback);
     },
@@ -643,20 +651,20 @@ export const transmission = {
         return;
       }
       // 跳过己获取的
-      const req_list = [];
+      const reqList = [];
       for (const id of ids) {
         const t = this.all?.[id];
         if (!t) {
           continue;
         }
         if (!t.magnetLink) {
-          req_list.push(id);
+          reqList.push(id);
         } else {
           result += t.magnetLink + '\n';
         }
       }
 
-      if (req_list.length == 0) {
+      if (reqList.length == 0) {
         if (callback) {
           callback(result.trim());
         }
@@ -668,13 +676,15 @@ export const transmission = {
           method: 'torrent-get',
           arguments: {
             fields: ['id', 'magnetLink'],
-            ids: req_list,
+            ids: reqList,
           },
         },
         function (data) {
           if (data.result == 'success') {
-            for (const item of data.arguments.torrents) {
-              transmission.torrents.all![item.id]!.magnetLink = item.magnetLink;
+            for (const item of data.arguments.torrents as Array<
+              Pick<Torrent, 'id' | 'magnetLink'>
+            >) {
+              transmission.torrents.all[item.id]!.magnetLink = item.magnetLink;
               result += item.magnetLink + '\n';
             }
             if (callback) {
@@ -690,7 +700,7 @@ export const transmission = {
         {
           method: 'torrent-get',
           arguments: {
-            fields: fields,
+            fields,
             ids,
           },
         },
@@ -741,15 +751,13 @@ export const transmission = {
 
       this.isRecentlyActive = false;
       // If it has been acquired
-      if (this.all && ids == undefined) {
+      if (this.all.length && ids == undefined) {
         args.ids = 'recently-active';
         this.isRecentlyActive = true;
       } else if (ids) {
         args.ids = ids;
       }
-      if (!this.all) {
-        this.all = {};
-      }
+
       transmission.exec(
         {
           method: 'torrent-get',
@@ -815,6 +823,7 @@ export const transmission = {
       newTracker: string,
       callback: (result: null, count?: number) => void,
     ) {
+      /* eslint-disable */
       if (!oldTracker || !newTracker) {
         return;
       }
@@ -865,6 +874,7 @@ export const transmission = {
           result[index].ids,
         );
       }
+      /* eslint-enable */
     },
     // 获取指定种子的文件列表
     searchResult: null,
@@ -913,15 +923,16 @@ export const transmission = {
           return;
         }
         if ($.inArray(item.id, removed) != -1 && removed.length > 0) {
-          if (this.all![item.id]) {
-            delete this.all![item.id];
+          if (this.all[item.id]) {
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+            delete this.all[item.id];
           }
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete this.datas[index];
 
           continue;
         }
         // If the current torrent is being acquired and there is no such torrent in the previous torrent list, that is, the new torrent needs to be reloaded with the basic information
-        // @ts-expect-error
         if (this.isRecentlyActive && !this.all[item.id]) {
           // @ts-expect-error
           this.newIds.push(item.id);
@@ -994,15 +1005,10 @@ export const transmission = {
             // 统一使用 / 来分隔目录
             const folder = item.downloadDir.replace(/\\/g, '/').split('/');
             let folderkey = 'folders-';
-            for (const i in folder) {
-              const text = folder[i];
-              if (!text) {
-                continue;
-              }
+            for (const text of folder) {
               const key = Base64.encode(text);
               // 去除特殊字符
               folderkey += key.replace(/[+|\/|=]/g, '0');
-              // @ts-expect-error
               let node = this.folders[folderkey];
               if (!node) {
                 node = {
@@ -1015,7 +1021,6 @@ export const transmission = {
               node.torrents.push(item);
               node.count++;
               node.size += item.totalSize;
-              // @ts-expect-error
               this.folders[folderkey] = node;
             }
           }
