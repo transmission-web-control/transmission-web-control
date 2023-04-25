@@ -45,6 +45,8 @@ Please help us translation this project in to multiple language on transifex, or
 
 https://app.transifex.com/transmission-web-control/transmission-web-control-1/
 
+## Local Development
+
 ```shell
 git clone https://github.com/transmission-web-control/transmission-web-control
 cd transmission-web-control
