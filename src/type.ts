@@ -1,13 +1,3 @@
-export interface System {
-  lang: any;
-  plugin: { exec(key: string): void };
+import type { SystemBase } from './lib/system-base';
 
-  control: any;
-  openDialogFromTemplate(config: {
-    id: string;
-    options: unknown;
-    datas?: unknown;
-    type?: number;
-    source?: unknown;
-  }): void;
-}
+export interface System extends SystemBase {}

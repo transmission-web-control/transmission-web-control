@@ -1,243 +1,22 @@
 import { Base64 } from 'js-base64';
-import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
 
-import i18nManifest from '../i18n.json';
-import enLocal from '../i18n/en.json';
+import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.json';
 import { transmission } from './transmission';
-import { getQueryString, getUserLang } from './utils';
 import { APP_VERSION } from './version';
 
-const i18n = import.meta.glob('../i18n/*.json', { eager: true });
-const easyUILocale = import.meta.glob(
-  '../../public/tr-web-control/script/easyui/locale/easyui-lang-*.js',
-  {
-    eager: true,
-    as: 'raw',
-  },
-);
-const templateFiles = import.meta.glob('../../public/tr-web-control/template/*.html', {
-  eager: true,
-  as: 'raw',
-});
-
 const { browser } = UAParser(navigator.userAgent);
+
 // Current system global object
-export const system = {
-  rootPath: 'tr-web-control/',
-  configHead: 'transmission-web-control',
-  defaultLang: enLocal,
-  // default config, can be customized in config.js
-  config: {
-    autoReload: true,
-    reloadStep: 5000,
-    pageSize: 30,
-    pagination: true,
-    pageList: [10, 20, 30, 40, 50, 100, 150, 200, 250, 300, 5000],
-    defaultSelectNode: null,
-    autoExpandAttribute: false,
-    defaultLang: 'en',
-    foldersShow: false,
-    // theme
-    theme: 'default',
-    // 是否显示BT服务器
-    showBTServers: false,
-    // ipinfo.io token
-    ipInfoToken: '',
-    ipInfoFlagUrl: '',
-    ipInfoDetailUrl: '',
-    ui: {
-      status: {
-        tree: {},
-        layout: {
-          main: {},
-          body: {},
-          left: {},
-        },
-        panel: {},
-        size: {
-          nav: {},
-          attribute: {},
-        },
-      },
-    },
-    hideSubfolders: false,
-    simpleCheckMode: false,
-    nav: {
-      servers: true,
-      folders: true,
-      statistics: true,
-      labels: false,
-    },
-    labels: [],
-    labelMaps: {},
-    ignoreVersion: [],
-  },
-  storageKeys: {
-    dictionary: {
-      folders: 'dictionary.folders',
-    },
-  },
-  // Local data storage
-  dictionary: {
-    folders: null,
-  },
-  checkUpdateScript:
-    'https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest',
-  contextMenus: {},
-  panel: null,
-  lang: enLocal,
-  langInit: false,
-  reloading: false,
-  autoReloadTimer: null,
-  downloadDir: '',
-  islocal: false,
-  // The currently selected torrent number
-  currentTorrentId: 0,
-  flags: [],
-  ipdetail: [],
-  control: {
-    tree: null,
-    torrentlist: null,
-  },
-  userConfig: {
-    torrentList: {
-      fields: [],
-      sortName: null,
-      sortOrder: 'asc',
-    },
-  },
-  serverConfig: null,
-  serverSessionStats: null,
-  // Dialog Templates Temporary list
-  templates: {},
-  // 当前已选中的行
-  checkedRows: [],
-  uiIsInitialized: false,
-  popoverCount: 0,
-  // 当前数据目录，用于添加任务的快速保存路径选择
-  currentListDir: '',
-
-  themes: [
-    {
-      value: 'default',
-      text: 'Default',
-      group: 'Base',
-    },
-    {
-      value: 'gray',
-      text: 'Gray',
-      group: 'Base',
-    },
-    {
-      value: 'metro',
-      text: 'Metro',
-      group: 'Base',
-    },
-    {
-      value: 'material',
-      text: 'Material',
-      group: 'Base',
-    },
-    {
-      value: 'bootstrap',
-      text: 'Bootstrap',
-      group: 'Base',
-    },
-    {
-      value: 'black;logo-white.png',
-      text: 'Black',
-      group: 'Base',
-    },
-    {
-      value: 'metro-blue',
-      text: 'Metro Blue',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-gray',
-      text: 'Metro Gray',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-green',
-      text: 'Metro Green',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-orange',
-      text: 'Metro Orange',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-red',
-      text: 'Metro Red',
-      group: 'Metro',
-    },
-    {
-      value: 'ui-cupertino',
-      text: 'Cupertino',
-      group: 'UI',
-    },
-    {
-      value: 'ui-dark-hive;logo-white.png',
-      text: 'Dark Hive',
-      group: 'UI',
-    },
-    {
-      value: 'ui-pepper-grinder',
-      text: 'Pepper Grinder',
-      group: 'UI',
-    },
-    {
-      value: 'ui-sunny',
-      text: 'Sunny',
-      group: 'UI',
-    },
-  ],
-  /**
-   * 设置语言
-   */
-  setlang(lang, callback) {
-    // If no language is specified, acquires the current browser default language
-    if (!lang) {
-      if (this.config.defaultLang) {
-        lang = this.config.defaultLang;
-      }
-    }
-
-    if (!lang) {
-      lang = 'zh-CN';
-    }
-
-    // 统一使用 _ 替代 -
-    lang = lang.replace('-', '_');
-
-    const langFile = `../i18n/${lang}.json`;
-    if (langFile in i18n) {
-      system.lang = lo.merge(system.defaultLang, i18n[langFile]);
-    }
-
-    system.resetLangText();
-
-    // Set the easyui language
-    const easyUILangFile = `../../public/tr-web-control/script/easyui/locale/easyui-lang-${lang}.js`;
-    if (easyUILangFile in easyUILocale) {
-      eval(easyUILocale[easyUILangFile]);
-    } else {
-      eval(easyUILocale[`../../public/tr-web-control/script/easyui/locale/easyui-lang-en.js`]);
-    }
-
-    callback();
-  },
+export class System extends SystemBase {
   /**
    * 程序初始化
    */
-  init(lang, islocal, devicetype) {
+  init(lang, isLocal, devicetype) {
     this.readConfig();
     this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
-    this.islocal = islocal == 1;
+    this.islocal = isLocal == 1;
     this.panel = {
       main: $('#main'),
       top: $('#m_top'),
@@ -258,10 +37,9 @@ export const system = {
     };
 
     if (!system.langInit) {
-      this.setlang(lang, function () {
-        system.langInit = true;
-        system.initdata();
-      });
+      this.setLang(lang);
+      system.langInit = true;
+      system.initdata();
     } else {
       this.initdata();
     }
@@ -269,34 +47,8 @@ export const system = {
     this.initThemes();
     // 剪切板组件
     this.clipboard = new ClipboardJS('#toolbar_copyPath');
-  },
-  // Set the language information
-  resetLangText(parent) {
-    if (!parent) {
-      parent = $;
-    }
-    let items = parent.find('*[system-lang]');
+  }
 
-    $.each(items, function (key, item) {
-      const name = $(item).attr('system-lang');
-      if (name.slice(0, 1) == '[') {
-        $(item).html(eval('system.lang' + name));
-      } else {
-        $(item).html(eval('system.lang.' + name));
-      }
-    });
-
-    items = parent.find('*[system-tip-lang]');
-
-    $.each(items, function (key, item) {
-      const name = $(item).attr('system-tip-lang');
-      if (name.slice(0, 1) == '[') {
-        $(item).attr('title', eval('system.lang' + name));
-      } else {
-        $(item).attr('title', eval('system.lang.' + name));
-      }
-    });
-  },
   initdata() {
     // this.panel.title.text(this.lang.system.title+" "+this.version+" ("+this.codeupdate+")");
     $(document).attr('title', this.lang.system.title + ' ' + this.version);
@@ -427,7 +179,8 @@ export const system = {
     this.initEvent();
     // Check for updates
     this.checkUpdate();
-  },
+  }
+
   /**
    * 初始化相关事件
    */
@@ -535,7 +288,8 @@ export const system = {
         system.saveConfig();
       },
     });
-  },
+  }
+
   layoutResize(target, size) {
     if (!system.uiIsInitialized) {
       return;
@@ -544,7 +298,8 @@ export const system = {
       system.config.ui.status.size[target] = size;
       system.saveConfig();
     }
-  },
+  }
+
   // Navigation toolbar Click Events
   navToolbarClick(source) {
     const key = source.id;
@@ -595,7 +350,8 @@ export const system = {
 
     $(source).data('status', status);
     this.saveConfig();
-  },
+  }
+
   // Check the dragged files
   checkDropFiles(sources) {
     if (!sources || !sources.length) {
@@ -623,7 +379,8 @@ export const system = {
         },
       });
     }
-  },
+  }
+
   // Initialize the tree list
   initTree() {
     const items = [
@@ -797,7 +554,8 @@ export const system = {
       },
       lines: true,
     });
-  },
+  }
+
   /**
    * 初始化界面状态
    */
@@ -881,7 +639,8 @@ export const system = {
         this.panel.main.layout('collapse', key);
       }
     }
-  },
+  }
+
   // Initialize the torrent list display table
   initTorrentTable() {
     this.control.torrentlist = $('<table/>')
@@ -1076,7 +835,8 @@ export const system = {
 			 system.showContextMenu("torrent-list",e);
 		});
 		*/
-  },
+  }
+
   resetTorrentListFieldsUserConfig(columns) {
     const fields = {};
     $.each(this.userConfig.torrentList.fields, function (index, item) {
@@ -1090,7 +850,8 @@ export const system = {
       field.hidden = item.hidden;
       system.userConfig.torrentList.fields.push(field);
     });
-  },
+  }
+
   // Show context menu
   showContextMenu(type, e) {
     let parent = this.contextMenus[type];
@@ -1190,7 +951,8 @@ export const system = {
     });
     parent = null;
     menus = null;
-  },
+  }
+
   /**
    * 根据指定的key获取右键菜单
    * @param key
@@ -1242,7 +1004,8 @@ export const system = {
           },
         };
     }
-  },
+  }
+
   /**
    * 格式化指定种子的标签
    * @param ids 标签id列表, 数组
@@ -1281,7 +1044,8 @@ export const system = {
       title: system.lang.dialog['torrent-setLabels'].title,
     });
     return box.get(0).outerHTML;
-  },
+  }
+
   /**
    * 快速设置当前种子标签
    */
@@ -1299,7 +1063,8 @@ export const system = {
       type: 1,
       source: $(button),
     });
-  },
+  }
+
   /**
    * 选中或反选种子时，改变菜单的可操作状态
    * @param rowIndex  当前行索引，当全选/反选时为 'all'
@@ -1398,7 +1163,8 @@ export const system = {
       });
       this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
     }
-  },
+  }
+
   /**
    * 显示已选中的内容
    */
@@ -1432,7 +1198,8 @@ export const system = {
       this.panel.status_text.empty();
       $('#clipboard-source').val('');
     }
-  },
+  }
+
   // by https://stackoverflow.com/questions/22581345/click-button-copy-to-clipboard-using-jquery?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
   copyToClipboard(text) {
     // Create a "hidden" input
@@ -1453,7 +1220,8 @@ export const system = {
     document.execCommand('copy');
     // Remove it from the body
     aux.style.display = 'none';
-  },
+  }
+
   // Initialize the System Toolbar
   initToolbar() {
     // refresh time
@@ -1845,14 +1613,16 @@ export const system = {
       .find('#toolbar_copyPath')
       .linkbutton()
       .attr('title', this.lang.toolbar.tip['copy-path-to-clipboard']);
-  },
+  }
+
   // Initialize the status bar
   initStatusBar() {
     this.panel.statusbar
       .find('#status_title_downloadspeed')
       .html(this.lang.statusbar.downloadspeed);
     this.panel.statusbar.find('#status_title_uploadspeed').html(this.lang.statusbar.uploadspeed);
-  },
+  }
+
   // connect to the server
   connect() {
     this.showStatus(this.lang.system.status.connect, 0);
@@ -1870,7 +1640,8 @@ export const system = {
       system.reloadSession();
       system.getServerStatus();
     });
-  },
+  }
+
   // Reload the server information
   reloadSession(isinit) {
     transmission.getSession(function (result) {
@@ -1912,7 +1683,8 @@ export const system = {
         system.showStatus(system.lang.system.status.connected);
       }
     });
-  },
+  }
+
   showFreeSpace(size) {
     let tmp = size;
     if (tmp == -1) {
@@ -1923,7 +1695,8 @@ export const system = {
     $('#status_freespace').text(
       system.lang.dialog['system-config']['download-dir-free-space'] + ' ' + tmp,
     );
-  },
+  }
+
   // Retrieve the torrent information again
   reloadTorrentBaseInfos(ids, moreFields) {
     if (this.reloading) {
@@ -1959,7 +1732,8 @@ export const system = {
       ids,
       moreFields,
     );
-  },
+  }
+
   // refresh the tree
   resetTorrentInfos(oldInfos) {
     this.resetNavTorrentStatus();
@@ -1975,7 +1749,8 @@ export const system = {
         'margin-top': '-19px',
       });
     }
-  },
+  }
+
   /**
    * 重置导航栏种子状态信息
    */
@@ -2135,7 +1910,8 @@ export const system = {
       system.lang.tree.all +
         this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
     );
-  },
+  }
+
   /**
    * 重置导航栏服务器信息
    */
@@ -2228,7 +2004,8 @@ export const system = {
         system.removeTreeNode(tracker.nodeid);
       }
     }
-  },
+  }
+
   /**
    * 重置导航栏数据统计信息
    */
@@ -2289,7 +2066,8 @@ export const system = {
           break;
       }
     });
-  },
+  }
+
   /**
    * 重置导航栏数据目录信息
    */
@@ -2309,7 +2087,8 @@ export const system = {
 
     // Loads the directory listing
     this.loadFolderList(oldInfos.folders);
-  },
+  }
+
   /**
    * 重置导航栏用户标签信息
    */
@@ -2360,7 +2139,8 @@ export const system = {
           });
       }
     }
-  },
+  }
+
   // Displays the current torrent count and size
   showNodeMoreInfos(count, size) {
     let result = '';
@@ -2372,7 +2152,8 @@ export const system = {
     }
 
     return result;
-  },
+  }
+
   // Gets the current state of the server
   getServerStatus() {
     if (this.reloading) {
@@ -2397,7 +2178,8 @@ export const system = {
         system.updateTreeNodeText('torrent-all', system.lang.tree.all);
       }
     });
-  },
+  }
+
   // Displays status information
   showStatus(msg, outtime) {
     if ($('#m_status').panel('options').collapsed) {
@@ -2416,7 +2198,8 @@ export const system = {
     this.panel.status_text.fadeOut(outtime, function () {
       $('#layout_left').layout('collapse', 'south');
     });
-  },
+  }
+
   // Updates the tree node text
   updateTreeNodeText(id, text, iconCls) {
     let node = this.panel.left.tree('find', id);
@@ -2432,7 +2215,8 @@ export const system = {
       this.panel.left.tree('update', data);
     }
     node = null;
-  },
+  }
+
   // Append tree nodes
   appendTreeNode(parentid, data) {
     let parent = null;
@@ -2453,7 +2237,8 @@ export const system = {
       });
     }
     parent = null;
-  },
+  }
+
   // Remove tree nodes
   removeTreeNode(id) {
     let node = this.panel.left.tree('find', id);
@@ -2461,7 +2246,8 @@ export const system = {
       this.panel.left.tree('remove', node.target);
     }
     node = null;
-  },
+  }
+
   // Load the torrent list
   loadTorrentToList(config) {
     if (!transmission.torrents.all) {
@@ -2661,7 +2447,8 @@ export const system = {
 
     this.updateTorrentCurrentPageDatas(datas);
     this.initShiftCheck();
-  },
+  }
+
   /**
    * shift 键选择
    */
@@ -2694,7 +2481,8 @@ export const system = {
 
       lastChecked = this;
     });
-  },
+  }
+
   // Update torrent list current page data
   updateTorrentCurrentPageDatas(currentTypeDatas) {
     // Get the current page data
@@ -2804,7 +2592,8 @@ export const system = {
     rows = null;
     recently = null;
     datas = null;
-  },
+  }
+
   // Gets the contents of the torrent name display area
   getTorrentNameBar(torrent) {
     let className = '';
@@ -2846,7 +2635,8 @@ export const system = {
     }
 
     return '<span class="' + className + '" title="' + tip + '">' + torrent.name + '</span>';
-  },
+  }
+
   // Gets the progress bar for the specified torrent
   getTorrentProgressBar(progress, torrent) {
     let className = '';
@@ -2919,7 +2709,8 @@ export const system = {
       progress +
       ';"></div></div>'
     );
-  },
+  }
+
   // Add torrent
   addTorrentsToServer(urls, count, autostart, savepath, labels) {
     // this.config.autoReload = false;
@@ -2930,18 +2721,19 @@ export const system = {
       // this.config.autoReload = true;
       this.getServerStatus();
       if (labels != null) {
-        system.saveConfig();
+        this.saveConfig();
       }
       return;
     }
     this.showStatus(this.lang.system.status.queue + (index + 1) + '/' + count + '<br/>' + url, 0);
     transmission.addTorrentFromUrl(url, savepath, autostart, function (data) {
-      system.addTorrentsToServer(urls, count, autostart, savepath, labels);
+      this.addTorrentsToServer(urls, count, autostart, savepath, labels);
       if (labels != null && data.hashString != null) {
-        system.saveLabelsConfig(data.hashString, labels);
+        this.saveLabelsConfig(data.hashString, labels);
       }
     });
-  },
+  }
+
   // Starts / pauses the selected torrent
   changeSelectedTorrentStatus(status, button, method) {
     const rows = this.control.torrentlist.datagrid('getChecked');
@@ -2978,12 +2770,13 @@ export const system = {
               iconCls: icon,
             });
           }
-          system.control.torrentlist.datagrid('uncheckAll');
-          system.reloadTorrentBaseInfos();
+          this.control.torrentlist.datagrid('uncheckAll');
+          this.reloadTorrentBaseInfos();
         },
       );
     }
-  },
+  }
+
   // get the magnetlink of torrent
   getTorrentMagnetLink(callback) {
     const rows = this.control.torrentlist.datagrid('getChecked');
@@ -2992,7 +2785,8 @@ export const system = {
       ids.push(rows[i].id);
     }
     transmission.torrents.getMagnetLink(ids, callback);
-  },
+  }
+
   // Looks for the specified torrent from the torrent list
   searchTorrents(key) {
     if (key == '') {
@@ -3022,7 +2816,8 @@ export const system = {
       });
     }
     this.panel.left.tree('select', node.target);
-  },
+  }
+
   // Get the torrent details
   getTorrentInfos(id) {
     if (!transmission.torrents.all[id]) {
@@ -3050,7 +2845,7 @@ export const system = {
       }
 
       // Gets the list of files
-      transmission.torrents.getMoreInfos(fields, id, function (result) {
+      transmission.torrents.getMoreInfos(fields, id, (result) => {
         torrent.infoIsLoading = false;
         // system.panel.attribute.panel({iconCls:""});
         if (result == null) {
@@ -3058,8 +2853,8 @@ export const system = {
         }
         // Merge the currently returned value to the current torrent
         jQuery.extend(torrent, result[0]);
-        if (system.currentTorrentId == 0 || system.currentTorrentId != id) {
-          system.clearTorrentAttribute();
+        if (system.currentTorrentId === 0 || this.currentTorrentId !== id) {
+          this.clearTorrentAttribute();
           return;
         }
 
@@ -3067,22 +2862,24 @@ export const system = {
         if ('files' in torrent && torrent.files.length > 0) {
           torrent.moreInfosTag = true;
         }
-        system.fillTorrentBaseInfos(torrent);
-        system.fillTorrentFileList(torrent);
-        system.fillTorrentServerList(torrent);
-        system.fillTorrentPeersList(torrent);
-        system.fillTorrentConfig(torrent);
+        this.fillTorrentBaseInfos(torrent);
+        this.fillTorrentFileList(torrent);
+        this.fillTorrentServerList(torrent);
+        this.fillTorrentPeersList(torrent);
+        this.fillTorrentConfig(torrent);
         transmission.torrents.all[id] = torrent;
         transmission.torrents.datas[id] = torrent;
       });
     }
-  },
+  }
+
   clearTorrentAttribute() {
-    system.panel.attribute.find('#torrent-files-table').datagrid('loadData', []);
-    system.panel.attribute.find('#torrent-servers-table').datagrid('loadData', []);
-    system.panel.attribute.find('#torrent-peers-table').datagrid('loadData', []);
-    system.panel.attribute.find("span[id*='torrent-attribute-value']").html('');
-  },
+    this.panel.attribute.find('#torrent-files-table').datagrid('loadData', []);
+    this.panel.attribute.find('#torrent-servers-table').datagrid('loadData', []);
+    this.panel.attribute.find('#torrent-peers-table').datagrid('loadData', []);
+    this.panel.attribute.find("span[id*='torrent-attribute-value']").html('');
+  }
+
   // Updates the specified current page count
   updateCurrentPageDatas(keyField, datas, sourceTable) {
     // Get the current page data
@@ -3146,7 +2943,8 @@ export const system = {
 
       item = null;
     }
-  },
+  }
+
   // Fill the seed with basic information
   fillTorrentBaseInfos(torrent) {
     $.each(torrent, function (key, value) {
@@ -3237,7 +3035,8 @@ export const system = {
         '<i style="filter:saturate(' + ramp + ')" title="' + cellSize + ' x ' + percent + '%"></i>';
     }
     system.panel.attribute.find('#torrent-attribute-pieces').html(cells);
-  },
+  }
+
   // Fill the torrent with a list of files
   fillTorrentFileList(torrent) {
     const files = torrent.files;
@@ -3269,7 +3068,8 @@ export const system = {
       datas,
       system.panel.attribute.find('#torrent-files-table'),
     );
-  },
+  }
+
   // Fill in the torrent server list
   fillTorrentServerList(torrent) {
     const trackerStats = torrent.trackerStats;
@@ -3316,7 +3116,8 @@ export const system = {
     this.updateCurrentPageDatas('id', datas, system.panel.attribute.find('#torrent-servers-table'));
     // console.log("datas:",datas);
     // system.panel.attribute.find("#torrent-servers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
-  },
+  }
+
   // Fill the torrent user list
   fillTorrentPeersList(torrent) {
     const peers = torrent.peers;
@@ -3412,7 +3213,8 @@ export const system = {
     );
     // console.log("datas:",datas);
     // system.panel.attribute.find("#torrent-peers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
-  },
+  }
+
   // Fill torrent parameters
   fillTorrentConfig(torrent) {
     if (system.panel.attribute.find('#torrent-attribute-tabs').data('selectedIndex') != 4) {
@@ -3468,7 +3270,8 @@ export const system = {
         }
       });
     });
-  },
+  }
+
   // Set the field display format
   setFieldFormat(field) {
     if (field.formatter) {
@@ -3544,7 +3347,8 @@ export const system = {
           break;
       }
     }
-  },
+  }
+
   // Reload the data
   reloadData() {
     if (this.popoverCount > 0) {
@@ -3560,7 +3364,8 @@ export const system = {
     this.reloadTorrentBaseInfos();
     // enable all icons
     // this.checkTorrentRow("all", false);
-  },
+  }
+
   // Loads the directory listing
   loadFolderList(oldFolders) {
     this.removeTreeNode('folders-loading');
@@ -3593,7 +3398,8 @@ export const system = {
 			var fullkey = transmission.downloadDirs[index];
 
 		} */
-  },
+  }
+
   appendFolder(fullkey) {
     if (!fullkey) {
       return;
@@ -3642,13 +3448,15 @@ export const system = {
         this.debug('appendFolder:node', node);
       }
     }
-  },
+  }
+
   replaceURI(text) {
     const reg = /(http|https|ftp):\/\/([^/:]+)(:\d*)?([^# ]*)/gi;
     return text.replace(reg, function (url) {
       return '<a href="' + url + '" target="_blank">' + url + '</a>';
     });
-  },
+  }
+
   // Load the parameters from cookies
   readConfig() {
     this.readUserConfig();
@@ -3661,7 +3469,8 @@ export const system = {
     for (const key in this.storageKeys.dictionary) {
       this.dictionary[key] = this.getStorageData(this.storageKeys.dictionary[key]);
     }
-  },
+  }
+
   // Save the parameters in cookies
   saveConfig() {
     this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
@@ -3669,7 +3478,8 @@ export const system = {
       this.setStorageData(this.storageKeys.dictionary[key], this.dictionary[key]);
     }
     this.saveUserConfig();
-  },
+  }
+
   // Save labels config for torrent if need
   saveLabelsConfig(hash, labels) {
     if (system.config.nav.labels) {
@@ -3679,17 +3489,20 @@ export const system = {
         system.config.labelMaps[hash] = labels;
       }
     }
-  },
+  }
+
   readUserConfig() {
     const local = window.localStorage[this.configHead];
     if (local) {
       const localOptions = JSON.parse(local);
       this.userConfig = $.extend(true, this.userConfig, localOptions);
     }
-  },
+  }
+
   saveUserConfig() {
     window.localStorage[this.configHead] = JSON.stringify(this.userConfig);
-  },
+  }
+
   // Upload the torrent file
   uploadTorrentFile(fileInputId, savePath, paused, callback) {
     // Determines whether the FileReader interface is supported
@@ -3701,7 +3514,8 @@ export const system = {
     } else {
       alert(system.lang.public['text-browsers-not-support-features']);
     }
-  },
+  }
+
   checkUpdate() {
     $.ajax({
       url: this.checkUpdateScript,
@@ -3755,7 +3569,8 @@ export const system = {
         }
       },
     });
-  },
+  }
+
   addIgnoreVersion(version) {
     if ($.inArray(version, system.config.ignoreVersion) == -1) {
       this.config.ignoreVersion.push(version);
@@ -3763,7 +3578,8 @@ export const system = {
     }
     $('#button-download-update').webuiPopover('hide');
     $('#area-update-infos').hide();
-  },
+  }
+
   // Set the language to reload the page
   changeLanguages(lang) {
     if (lang == this.lang.name || !lang) {
@@ -3773,136 +3589,16 @@ export const system = {
     this.config.defaultLang = lang;
     this.saveConfig();
     location.href = '?lang=' + lang;
-  },
+  }
+
   getStorageData(key, defaultValue) {
     return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
-  },
+  }
+
   setStorageData(key, value) {
     window.localStorage[key] = value;
-  },
-  /**
-   * Opens the specified template window
-   * 打开指定的模板
-   * @param config 指定参数
-   *  type: 0 窗口，1 tooltip；默认为 0
-   */
-  openDialogFromTemplate(config) {
-    const defaultConfig = {
-      id: null,
-      options: null,
-      datas: null,
-      // 0 窗口，1 tooltip
-      type: 0,
-    };
-    config = $.extend(true, defaultConfig, config);
+  }
 
-    if (config.id == null) {
-      return;
-    }
-
-    const dialogId = config.id;
-    let options = config.options;
-    const datas = config.datas;
-
-    let dialog = $('#' + dialogId);
-    if (dialog.length) {
-      if (datas) {
-        $.each(datas, function (key, value) {
-          dialog.data(key, value);
-        });
-      }
-
-      if (config.type == 0 && dialog.attr('type') == config.type) {
-        dialog.dialog('open');
-        dialog.dialog({
-          content: system.templates[dialogId],
-        });
-        return;
-      } else {
-        if (system.popoverCount != 0) {
-          setTimeout(function () {
-            system.openDialogFromTemplate(config);
-          }, 350);
-          return;
-        }
-        dialog.remove();
-      }
-    }
-
-    const defaultOptions = {
-      title: '',
-      width: 100,
-      height: 100,
-      resizable: false,
-      cache: true,
-      content: system.lang.dialog['system-config'].loading,
-      modal: true,
-    };
-    options = $.extend(true, defaultOptions, options);
-
-    dialog = $('<div/>')
-      .attr({
-        id: dialogId,
-        type: config.type,
-      })
-      .appendTo(document.body);
-    if (config.type == 0) {
-      dialog.dialog(options);
-    } else {
-      dialog
-        .css({
-          width: options.width,
-          height: options.height,
-        })
-        .data('popoverSource', config.source);
-
-      $(config.source).webuiPopover({
-        url: '#' + dialogId,
-        title: options.title,
-        width: options.width,
-        height: options.height - 18,
-        padding: false,
-        onHide(e) {
-          $(config.source).webuiPopover('destroy');
-          $('#' + dialogId).remove();
-          $(e).remove();
-          system.popoverCount--;
-          if (config.onClose) {
-            config.onClose(config.source);
-          }
-        },
-        onShow() {
-          system.popoverCount++;
-        },
-      });
-    }
-
-    const dialogFileLoaded = function (data) {
-      system.templates[dialogId] = data;
-      if (datas) {
-        $.each(datas, function (key, value) {
-          $('#' + dialogId).data(key, value);
-        });
-      }
-
-      if (config.type == 0) {
-        $('#' + dialogId).dialog({
-          content: data,
-        });
-      } else {
-        dialog.html(data);
-        $.parser.parse('#' + dialogId);
-        $(config.source).webuiPopover('show');
-      }
-    };
-
-    const dialogFilePath = `../../public/tr-web-control/template/${dialogId}.html`;
-    if (dialogFilePath in templateFiles) {
-      dialogFileLoaded(templateFiles[dialogFilePath]);
-    } else {
-      alert(`can't find dialog template ${dialogId}`);
-    }
-  },
   // Debugging information
   debug(label, text) {
     if (window.console) {
@@ -3910,7 +3606,8 @@ export const system = {
         window.console.log(label, text);
       }
     }
-  },
+  }
+
   /**
    * 初始化主题
    */
@@ -3938,7 +3635,8 @@ export const system = {
         },
       });
     }
-  },
+  }
+
   /**
    * 根据指定的文本获取有效的树形目录Key
    */
@@ -3948,7 +3646,7 @@ export const system = {
     }
     const _key = Base64.encode(text);
     return _key.replace(/[+|\/|=]/g, '0');
-  },
+  }
 
   expandIpInfoUrl(url, ip) {
     if (url == '' || url == undefined) {
@@ -3961,50 +3659,8 @@ export const system = {
       .replace('%host', document.location.host)
       .replace('%protocol', document.location.protocol)
       .replace('%navlang', navigator.language);
-  },
-
-  plugin: {
-    exec(key) {
-      switch (key) {
-        // Replace Tracker
-        case 'replace-tracker':
-          system.openDialogFromTemplate({
-            id: 'dialog-system-replaceTracker',
-            options: {
-              title: system.lang.dialog['system-replaceTracker'].title,
-              width: 600,
-              height: 220,
-            },
-          });
-          break;
-
-        // Automatically match the data directory
-        case 'auto-match-data-folder':
-          var rows = system.control.torrentlist.datagrid('getChecked');
-          var ids = [];
-          for (const i in rows) {
-            ids.push(rows[i].id);
-          }
-          if (ids.length === 0) {
-            return;
-          }
-
-          system.openDialogFromTemplate({
-            id: 'dialog-auto-match-data-folder',
-            options: {
-              title: system.lang.dialog['auto-match-data-folder'].title,
-              width: 530,
-              height: 280,
-            },
-            datas: {
-              ids,
-            },
-          });
-          break;
-      }
-    },
-  },
-};
+  }
+}
 
 function fileFilter(dataRows, filterString) {
   const filter = new RegExp(filterString || '.*');

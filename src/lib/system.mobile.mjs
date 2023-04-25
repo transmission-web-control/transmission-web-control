@@ -45,7 +45,7 @@ export const system = {
       }
     }
   },
-  setlang(lang, callback) {
+  setLang(lang, callback) {
     // 如果未指定语言，则获取当前浏览器默认语言
     if (!lang) {
       if (this.config.defaultLang) {
@@ -88,7 +88,7 @@ export const system = {
     this.readConfig();
     transmission.options.getFolders = false;
     if (!this.langInit) {
-      this.setlang(lang, function () {
+      this.setLang(lang, function () {
         system.langInit = true;
         system.initdata();
       });
