@@ -1,9 +1,7 @@
 {
   "name": "de",
-  "languageName": "English",
   "author": "LibertyX",
   "system": {
-    "title": "Transmission WEB Control",
     "status": {
       "connect": "Verbinde...",
       "connected": "Verbunden",
@@ -22,8 +20,6 @@
     "save-path": "Speicherort"
   },
   "toolbar": {
-    "start": "Start",
-    "pause": "Pause",
     "recheck": "neu Prüfen",
     "start-all": "Alle starten",
     "pause-all": "Alle anhalten",
@@ -32,7 +28,6 @@
     "remove-data": "Daten entfernen",
     "add-torrent": "Torrent hinzufügen",
     "attribute": "Eigenschaften",
-    "alt-speed": "Alt-Speed",
     "system-config": "Einstellungen",
     "system-reload": "Neu laden",
     "about": "Über",
@@ -43,9 +38,6 @@
     "search-prompt": "Torrents durchsuchen",
     "tracker-replace": "Tracker ersetzten",
     "queue": "Warteschlange",
-    "ui-mobile": "Mobile UI",
-    "ui-original": "Original UI",
-    "ui-computer": "Desktop UI",
     "plugin": "Erweiterungen",
     "rename": "Umbenennen",
     "copy-path-to-clipboard": "Speicherort in Zwischenablage kopieren",
@@ -69,9 +61,6 @@
       "autoreload-enabled": "Klicken um aut. neuladen zu aktivieren",
       "tracker-replace": "Tracker ersetzten",
       "change-download-dir": "Downloadordner ändern",
-      "change-speedlimit": "change upload/download speed limit",
-      "ui-mobile": "Mobile UI",
-      "ui-original": "Original UI",
       "more-peers": "Tracker nach mehr Peers fragen",
       "rename": "Pfads eines Torrents umbenennen",
       "copy-path-to-clipboard": "Speicherpfadt in die Zwischenablage kopieren"
@@ -91,17 +80,12 @@
     "copyMagnetLink": "MagnetLink in die Zwischenablage kopieren"
   },
   "title": {
-    "left": "Navigation",
-    "list": "Torrents",
-    "attribute": "Eigenschaften",
-    "status": "Status"
+    "attribute": "Eigenschaften"
   },
   "tree": {
     "all": "Alle",
     "active": "Aktiv",
     "paused": "Angehalten",
-    "downloading": "Downloading",
-    "sending": "Seeding",
     "error": "Fehler",
     "warning": "Warnung",
     "actively": "Aktiv",
@@ -132,17 +116,14 @@
   },
   "statusbar": {
     "downloadspeed": "Download Geschwindigkeit:",
-    "uploadspeed": "Seed Geschwindigleit:",
-    "version": "Version:"
+    "uploadspeed": "Seed Geschwindigleit:"
   },
   "dialog": {
     "torrent-add": {
       "download-dir": "Speicherordner:",
       "used-download-dir": "Verwendeter Speicherordner:",
-      "torrent-url": "Torrent URL:",
       "tip-torrent-url": "Tip: Mehrere Einträge durch Drücken der 'Eingabe' Taste trennen",
       "autostart": "Torrent starten:",
-      "tip-autostart": "",
       "set-default-download-dir": "Diesen Speicherordner als standard setzen",
       "upload-file": "Torrent Datei(en):",
       "nosource": "Keine torrent Datei oder URL.",
@@ -228,14 +209,12 @@
       "export-config": "Einstellungen exportieren",
       "import-config-confirm": "Einstellungen importieren und aktuelle Konfiguration überschreiben?.",
       "script-torrent-done-enabled": "Wenn Torrent erledigt, folgendes Skript ausführen:",
-      "ipinfo": "IPinfo.io access token:",
       "ipInfoCustom": "Zusätzliche Einstellungen für Reverse DNS (WHOIS) Abfrage.",
       "ipInfoCustomTips": "Verfügbare Variablen: <b>%ip</b>: Peer-IP (erforderlich), <b>%lang</b>: Sprachcode, der von tr-web-control verwendet wird<br/>&nbsp;&nbsp;<b>%host</b>: Host, <b>%hostname</b>: Hostname, <b>%protocol</b>: Protokoll, <b>%navlang</b>: Sprachcode für Navigation",
       "ipInfoCountryCodeUrl": "URL für Länder Code:",
       "ipInfoDetailUrl": "URL für Details:"
     },
     "public": {
-      "button-ok": "OK",
       "button-cancel": "Abbrechen",
       "button-reload": "Neu Laden",
       "button-save": "Speichern",
@@ -252,9 +231,7 @@
       "infos": "Author：culturist<br/>Statement：Die meisten der in diesem Programm verwendeten Symbole sind aus dem Netz, wenn eine Verletzung Ihrer Rechte vorliegt, kontaktieren Sie mich zur Löschung.",
       "check-update": "Auf Update prüfen",
       "home": "Project Seite",
-      "help": "Wiki",
-      "donate": "Spenden",
-      "pt-plugin": "PT Plugin"
+      "donate": "Spenden"
     },
     "torrent-remove": {
       "title": "Entfernen bestätigen",
@@ -289,12 +266,9 @@
     },
     "auto-match-data-folder": {
       "title": "Automatischer Abgleich des Speicherortes",
-      "torrent-count": "Torrent count:",
-      "folder-count": "Folder count:",
       "dictionary": "Ordner Liste",
       "time-begin": "Startzeit:",
       "time-now": "Jetzt:",
-      "status": "Status:",
       "ignore": "Ignorieren",
       "working-close-confirm": "Download aktiv!, willst du Transmission wirklich beenden?",
       "time-interval": "Zeitintervall (Sekunden):",
@@ -310,8 +284,6 @@
       "newname": "Neu"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best IP",
-      "button-search-all-ip": "all IP",
       "title": "Tracker hinzufügen",
       "tip": "Einen Tracker pro Zeile"
     },
@@ -335,24 +307,18 @@
   "torrent": {
     "fields": {
       "id": "ID",
-      "name": "Name",
-      "hashString": "HASH",
       "downloadDir": "Speicherort",
       "totalSize": "Größe",
-      "status": "Status",
       "percentDone": "erledigt(%)",
       "remainingTime": "verbleibend",
       "addedDate": "Hinzugefügt am",
       "completeSize": "geladen",
       "rateDownload": "Download Rate",
       "rateUpload": "Upload Rate",
-      "leecherCount": "Leecher",
-      "seederCount": "Seeder",
       "uploadedEver": "gesendet",
       "uploadRatio": "Verhältnis",
       "queuePosition": "Warteschlange",
       "activityDate": "Aktiv seit",
-      "trackers": "Trackers",
       "labels": "Etikett",
       "doneDate": "Abgeschlossen"
     },
@@ -362,19 +328,16 @@
       "2": "Prüfe",
       "3": "Warte auf Download",
       "4": "Ladend",
-      "5": "Warte auf Seed",
-      "6": "Seeding"
+      "5": "Warte auf Seed"
     },
     "attribute": {
       "tabs": {
         "base": "Allgemein",
         "servers": "Tracker",
         "files": "Dateien",
-        "users": "Peers",
         "config": "Einstellung"
       },
       "files-fields": {
-        "name": "Name",
         "length": "Größe",
         "percentDone": "% erledigt",
         "bytesCompleted": "bereits geladen",
@@ -383,7 +346,6 @@
       },
       "servers-fields": {
         "announce": "Meldung",
-        "announceState": "Status",
         "lastAnnounceResult": "Info",
         "lastAnnounceSucceeded": "Erfolgreich",
         "lastAnnounceTime": "Letzte Meldung",
@@ -401,20 +363,14 @@
       },
       "peers-fields": {
         "address": "IP Adresse",
-        "port": "Port",
         "isUTP": "UTP aktiv",
-        "clientName": "Client",
         "flagStr": "Fahne",
         "progress": "Fortschritt",
         "rateToClient": "Rate zum Client",
         "rateToPeer": "Rate zum Peer"
       },
-      "status": {
-        "true": "True",
-        "false": "False"
-      },
+      "status": {},
       "priority": {
-        "0": "Normal",
         "1": "Hoch",
         "-1": "Niedrig"
       },
@@ -424,24 +380,18 @@
         "3": "Nicht benötigte Dateien"
       },
       "label": {
-        "name": "Name:",
         "addedDate": "Hinzugefügt:",
         "totalSize": "Gesamtgröße:",
         "completeSize": "Bereits geladen:",
         "leftUntilDone": "Verbleibend:",
-        "hashString": "HASH:",
         "downloadDir": "Speicherort:",
-        "status": "Status:",
         "rateDownload": "Downloadrate:",
         "rateUpload": "Uploadrate:",
-        "leecherCount": "Leecher:",
-        "seederCount": "Seeder:",
         "uploadedEver": "Gesendet (gesamt):",
         "uploadRatio": "Upload Verhältnis:",
         "creator": "Erstellt mit:",
         "dateCreated": "Erstellt am:",
         "comment": "Kommentar:",
-        "errorString": "Error string:",
         "downloadLimited": "Max Downloadgeschwindigkeit (Global):",
         "uploadLimited": "Max Uploadgeschwindigkeit (Global):",
         "peer-limit": "Max Peers für diesen Torrent:",

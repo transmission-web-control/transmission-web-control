@@ -1,28 +1,23 @@
 {
   "name": "nl",
-  "languageName": "English",
   "author": "Alwin Hummels, Jeroen, vodek3",
   "system": {
-    "title": "Transmission WEB Control",
     "status": {
       "connect": "Verbinden...",
       "connected": "Verbonden",
       "queue": "Wachtrij:",
       "queuefinish": "De wachtrij(en) zijn gereed.",
-      "notfinal": "Not final",
-      "checked": "%n data checked:"
+      "notfinal": "Not final"
     }
   },
   "error": {
     "data-error": "Data error.",
-    "data-post-error": "Data post error.",
-    "rename-error": "Error renaming file/folder!"
+    "data-post-error": "Data post error."
   },
   "config": {
     "save-path": "Download dir"
   },
   "toolbar": {
-    "start": "Start",
     "pause": "Pauze",
     "recheck": "Verifi&euml;ren",
     "start-all": "Start alles",
@@ -31,7 +26,6 @@
     "remove-all": "Verwijder Alles",
     "remove-data": "Verwijder data",
     "add-torrent": "Toevoegen",
-    "attribute": "Attribute",
     "alt-speed": "Alt-Snelheid",
     "system-config": "Instellingen",
     "system-reload": "Opnieuw laden",
@@ -42,13 +36,6 @@
     "autoreload-enabled": "Ingeschakeld",
     "search-prompt": "Zoek Lokale Torrents",
     "tracker-replace": "Vervang trackers",
-    "queue": "Queue",
-    "ui-mobile": "Mobile UI",
-    "ui-original": "Original UI",
-    "ui-computer": "Desktop UI",
-    "plugin": "Extensions/plugins",
-    "rename": "Rename",
-    "copy-path-to-clipboard": "Copy download location to clipboard",
     "tip": {
       "start": "Start de geselecteerde torrents",
       "pause": "Pauzeer de geselecteerde torrents",
@@ -58,9 +45,7 @@
       "pause-all": "Pauzeer alles",
       "remove": "Verwijderen",
       "delete-all": "Torrent en data verwijderen",
-      "delete-data": "Delete-data",
       "add-torrent": "Torrent(s) toevoegen",
-      "attribute": "Attribute",
       "alt-speed": "Alt-snelheid",
       "system-config": "Instellingen",
       "system-reload": "Opnieuw laden",
@@ -69,32 +54,18 @@
       "autoreload-enabled": "Auto-verversen aanzetten",
       "tracker-replace": "Vervang trackers",
       "change-download-dir": "Locatie instellen",
-      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Mobiele UI",
       "ui-original": "Originele UI",
-      "more-peers": "Tracker om meer peers vragen",
-      "rename": "Renaming a Torrent's Path",
-      "copy-path-to-clipboard": "Copy download location to clipboard"
+      "more-peers": "Tracker om meer peers vragen"
     }
   },
   "menus": {
-    "queue": {
-      "move-top": "Move to top",
-      "move-up": "Move up",
-      "move-down": "Move down",
-      "move-bottom": "Move to bottom"
-    },
-    "plugin": {
-      "auto-match-data-folder": "Automatically matches data directory"
-    },
-    "setLabels": "Set User Labels",
-    "copyMagnetLink": "Copy magnetLink to clipboard"
+    "queue": {},
+    "plugin": {}
   },
   "title": {
     "left": "Navigatie",
-    "list": "Torrents",
-    "attribute": "Kenmerken",
-    "status": "Status"
+    "attribute": "Kenmerken"
   },
   "tree": {
     "all": "Alles",
@@ -121,14 +92,12 @@
       "sessionCount": "Sessie teller: ",
       "secondsActive": "Actief: "
     },
-    "servers": "Trackers",
     "folders": "Mappen",
     "toolbar": {
       "nav": {
         "folders": "Toon mappen"
       }
-    },
-    "labels": "User Labels"
+    }
   },
   "statusbar": {
     "downloadspeed": "Download snelheid:",
@@ -138,11 +107,8 @@
   "dialog": {
     "torrent-add": {
       "download-dir": "Downloadmap:",
-      "used-download-dir": "Used Download Dir:",
-      "torrent-url": "Torrent URL:",
       "tip-torrent-url": "Tip: je kunt meerdere torrents scheiden met 'Enter'",
       "autostart": "Direct starten:",
-      "tip-autostart": "",
       "set-default-download-dir": "Instellen als standaardmap",
       "upload-file": "Torrent bestand(en):",
       "nosource": "Geen torrent bestand of URL.",
@@ -154,10 +120,7 @@
         "base": "Algemeen",
         "network": "Netwerk",
         "limit": "Begrenzen",
-        "alt-speed": "Gepland",
-        "dictionary-folders": "Folders Dictionary",
-        "more": "More",
-        "labels": "Labels"
+        "alt-speed": "Gepland"
       },
       "config-dir": "Locatie van de configuratie directory:",
       "download-dir": "Standaardpad voor downloaden:",
@@ -203,58 +166,22 @@
         "0": "Zondag"
       },
       "blocklist-enabled": "Blocklist gebruiken",
-      "blocklist-size": "Blocklist has %n rules.",
       "seedRatioLimited": "Seed ratio:",
       "queue-stalled-enabled": "Of inactieve torrents als opgehouden moeten worden behandeld:",
       "idle-seeding-limit-enabled": "Stop seeden wanneer inactief gedurende:",
       "minutes": "Minuten",
       "nochange": "Geen wijzigingen",
       "saving": "Verwerken...",
-      "show-bt-servers": "Show 'BT servers' on Trackers:",
-      "restore-default-settings": "Restore UI Default Settings",
-      "language": "Language:",
-      "loading": "Loading...",
-      "hide-subfolders": "When clicking on the data directory, hide subfolders content in the list:",
-      "simple-check-mode": "Checked only one torrent when you right-click on the torrent list:",
-      "nav-contents": "Navigation bar Display content:",
-      "labels-manage": {
-        "name": "Label Name",
-        "description": "Description",
-        "color": "Color",
-        "actions": "Actions",
-        "import-confirm": "Do you want to import labels? This overrides the current configuration."
-      },
-      "import-config": "Import configuration from file",
-      "export-config": "Export current configuration",
-      "import-config-confirm": "Do you want to import these configurations? This overrides the current configuration.",
-      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
-      "ipinfo": "IPinfo.io access token:",
-      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
-      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
-      "ipInfoCountryCodeUrl": "URL to get country code:",
-      "ipInfoDetailUrl": "URL to get details:"
+      "labels-manage": {}
     },
     "public": {
-      "button-ok": "OK",
       "button-cancel": "Annuleren",
       "button-reload": "Opnieuw laden",
       "button-save": "Opslaan",
-      "button-close": "Sluiten",
-      "button-update": "Update",
-      "button-config": "Config",
-      "button-addnew": "Add",
-      "button-edit": "Edit",
-      "button-delete": "Delete",
-      "button-export": "Export",
-      "button-import": "Import"
+      "button-close": "Sluiten"
     },
     "about": {
-      "infos": "Auteur: culturist <br/> Verklaring: De meeste van de pictogrammen in dit programma komen ergens van internet. Schend dit uw rechten? Neem dan contact met mij op om deze te verwijderen.",
-      "check-update": "Check Update",
-      "home": "Project Home",
-      "help": "Wiki",
-      "donate": "Donate",
-      "pt-plugin": "PT Plugin"
+      "infos": "Auteur: culturist <br/> Verklaring: De meeste van de pictogrammen in dit programma komen ergens van internet. Schend dit uw rechten? Neem dan contact met mij op om deze te verwijderen."
     },
     "torrent-remove": {
       "title": "Verwijderen bevestigen",
@@ -267,19 +194,9 @@
       "old-download-dir": "Oude locatie:",
       "new-download-dir": "Nieuwe locatie:",
       "move-data": "Indien aangevinkt, verplaatsen van de vorige locatie. Zo niet, gebruik 'Nieuwe locatie' voor bestanden.",
-      "set-error": "Locatie instellen mislukt!",
-      "recheck-data": "Recheck data."
+      "set-error": "Locatie instellen mislukt!"
     },
-    "torrent-changeSpeedLimit": {
-      "title": "Set torrents Max download speed and Max upload speed",
-      "downloadLimited": "Max global download speed:",
-      "uploadLimited": "Max global upload speed:",
-      "peer-limit": "Maximum peers for this torrent:",
-      "seedRatioMode": "Seed ratio for torrents to use:",
-      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
-      "doneDate": "Finish Time:",
-      "seedTime": "Seed Time:"
-    },
+    "torrent-changeSpeedLimit": {},
     "system-replaceTracker": {
       "title": "Vervang Trackers",
       "old-tracker": "Oude tracker:",
@@ -288,73 +205,26 @@
       "not-found": "Tracker is niet gevonden."
     },
     "auto-match-data-folder": {
-      "title": "Automatically matches data directory",
-      "torrent-count": "Torrent count:",
-      "folder-count": "Folder count:",
-      "dictionary": "Folders Dictionary",
-      "time-begin": "Begin time:",
-      "time-now": "Now:",
-      "status": "Status:",
-      "ignore": "Ignore",
-      "working-close-confirm": "Torrents are currently downloading, are sure you want to close Transmission?",
-      "time-interval": "Time interval (seconds):",
-      "work-mode-title": "Mode:",
-      "work-mode": {
-        "1": "Individually matched by torrent",
-        "2": "Individually matched by folder"
-      }
+      "work-mode": {}
     },
-    "torrent-rename": {
-      "title": "Renaming a Torrent's Path",
-      "oldname": "Old",
-      "newname": "New"
-    },
-    "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best IP",
-      "button-search-all-ip": "all IP",
-      "title": "Add Trackers",
-      "tip": "One Line, One Tracker"
-    },
-    "torrent-setLabels": {
-      "title": "Set User Labels",
-      "available": "Available:",
-      "selected": "Selected:"
-    },
-    "export-config": {
-      "title": "Please select the details need to be exported",
-      "option-all": "All configuration",
-      "option-system": "Web Control configuration",
-      "option-dictionary": "Defined Folders Dictionary",
-      "option-server": "Transmission configuration (Download directory, cache, speed limit, etc.)"
-    },
-    "import-config": {
-      "title": "Please select the details need to be import",
-      "invalid-file": "Invalid profile"
-    }
+    "torrent-rename": {},
+    "torrent-attribute-add-tracker": {},
+    "torrent-setLabels": {},
+    "export-config": {},
+    "import-config": {}
   },
   "torrent": {
     "fields": {
-      "id": "#",
       "name": "Naam",
-      "hashString": "HASH",
       "downloadDir": "Downloadmap",
       "totalSize": "Totale grootte",
-      "status": "Status",
       "percentDone": "Gereed",
       "remainingTime": "Resterende tijd",
       "addedDate": "Toegevoegd op",
       "completeSize": "Grootte voltooid",
       "rateDownload": "Download snelheid",
       "rateUpload": "Upload snelheid",
-      "leecherCount": "Leecher",
-      "seederCount": "Seeder",
-      "uploadedEver": "Ge&uuml;pload",
-      "uploadRatio": "Ratio",
-      "queuePosition": "Queue",
-      "activityDate": "Activity Date",
-      "trackers": "Trackers",
-      "labels": "User Labels",
-      "doneDate": "Completed Date"
+      "uploadedEver": "Ge&uuml;pload"
     },
     "status-text": {
       "0": "Gepauzeerd",
@@ -362,15 +232,12 @@
       "2": "Verifi&euml;ren",
       "3": "In wachtrij",
       "4": "Downloaden",
-      "5": "Seeding-wachtwrij",
-      "6": "Seeding"
+      "5": "Seeding-wachtwrij"
     },
     "attribute": {
       "tabs": {
         "base": "Algemeen",
-        "servers": "Trackers",
         "files": "Bestanden",
-        "users": "Peers",
         "config": "Instellingen"
       },
       "files-fields": {
@@ -383,31 +250,17 @@
       },
       "servers-fields": {
         "announce": "Aangekondigd bij",
-        "announceState": "Status",
         "lastAnnounceResult": "Info",
         "lastAnnounceSucceeded": "Geslaagd",
         "lastAnnounceTime": "Tijd van aankondiging",
         "lastAnnounceTimedOut": "Time-out",
         "downloadCount": "Aantal downloads",
         "nextAnnounceTime": "Volgende aankondiging",
-        "leecherCount": "Leecher count",
-        "seederCount": "Seeder count",
-        "announceStateText": {
-          "0": "Inactive",
-          "1": "Waiting",
-          "2": "Queued",
-          "3": "Active"
-        }
+        "announceStateText": {}
       },
       "peers-fields": {
         "address": "IP adres",
-        "port": "Port",
-        "isUTP": "UTP enabled",
-        "clientName": "Client",
-        "flagStr": "Flag",
-        "progress": "Voortgang",
-        "rateToClient": "RateToClient",
-        "rateToPeer": "RateToPeer"
+        "progress": "Voortgang"
       },
       "status": {
         "true": "Ja",
@@ -418,26 +271,16 @@
         "1": "Hoog",
         "-1": "Laag"
       },
-      "filter-template-text": {
-        "1": "All",
-        "2": "BitComet padding file",
-        "3": "Unnecessary files"
-      },
+      "filter-template-text": {},
       "label": {
         "name": "Naam:",
         "addedDate": "Toegevoegd op:",
         "totalSize": "Totale grootte:",
         "completeSize": "Groote voltooid:",
         "leftUntilDone": "Over tot voltooid:",
-        "hashString": "HASH:",
-        "downloadDir": "Download dir:",
-        "status": "Status:",
         "rateDownload": "Downloadsnelheid:",
         "rateUpload": "Uploadsnelheid:",
-        "leecherCount": "Leecher:",
-        "seederCount": "Seeder:",
         "uploadedEver": "Ge&uuml;pload:",
-        "uploadRatio": "Upload Ratio:",
         "creator": "Maker:",
         "dateCreated": "Gemaakt op:",
         "comment": "Commentaar:",
@@ -446,18 +289,12 @@
         "uploadLimited": "Maximum algemene upload snelheid",
         "peer-limit": "Maximum aantal peers per torrent:",
         "seedRatioMode": "Seed ratio:",
-        "seedIdleMode": "Stop seeden wanneer inactief gedurende:",
-        "doneDate": "Finish Time:",
-        "seedTime": "Seed Time:"
+        "seedIdleMode": "Stop seeden wanneer inactief gedurende:"
       },
       "tip": {
         "button-allow": "Download gemarkeerd(e) bestand(en)",
         "button-deny": "Gemarkeerd(e) bestand(en) overslaan",
-        "button-priority": "Ingestelde prioriteit",
-        "button-filter": "Search files by regular expression",
-        "button-tracker-add": "Add New Tracker",
-        "button-tracker-edit": "Edit Tracker",
-        "button-tracker-remove": "Remove Tracker"
+        "button-priority": "Ingestelde prioriteit"
       },
       "other": {
         "tracker-remove-confim": "Weet je zeker dat je deze tracker wilt verwijderen?"
@@ -478,11 +315,6 @@
     "text-confirm": "Weet je het zeker?",
     "text-browsers-not-support-features": "Jouw browser ondersteunt deze functie niet!",
     "text-download-update": "Download deze update",
-    "text-have-update": "Er is een update beschikbaar",
-    "text-on": "ON",
-    "text-off": "OFF",
-    "text-how-to-update": "How to update?",
-    "text-ignore-this-version": "Ignore this version",
-    "text-json-file-parsing-failed": "JSON file parsing failed!"
+    "text-have-update": "Er is een update beschikbaar"
   }
 }
