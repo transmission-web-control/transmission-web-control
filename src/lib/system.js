@@ -17,7 +17,10 @@ const easyUILocale = import.meta.glob(
     as: 'raw',
   },
 );
-const templateFiles = import.meta.glob('../template/*.html', { eager: true, as: 'raw' });
+const templateFiles = import.meta.glob('../../public/tr-web-control/template/*.html', {
+  eager: true,
+  as: 'raw',
+});
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
@@ -3898,7 +3901,7 @@ const system = {
       }
     };
 
-    const dialogFilePath = `../template/${dialogId}.html`;
+    const dialogFilePath = `../../public/tr-web-control/template/${dialogId}.html`;
     if (dialogFilePath in templateFiles) {
       dialogFileLoaded(templateFiles[dialogFilePath]);
     } else {
