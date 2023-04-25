@@ -396,8 +396,7 @@ export const transmission = {
   torrents: {
     activeTorrentCount: 0,
     actively: null as null | Torrent[],
-    /* eslint-disable */
-    addTracker: function (item: Torrent) {
+    addTracker(item: Torrent) {
       var trackerStats = item.trackerStats;
       var trackers: string[] = [];
 
@@ -425,16 +424,15 @@ export const transmission = {
               size: 0,
               connected: true,
               isBT: trackerStats.length > 5,
+              name,
+              nodeid: id,
+              host: trackerInfo.host,
             } as Tracker;
-            // @ts-ignore
             transmission.trackers[id] = tracker;
           }
 
-          // @ts-ignore
           tracker.name = name;
-          // @ts-ignore
           tracker.nodeid = id;
-          // @ts-ignore
           tracker.host = trackerInfo.host;
 
           // 判断当前tracker状态
@@ -462,35 +460,33 @@ export const transmission = {
           }
         }
 
-        if (trackerStats.length > 5) {
+        if (!item.isPrivate) {
           this.btItems.push(item);
         }
 
-        if (warnings.length == trackerStats.length) {
-          const trackerInfo = trackerStats[trackerStats.length - 1]!;
-          if (warnings.join(';').replace(/;/g, '') == '') {
-            item.warning = '';
-          } else {
-            item.warning = warnings.join(';');
+        // private tracker, show any warning
+        if (item.isPrivate) {
+          if (warnings.length) {
+            this.warning?.push(item);
           }
-          // 设置下次更新时间
-          if (!item.nextAnnounceTime) {
-            item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
-          } else if (item.nextAnnounceTime > trackerInfo.nextAnnounceTime) {
-            item.nextAnnounceTime = trackerInfo.nextAnnounceTime;
-          }
-
+        } else if (warnings.length == trackerStats.length) {
           this.warning?.push(item);
         }
 
-        if (item.leecherCount < 0) item.leecherCount = 0;
-        if (item.seederCount < 0) item.seederCount = 0;
+        if (item.leecherCount < 0) {
+          item.leecherCount = 0;
+        }
+        if (item.seederCount < 0) {
+          item.seederCount = 0;
+        }
 
-        item.leecher = item.leecherCount + ' (' + item.peersGettingFromUs + ')';
-        item.seeder = item.seederCount + ' (' + item.peersSendingToUs + ')';
+        item.leecher = `${item.leecherCount} (${item.peersGettingFromUs})`;
+        item.seeder = `${item.seederCount} (${item.peersSendingToUs})`;
         item.trackers = trackers.join(';');
       }
     },
+
+    /* eslint-disable */
 
     all: null as Record<string, Torrent> | null,
     btItems: [] as Torrent[],
@@ -499,14 +495,72 @@ export const transmission = {
     downloading: null as Torrent[] | null,
     error: null as Torrent[] | null,
     fields: {
-      base:
-        'id,name,status,hashString,totalSize,percentDone,addedDate,trackerStats,leftUntilDone,rateDownload,rateUpload,recheckProgress' +
-        ',rateDownload,rateUpload,peersGettingFromUs,peersSendingToUs,uploadRatio,uploadedEver,downloadedEver,downloadDir,error,errorString,doneDate,queuePosition,activityDate',
-      status:
-        'id,name,status,totalSize,percentDone,trackerStats,leftUntilDone,rateDownload,rateUpload,recheckProgress' +
-        ',rateDownload,rateUpload,peersGettingFromUs,peersSendingToUs,uploadRatio,uploadedEver,downloadedEver,error,errorString,doneDate,queuePosition,activityDate',
-      config:
-        'id,name,downloadLimit,downloadLimited,peer-limit,seedIdleLimit,seedIdleMode,seedRatioLimit,seedRatioMode,uploadLimit,uploadLimited',
+      base: [
+        'id',
+        'name',
+        'status',
+        'hashString',
+        'totalSize',
+        'percentDone',
+        'addedDate',
+        'trackerStats',
+        'leftUntilDone',
+        'rateDownload',
+        'rateUpload',
+        'recheckProgress',
+        'rateDownload',
+        'rateUpload',
+        'peersGettingFromUs',
+        'peersSendingToUs',
+        'uploadRatio',
+        'uploadedEver',
+        'downloadedEver',
+        'downloadDir',
+        'error',
+        'errorString',
+        'doneDate',
+        'queuePosition',
+        'activityDate',
+        'isPrivate',
+      ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
+      status: [
+        'id',
+        'name',
+        'status',
+        'totalSize',
+        'trackerStats',
+        'leftUntilDone',
+        'rateDownload',
+        'rateDownload',
+        'peersGettingFromUs',
+        'peersSendingToUs',
+        'uploadRatio',
+
+        'rateUpload',
+        'percentDone',
+        'recheckProgress',
+        'rateUpload',
+        'uploadedEver',
+        'downloadedEver',
+        'error',
+        'errorString',
+        'doneDate',
+        'queuePosition',
+        'activityDate',
+      ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
+      config: [
+        'id',
+        'name',
+        'downloadLimit',
+        'downloadLimited',
+        'peer-limit',
+        'seedIdleLimit',
+        'seedIdleMode',
+        'seedRatioLimit',
+        'seedRatioMode',
+        'uploadLimit',
+        'uploadLimited',
+      ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
     },
     folders: {},
     getConfig(id: string, callback: (torrents: Torrent[] | null) => void) {
@@ -566,8 +620,12 @@ export const transmission = {
         },
         function (data) {
           if (data.result == 'success') {
-            if (callback) callback(data.arguments.torrents);
-          } else if (callback) callback(null);
+            if (callback) {
+              callback(data.arguments.torrents);
+            }
+          } else if (callback) {
+            callback(null);
+          }
         },
       );
     },
@@ -575,22 +633,33 @@ export const transmission = {
     getMagnetLink: function (ids: string[], callback: any) {
       let result = '';
       // is single number
-      if (!Array.isArray(ids)) ids = [ids];
+      if (!Array.isArray(ids)) {
+        ids = [ids];
+      }
       if (ids.length == 0) {
-        if (callback) callback(result);
+        if (callback) {
+          callback(result);
+        }
         return;
       }
       // 跳过己获取的
       const req_list = [];
       for (const id of ids) {
         const t = this.all?.[id];
-        if (!t) continue;
-        if (!t.magnetLink) req_list.push(id);
-        else result += t.magnetLink + '\n';
+        if (!t) {
+          continue;
+        }
+        if (!t.magnetLink) {
+          req_list.push(id);
+        } else {
+          result += t.magnetLink + '\n';
+        }
       }
 
       if (req_list.length == 0) {
-        if (callback) callback(result.trim());
+        if (callback) {
+          callback(result.trim());
+        }
         return;
       }
 
@@ -608,7 +677,9 @@ export const transmission = {
               transmission.torrents.all![item.id]!.magnetLink = item.magnetLink;
               result += item.magnetLink + '\n';
             }
-            if (callback) callback(result.trim());
+            if (callback) {
+              callback(result.trim());
+            }
           }
         },
       );
@@ -619,14 +690,18 @@ export const transmission = {
         {
           method: 'torrent-get',
           arguments: {
-            fields: fields.split(','),
+            fields: fields,
             ids,
           },
         },
         function (data) {
           if (data.result == 'success') {
-            if (callback) callback(data.arguments.torrents);
-          } else if (callback) callback(null);
+            if (callback) {
+              callback(data.arguments.torrents);
+            }
+          } else if (callback) {
+            callback(null);
+          }
         },
       );
     },
@@ -649,12 +724,14 @@ export const transmission = {
     getallids: function (
       callback: null | ((data: Torrent[] | null) => void),
       ids: string[] | undefined,
-      moreFields?: string[],
+      moreFields?: Array<keyof Torrent>,
     ) {
       let tmp = this.fields.base;
-      if (this.loadSimpleInfo && this.all) tmp = this.fields.status;
+      if (this.loadSimpleInfo && this.all) {
+        tmp = this.fields.status;
+      }
 
-      let fields = tmp.split(',');
+      let fields = tmp;
       if (Array.isArray(moreFields)) {
         fields = Array.from(new Set([...fields, ...moreFields]));
       }
@@ -790,7 +867,6 @@ export const transmission = {
       }
     },
     // 获取指定种子的文件列表
-    /* eslint-disable */
     searchResult: null,
     // 获取指定种子的设置信息
 
@@ -820,7 +896,7 @@ export const transmission = {
 
       // Merge two numbers
       for (const item of this.recently ?? []) {
-        // @ts-ignore
+        // @ts-expect-error
         this.datas[item.id] = item;
       }
 
@@ -845,31 +921,29 @@ export const transmission = {
           continue;
         }
         // If the current torrent is being acquired and there is no such torrent in the previous torrent list, that is, the new torrent needs to be reloaded with the basic information
-        // @ts-ignore
+        // @ts-expect-error
         if (this.isRecentlyActive && !this.all[item.id]) {
-          // @ts-ignore
+          // @ts-expect-error
           this.newIds.push(item.id);
         }
-        // @ts-ignore
+        // @ts-expect-error
         item = $.extend(this.all[item.id], item);
         // 没有活动数据时，将分享率标记为 -1
-        // @ts-ignore
         if (item.uploadedEver == 0 && item.downloadedEver == 0) {
-          // @ts-ignore
           item.uploadRatio = -1;
         }
         // 转为数值
-        // @ts-ignore
+        // @ts-expect-error
         item.uploadRatio = parseFloat(item.uploadRatio);
-        // @ts-ignore
+        // @ts-expect-error
         item.infoIsLoading = false;
-        // @ts-ignore
+        // @ts-expect-error
         let type = this.status[item.status];
         this.addTracker(item);
         if (!type) {
-          // @ts-ignore
+          // @ts-expect-error
           this.status[item.status] = [];
-          // @ts-ignore
+          // @ts-expect-error
           type = this.status[item.status];
         }
 
@@ -888,13 +962,11 @@ export const transmission = {
 
         type.push(item);
         // The seed for which the error occurred
-        // @ts-ignore
         if (item.error != 0) {
           this.error.push(item);
         }
 
         // There is currently a number of seeds
-        // @ts-ignore
         if (item.rateUpload > 0 || item.rateDownload > 0) {
           this.actively.push(item);
         }
@@ -909,7 +981,7 @@ export const transmission = {
             break;
         }
 
-        // @ts-ignore
+        // @ts-expect-error
         this.all[item.id] = item;
 
         // Set the directory
@@ -930,8 +1002,8 @@ export const transmission = {
               const key = Base64.encode(text);
               // 去除特殊字符
               folderkey += key.replace(/[+|\/|=]/g, '0');
-              // @ts-ignore
-              let node = this.folders![folderkey];
+              // @ts-expect-error
+              let node = this.folders[folderkey];
               if (!node) {
                 node = {
                   count: 0,
@@ -942,9 +1014,8 @@ export const transmission = {
               }
               node.torrents.push(item);
               node.count++;
-              // @ts-ignore
               node.size += item.totalSize;
-              // @ts-ignore
+              // @ts-expect-error
               this.folders[folderkey] = node;
             }
           }
@@ -971,8 +1042,6 @@ export const transmission = {
   },
 };
 
-/* eslint-enable */
-
 export interface Tracker {
   announce: string;
   host: string;
@@ -997,6 +1066,9 @@ export interface TrackerStat {
 }
 
 export interface Torrent {
+  hashString: string;
+  isPrivate: boolean;
+  addedDate: number;
   peersGettingFromUs: string;
   peersSendingToUs: string;
   leecher: string;
@@ -1017,6 +1089,25 @@ export interface Torrent {
   leftUntilDone: number;
   totalSize: number;
   uploadRatio: number;
+  downloadLimit: number;
+  downloadLimited: number;
+  'peer-limit': number;
+  seedIdleLimit: number;
+  seedIdleMode: number;
+  seedRatioLimit: number;
+  seedRatioMode: number;
+  uploadLimit: number;
+  uploadLimited: boolean;
+  percentDone: number;
+  recheckProgress: number;
+  rateUpload: number;
+  uploadedEver: number;
+  downloadedEver: number;
+  error: unknown;
+  errorString: string;
+  doneDate: number;
+  queuePosition: number;
+  activityDate: number;
 }
 
 export type Transmission = typeof transmission;
