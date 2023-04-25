@@ -431,11 +431,12 @@ export const transmission = {
       }
     },
 
-    allTorrents(): Record<string, Torrent> {
-      return this.all ?? {};
+    allTorrents(): Torrent[] {
+      return Object.values(this.all);
     },
 
-    all: null as Record<string, Torrent> | null,
+    all: {} as Record<string, Torrent>,
+    allInit: false,
     btItems: [] as Torrent[],
     count: 0,
     datas: {} as Record<string, Torrent> | null,
@@ -703,7 +704,7 @@ export const transmission = {
 
       this.isRecentlyActive = false;
       // If it has been acquired
-      if (this.all.length && ids == undefined) {
+      if (Object.keys(this.all).length && ids == undefined) {
         args.ids = 'recently-active';
         this.isRecentlyActive = true;
       } else if (ids) {
@@ -1020,8 +1021,10 @@ export interface TrackerStat {
 }
 
 export interface Torrent {
+  isPrivate: boolean;
   id: number;
   name: string;
+  hashString: string;
   totalSize: number;
   peersGettingFromUs: string;
   peersSendingToUs: string;
@@ -1057,6 +1060,7 @@ export interface Torrent {
   error: unknown;
   errorString: string;
   doneDate: number;
+  addedDate: number;
   queuePosition: number;
   activityDate: number;
 }

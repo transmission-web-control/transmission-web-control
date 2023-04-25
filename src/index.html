@@ -1,11 +1,27 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="cache-control" content="no-cache" />
-    <meta http-equiv="expires" content="0" />
-    <meta http-equiv="pragma" content="no-cache" />
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <meta
+      http-equiv="content-type"
+      content="text/html; charset=UTF-8"
+    />
+    <meta
+      http-equiv="cache-control"
+      content="no-cache"
+    />
+    <meta
+      http-equiv="expires"
+      content="0"
+    />
+    <meta
+      http-equiv="pragma"
+      content="no-cache"
+    />
+    <link
+      rel="shortcut icon"
+      href="favicon.ico"
+      type="image/x-icon"
+    />
     <title>Transmission Web Control</title>
     <!-- Style sheet -->
     <link
@@ -24,13 +40,21 @@
       type="text/css"
       href="tr-web-control/script/plugins/jquery.webui-popover.css"
     />
-    <link rel="stylesheet" type="text/css" href="tr-web-control/style/base.css?v=20200914" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="tr-web-control/style/base.css?v=20200914"
+    />
     <link
       rel="stylesheet"
       type="text/css"
       href="tr-web-control/script/easyui/themes/icon.css?v=20200914"
     />
-    <link rel="stylesheet" type="text/css" href="tr-web-control/style/icon.custom.css?v=20200914" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="tr-web-control/style/icon.custom.css?v=20200914"
+    />
     <link
       rel="stylesheet"
       type="text/css"
@@ -39,9 +63,18 @@
     <!-- <link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_584244_g4d8d6qr58nnrk9.css"/> -->
 
     <!-- Base class library -->
-    <script type="text/javascript" src="tr-web-control/script/semver.min.js"></script>
-    <script type="text/javascript" src="tr-web-control/script/jquery/jquery-1.12.4.min.js"></script>
-    <script type="text/javascript" src="tr-web-control/script/jquery/jquery.form.js"></script>
+    <script
+      type="text/javascript"
+      src="tr-web-control/script/semver.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="tr-web-control/script/jquery/jquery-1.12.4.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="tr-web-control/script/jquery/jquery.form.js"
+    ></script>
     <script
       type="text/javascript"
       src="tr-web-control/script/easyui/jquery.easyui.min.js?v=20200914"
@@ -56,11 +89,26 @@
     ></script>
     <!-- -->
     <!-- System class library -->
-    <script type="text/javascript" src="tr-web-control/script/FileSaver.js"></script>
-    <script type="text/javascript" src="tr-web-control/script/other/clipboard.min.js"></script>
-    <script type="text/javascript" src="tr-web-control/script/public.js"></script>
-    <script type="module" src="./lib/transmission.ts"></script>
-    <script type="module" src="./lib/system.js"></script>
+    <script
+      type="text/javascript"
+      src="tr-web-control/script/FileSaver.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="tr-web-control/script/other/clipboard.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="tr-web-control/script/public.js"
+    ></script>
+    <script
+      type="module"
+      src="./lib/transmission.ts"
+    ></script>
+    <script
+      type="module"
+      src="./lib/system.js"
+    ></script>
 
     <script type="module">
       import { getQueryString } from './lib/utils.ts';
@@ -76,11 +124,27 @@
   </head>
 
   <body>
-    <div id="main" class="easyui-layout">
-      <div id="m_top" data-options="region:'north'">
-        <div class="easyui-layout" data-options="fit:true">
-          <div id="m_title_layout" data-options="region:'center'" border="0">
-            <img id="logo" src="tr-web-control/logo.png" /><span
+    <div
+      id="main"
+      class="easyui-layout"
+    >
+      <div
+        id="m_top"
+        data-options="region:'north'"
+      >
+        <div
+          class="easyui-layout"
+          data-options="fit:true"
+        >
+          <div
+            id="m_title_layout"
+            data-options="region:'center'"
+            border="0"
+          >
+            <img
+              id="logo"
+              src="../public/logo.png"
+            /><span
               id="m_title"
               style="padding: 10px; display: none"
             ></span>
@@ -88,7 +152,10 @@
               id="area-update-infos"
               style="display: none; padding: 13px; position: absolute; background-color: #ffe48c"
             >
-              <span id="msg-updateInfos" style="color: #ff3232"></span>
+              <span
+                id="msg-updateInfos"
+                style="color: #ff3232"
+              ></span>
               <a
                 id="button-download-update"
                 href=""
@@ -100,7 +167,10 @@
             <div style="float: right; padding: 13px">
               <span>Theme: </span>
               <!-- 切换主题 -->
-              <select id="select-themes" style="width: 120px; height: 25px"></select>
+              <select
+                id="select-themes"
+                style="width: 120px; height: 25px"
+              ></select>
               <!-- 切换到移动版 -->
               <a
                 id="toolbar_mobile"
@@ -133,11 +203,18 @@
               ></a>
             </div>
             <div style="float: right; display: none">
-              Language：<select id="lang" value="" style="width: 200px"></select>
+              Language：<select
+                id="lang"
+                value=""
+                style="width: 200px"
+              ></select>
             </div>
           </div>
           <!-- 工具栏 -->
-          <div id="m_toolbar" data-options="region:'south',border:0">
+          <div
+            id="m_toolbar"
+            data-options="region:'south',border:0"
+          >
             <!-- 增加种子 -->
             <a
               id="toolbar_add_torrents"
@@ -284,7 +361,10 @@
               class="easyui-linkbutton"
               data-options="plain:true"
             ></a>
-            <span id="toolbar_right_area" style="padding: 1px; position: absolute; right: 2px">
+            <span
+              id="toolbar_right_area"
+              style="padding: 1px; position: absolute; right: 2px"
+            >
               <!-- 搜索 -->
               <input
                 id="toolbar_search"
@@ -297,8 +377,16 @@
         </div>
       </div>
 
-      <div id="m_left_layout" title="." data-options="region:'west',split:true,border:0">
-        <div id="layout_left" class="easyui-layout" data-options="fit:true">
+      <div
+        id="m_left_layout"
+        title="."
+        data-options="region:'west',split:true,border:0"
+      >
+        <div
+          id="layout_left"
+          class="easyui-layout"
+          data-options="fit:true"
+        >
           <div
             id="m_left"
             data-options="region:'center',border:0,onResize:function(w,h){system.layoutResize('nav', {width:w});}"
@@ -320,9 +408,22 @@
         </div>
       </div>
 
-      <div id="m_body" title="." data-options="region:'center',border:0">
-        <div id="layout_body" class="easyui-layout" data-options="fit:true">
-          <div id="m_list" data-options="region:'center',border:0"></div>
+      <div id="m_body2"></div>
+
+      <div
+        id="m_body"
+        title="."
+        data-options="region:'center',border:0"
+      >
+        <div
+          id="layout_body"
+          class="easyui-layout"
+          data-options="fit:true"
+        >
+          <div
+            id="m_list"
+            data-options="region:'center',border:0"
+          ></div>
           <div
             id="m_attribute"
             title="attribute"
@@ -330,19 +431,39 @@
           ></div>
         </div>
       </div>
-      <div id="m_statusbar" data-options="region:'south'">
-        <span id="status_alt_speed" style="display: none">&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span id="status_title_downloadspeed" class="iconlabel icon-down"></span>&nbsp;<span
-          id="status_downloadspeed"
-        ></span>
+
+      <div
+        id="m_statusbar"
+        data-options="region:'south'"
+      >
+        <span
+          id="status_alt_speed"
+          style="display: none"
+          >&nbsp;&nbsp;&nbsp;&nbsp;</span
+        >
+        <span
+          id="status_title_downloadspeed"
+          class="iconlabel icon-down"
+        ></span
+        >&nbsp;<span id="status_downloadspeed"></span>
         <span class="button-split">|</span>
-        <span id="status_title_uploadspeed" class="iconlabel icon-up"></span>&nbsp;<span
-          id="status_uploadspeed"
-        ></span>
+        <span
+          id="status_title_uploadspeed"
+          class="iconlabel icon-up"
+        ></span
+        >&nbsp;<span id="status_uploadspeed"></span>
         <span class="button-split">|</span>
-        <span id="status_freespace"></span><span id="status_version" style="float: right"></span>
+        <span id="status_freespace"></span
+        ><span
+          id="status_version"
+          style="float: right"
+        ></span>
       </div>
-      <div id="dropArea" class="dropArea" style="display: none">
+      <div
+        id="dropArea"
+        class="dropArea"
+        style="display: none"
+      >
         <span
           id="text-drop-title"
           style="position: absolute; top: 150px; left: 150px; font-size: 40px; font-weight: bold"
@@ -351,7 +472,10 @@
       </div>
     </div>
     <!-- 队列子菜单 -->
-    <div id="menu-queue" style="width: 150px">
+    <div
+      id="menu-queue"
+      style="width: 150px"
+    >
       <div
         id="menu-queue-move-top"
         data-options="iconCls:'iconfont tr-icon-top'"
@@ -386,7 +510,10 @@
       </div>
     </div>
     <!-- 扩展功能/插件 -->
-    <div id="menu-plugin" style="width: 260px">
+    <div
+      id="menu-plugin"
+      style="width: 260px"
+    >
       <div
         id="menu-plugin-tracker-replace"
         data-options="iconCls:'iconfont tr-icon-replace'"
@@ -405,8 +532,10 @@
       </div>
     </div>
     <textarea id="clipboard-source"></textarea>
-    <script type="module" src="./lib/main.ts"></script>
   </body>
 
-  <script type="module" src="./lib/main-desktop.ts"></script>
+  <script
+    type="module"
+    src="./lib/main-desktop.ts"
+  ></script>
 </html>

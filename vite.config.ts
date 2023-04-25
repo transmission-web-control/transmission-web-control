@@ -9,17 +9,16 @@ const TRANSMISSION_RPC = process.env.TRANSMISSION_RPC || 'http://192.168.1.3:909
 
 export default defineConfig(({ mode }) => {
   return {
-    root: 'src',
     base: './',
-    publicDir: '../public/',
+    publicDir: './public/',
     build: {
-      outDir: '../dist',
-      rollupOptions: {
-        input: {
-          main: fileURLToPath(new URL('./src/index.html', import.meta.url)),
-          mobile: fileURLToPath(new URL('./src/index.mobile.html', import.meta.url)),
-        },
-      },
+      outDir: './dist',
+      // rollupOptions: {
+      // input: {
+      //   main: fileURLToPath(new URL('./src/index.html', import.meta.url)),
+      //   mobile: fileURLToPath(new URL('./src/index.mobile.html', import.meta.url)),
+      // },
+      // },
       sourcemap: true,
     },
     server: {

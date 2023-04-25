@@ -3,7 +3,7 @@ import * as lo from 'lodash-es';
 import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
 
-const i18n = import.meta.glob('../i18n/*.json', { eager: true });
+export const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 const easyUILocale = import.meta.glob(
   '../../public/tr-web-control/script/easyui/locale/easyui-lang-*.js',
   {
