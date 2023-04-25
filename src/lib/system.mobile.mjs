@@ -133,18 +133,13 @@ const system = {
       // system.reloadTorrentBaseInfos();
     };
     // 初始化连接
-    transmission.init(
-      {
-        islocal: true,
-      },
-      function () {
-        system.reloadSession(true);
-        system.getServerStatus();
-      },
-    );
+    transmission.init().then(() => {
+      system.reloadSession();
+      system.getServerStatus();
+    });
   },
   // 重新加载服务器信息
-  reloadSession: function (isinit) {
+  reloadSession() {
     transmission.getSession(function (result) {
       system.serverConfig = result;
       if (result['alt-speed-enabled'] == true) {

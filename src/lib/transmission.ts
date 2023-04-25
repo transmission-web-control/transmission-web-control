@@ -1,10 +1,11 @@
 import $ from 'jquery';
 import { Base64 } from 'js-base64';
+import * as lo from 'lodash-es';
 
 import { getHostName } from './utils';
 
 export const transmission = {
-  SessionId: '',
+  SessionId: null as null | string,
   isInitialized: false,
   host: '',
   port: '9091',
@@ -13,7 +14,7 @@ export const transmission = {
   fullpath: '',
   on: {
     torrentCountChange: null,
-    postError: null,
+    postError: null as null | ((req: unknown) => void),
   },
   username: '',
   password: '',
@@ -42,62 +43,58 @@ export const transmission = {
   },
   headers: {} as Record<string, string>,
   trackers: {} as Record<string, Tracker>,
-  islocal: false,
   // The list of directories that currently exist
   downloadDirs: [] as string[],
-  // async getSessionId(me: Transmission) {
-  //   console.log(this.headers);
-  //   const res = await fetch(this.fullpath, {
-  //     method: 'POST',
-  //     credentials: 'include',
-  //     headers: this.headers,
-  //   });
-  //
-  //   if (res.status === 404) {
-  //     const SessionId = res.headers.get('X-Transmission-Session-Id');
-  //     me.isInitialized = true;
-  //     me.SessionId = SessionId;
-  //     me.headers['X-Transmission-Session-Id'] = SessionId;
-  //   }
-  // },
-  getSessionId(
-    me: {
-      isInitialized: boolean;
-      SessionId: string | null;
-      headers: Record<string, string>;
-    },
-    callback?: () => void,
-  ) {
-    void $.ajax({
-      type: 'POST',
-      url: this.fullpath,
-      error: function (request) {
-        let SessionId: string | null = '';
-        if (
-          request.status === 409 &&
-          (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
-        ) {
-          me.isInitialized = true;
-          me.SessionId = SessionId;
-          me.headers['X-Transmission-Session-Id'] = SessionId;
-          if (callback != null) {
-            callback();
-          }
-        }
-      },
-      headers: this.headers,
-    });
-  },
-  init(config: unknown, callback: () => void) {
-    $.extend(this, config);
 
+  async getSessionId() {
+    await this.execAsync();
+  },
+
+  async init() {
     if (this.username && this.password) {
       this.headers.Authorization = 'Basic ' + Base64.encode(this.username + ':' + this.password);
     }
 
     this.fullpath = this.rpcpath;
-    // this.getSessionId(this).finally(callback);
-    this.getSessionId(this, callback);
+
+    await this.getSessionId();
+  },
+
+  async execAsync(config?: { method: string; arguments?: any }) {
+    const data = lo.merge(
+      {
+        method: '',
+        arguments: {},
+        tag: '',
+      },
+      config,
+    );
+
+    for (let i = 0; i < 3; i++) {
+      const res = await fetch(this.fullpath, {
+        method: 'post',
+        headers: {
+          ...this.headers,
+          'X-Transmission-Session-Id': this.SessionId ?? '',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (res.status === 409) {
+        this.SessionId = res.headers.get('X-Transmission-Session-Id');
+        if (this.SessionId === null) {
+          throw new Error('failed to get X-Transmission-Session-Id');
+        }
+        continue;
+      } else if (res.status >= 400) {
+        transmission.on.postError?.(res);
+      }
+
+      return await res.json();
+    }
+
+    throw new Error('failed to complete request');
   },
 
   exec(
@@ -105,46 +102,9 @@ export const transmission = {
     callback: (data: any, tags?: any) => void,
     tags?: any,
   ) {
-    if (!this.isInitialized) {
-      return false;
-    }
-    const data = {
-      method: '',
-      arguments: {},
-      tag: '',
-    };
-
-    $.extend(data, config);
-
-    const settings: JQueryAjaxSettings = {
-      type: 'POST',
-      url: this.fullpath,
-      dataType: 'json',
-      data: JSON.stringify(data),
-      success: function (resultData: unknown, textStatus: unknown) {
-        if (callback) {
-          callback(resultData, tags);
-        }
-      },
-      error: function (request, event, page) {
-        let SessionId: string | null = '';
-        if (
-          request.status === 409 &&
-          (SessionId = request.getResponseHeader('X-Transmission-Session-Id'))
-        ) {
-          transmission.SessionId = SessionId;
-          transmission.headers['X-Transmission-Session-Id'] = SessionId;
-          void $.ajax(settings);
-        } else {
-          if (transmission.on.postError) {
-            // @ts-expect-error
-            transmission.on.postError(request);
-          }
-        }
-      },
-      headers: this.headers,
-    };
-    void $.ajax(settings);
+    this.execAsync(config).then(callback, (err) => {
+      console.error('failed to connect transmission', err);
+    });
   },
 
   getStatus(callback: (data: unknown) => void) {
@@ -488,7 +448,6 @@ export const transmission = {
     },
 
     all: {} as Record<string, Torrent>,
-    allInited: false,
     btItems: [] as Torrent[],
     count: 0,
     datas: {} as Record<string, Torrent> | null,
@@ -937,7 +896,6 @@ export const transmission = {
           // @ts-expect-error
           this.newIds.push(item.id);
         }
-        // @ts-expect-error
         item = $.extend(this.all[item.id], item);
         // 没有活动数据时，将分享率标记为 -1
         if (item.uploadedEver == 0 && item.downloadedEver == 0) {
@@ -992,7 +950,6 @@ export const transmission = {
             break;
         }
 
-        // @ts-expect-error
         this.all[item.id] = item;
 
         // Set the directory

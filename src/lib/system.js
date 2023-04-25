@@ -1866,15 +1866,10 @@ const system = {
       // system.reloadTorrentBaseInfos();
     };
     // Initialize the connection
-    transmission.init(
-      {
-        islocal: true,
-      },
-      function () {
-        system.reloadSession(true);
-        system.getServerStatus();
-      },
-    );
+    transmission.init().then(() => {
+      system.reloadSession();
+      system.getServerStatus();
+    });
   },
   // Reload the server information
   reloadSession: function (isinit) {
@@ -2379,7 +2374,7 @@ const system = {
     return result;
   },
   // Gets the current state of the server
-  getServerStatus: function () {
+  getServerStatus() {
     if (this.reloading) {
       return;
     }
@@ -2394,7 +2389,7 @@ const system = {
       $('#status_downloadspeed').html(formatSize(data.downloadSpeed, false, 'speed'));
       $('#status_uploadspeed').html(formatSize(data.uploadSpeed, false, 'speed'));
       system.serverSessionStats = data;
-      if (data.torrentCount == 0) {
+      if (data.torrentCount === 0) {
         const serversNode = system.panel.left.tree('find', 'servers');
         if (serversNode) {
           system.panel.left.tree('remove', serversNode.target);
