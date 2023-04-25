@@ -1,7 +1,9 @@
 {
   "name": "pt-BR",
+  "languageName": "English",
   "author": "Dudu Maroja, pcgaldo, vodek3, Brivaldo Junior, DarkAlexWang, Thiago Estacio",
   "system": {
+    "title": "Transmission WEB Control",
     "status": {
       "connect": "Conectando...",
       "connected": "Conectado",
@@ -67,6 +69,7 @@
       "autoreload-enabled": "Ligar atualização automática",
       "tracker-replace": "Substituir trackers",
       "change-download-dir": "Mudar destino",
+      "change-speedlimit": "change upload/download speed limit",
       "ui-mobile": "Interface Mobile",
       "ui-original": "Interface Web",
       "more-peers": "Pedir mais peers ao tracker",
@@ -89,7 +92,9 @@
   },
   "title": {
     "left": "Navegação",
-    "attribute": "Atributos"
+    "list": "Torrents",
+    "attribute": "Atributos",
+    "status": "Status"
   },
   "tree": {
     "all": "Todos",
@@ -116,6 +121,7 @@
       "sessionCount": "Sessões:",
       "secondsActive": "Tempo ativo:"
     },
+    "servers": "Trackers",
     "folders": "Pastas",
     "toolbar": {
       "nav": {
@@ -132,9 +138,11 @@
   "dialog": {
     "torrent-add": {
       "download-dir": "Destino:",
+      "used-download-dir": "Used Download Dir:",
       "torrent-url": "URL(s):",
       "tip-torrent-url": "Dica: Separe por linhas para adicionar mais de uma URL",
       "autostart": "Ao adicionar:",
+      "tip-autostart": "",
       "set-default-download-dir": "Definir como padrão",
       "upload-file": "Arquivo(s) .torrent:",
       "nosource": "Nenhum arquivo de torrent ou URL.",
@@ -218,9 +226,16 @@
       },
       "import-config": "Importar de um arquivo",
       "export-config": "Exportar configuração atual",
-      "import-config-confirm": "Você quer importar os rótulos? Isso irá sobreescrever as configurações atuais."
+      "import-config-confirm": "Você quer importar os rótulos? Isso irá sobreescrever as configurações atuais.",
+      "script-torrent-done-enabled": "Execute the following script when the torrent download is complete:",
+      "ipinfo": "IPinfo.io access token:",
+      "ipInfoCustom": "Additional IP query service settings, custom URL can be used, suitable for local query services",
+      "ipInfoCustomTips": "Available variables: <b>%ip</b>: peer IP (required), <b>%lang</b>: language code use by tr-web-control<br/>&nbsp;&nbsp;<b>%host</b>: host, <b>%hostname</b>: hostname, <b>%protocol</b>: protocol, <b>%navlang</b>: navigation language code",
+      "ipInfoCountryCodeUrl": "URL to get country code:",
+      "ipInfoDetailUrl": "URL to get details:"
     },
     "public": {
+      "button-ok": "OK",
       "button-cancel": "Cancelar",
       "button-reload": "Recarregar",
       "button-save": "Salvar",
@@ -237,7 +252,9 @@
       "infos": "Autor: culturist<br/>Aviso: A maioria dos icones usados foram encontrados pela net. Para retirar algum conteúdo, por favor contate o autor.",
       "check-update": "Verificar novas atualizações",
       "home": "Página do projeto",
-      "donate": "Doar"
+      "help": "Wiki",
+      "donate": "Doar",
+      "pt-plugin": "PT Plugin"
     },
     "torrent-remove": {
       "title": "Confimar remoçao",
@@ -253,7 +270,16 @@
       "set-error": "Erro ao estabelecer o local!",
       "recheck-data": "Reverificar dados."
     },
-    "torrent-changeSpeedLimit": {},
+    "torrent-changeSpeedLimit": {
+      "title": "Set torrents Max download speed and Max upload speed",
+      "downloadLimited": "Max global download speed:",
+      "uploadLimited": "Max global upload speed:",
+      "peer-limit": "Maximum peers for this torrent:",
+      "seedRatioMode": "Seed ratio for torrents to use:",
+      "seedIdleMode": "Torrents we're seeding will be stopped if they're idle for this long:",
+      "doneDate": "Finish Time:",
+      "seedTime": "Seed Time:"
+    },
     "system-replaceTracker": {
       "title": "Substituir trackers",
       "old-tracker": "Antigo:",
@@ -268,6 +294,7 @@
       "dictionary": "Dicionário de pastas",
       "time-begin": "Horário de início",
       "time-now": "Agora:",
+      "status": "Status:",
       "ignore": "Ignorar",
       "working-close-confirm": "Existem torrents ativos. Deseja mesmo sair?",
       "time-interval": "Intervalo (segundos):",
@@ -283,6 +310,8 @@
       "newname": "Novo"
     },
     "torrent-attribute-add-tracker": {
+      "button-search-best-ip": "best IP",
+      "button-search-all-ip": "all IP",
       "title": "Adicionar trackers",
       "tip": "Um tracker por linha"
     },
@@ -307,8 +336,10 @@
     "fields": {
       "id": "ID",
       "name": "Nome",
+      "hashString": "HASH",
       "downloadDir": "Local",
       "totalSize": "Tamanho",
+      "status": "Status",
       "percentDone": "Progresso",
       "remainingTime": "Restante",
       "addedDate": "Adicionado",
@@ -318,9 +349,12 @@
       "leecherCount": "Leechs",
       "seederCount": "Seeds",
       "uploadedEver": "Enviado",
+      "uploadRatio": "Ratio",
       "queuePosition": "Fila",
       "activityDate": "Atividade",
-      "labels": "Rótulos"
+      "trackers": "Trackers",
+      "labels": "Rótulos",
+      "doneDate": "Completed Date"
     },
     "status-text": {
       "0": "Pausado",
@@ -334,7 +368,9 @@
     "attribute": {
       "tabs": {
         "base": "Geral",
+        "servers": "Trackers",
         "files": "Arquivos",
+        "users": "Peers",
         "config": "Configuração"
       },
       "files-fields": {
@@ -347,17 +383,28 @@
       },
       "servers-fields": {
         "announce": "Endereço",
+        "announceState": "Status",
         "lastAnnounceResult": "Info",
         "lastAnnounceSucceeded": "Sucesso",
         "lastAnnounceTime": "Último",
         "lastAnnounceTimedOut": "T.Limite",
         "downloadCount": "Downloads",
         "nextAnnounceTime": "Próximo",
-        "announceStateText": {}
+        "leecherCount": "Leecher count",
+        "seederCount": "Seeder count",
+        "announceStateText": {
+          "0": "Inactive",
+          "1": "Waiting",
+          "2": "Queued",
+          "3": "Active"
+        }
       },
       "peers-fields": {
         "address": "Endereço IP",
+        "port": "Port",
+        "isUTP": "UTP enabled",
         "clientName": "Cliente",
+        "flagStr": "Flag",
         "progress": "Progresso",
         "rateToClient": "Download",
         "rateToPeer": "Upload"
@@ -367,17 +414,24 @@
         "false": "Não"
       },
       "priority": {
+        "0": "Normal",
         "1": "Alta",
         "-1": "Baixa"
       },
-      "filter-template-text": {},
+      "filter-template-text": {
+        "1": "All",
+        "2": "BitComet padding file",
+        "3": "Unnecessary files"
+      },
       "label": {
         "name": "Nome:",
         "addedDate": "Adicionado:",
         "totalSize": "Tamanho:",
         "completeSize": "Completo:",
         "leftUntilDone": "Restante:",
+        "hashString": "HASH:",
         "downloadDir": "Local:",
+        "status": "Status:",
         "rateDownload": "Download:",
         "rateUpload": "Upload:",
         "leecherCount": "Leechers:",
@@ -400,6 +454,7 @@
         "button-allow": "Baixar arquivo(s) selecionado(s)",
         "button-deny": "Ignorar arquivo(s) selecionado(s)",
         "button-priority": "Definir prioridade",
+        "button-filter": "Search files by regular expression",
         "button-tracker-add": "Adicionar novo tracker",
         "button-tracker-edit": "Editar tracker",
         "button-tracker-remove": "Remover tracker"
@@ -424,6 +479,8 @@
     "text-browsers-not-support-features": "O navegador atual não suporta esta função!",
     "text-download-update": "Baixar esta atualização",
     "text-have-update": "Há uma atualização disponível",
+    "text-on": "ON",
+    "text-off": "OFF",
     "text-how-to-update": "Como atualizar?",
     "text-ignore-this-version": "Ignorar esta versão",
     "text-json-file-parsing-failed": "Falha na análise do arquivo JSON!"
