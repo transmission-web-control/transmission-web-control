@@ -40,14 +40,14 @@ const system = {
   serverSessionStats: null,
   // 种子列表已选中
   torrentListChecked: false,
-  debug: function (label, text) {
+  debug(label, text) {
     if (window.console) {
       if (window.console.log) {
         window.console.log(label, text);
       }
     }
   },
-  setlang: function (lang, callback) {
+  setlang(lang, callback) {
     // 如果未指定语言，则获取当前浏览器默认语言
     if (!lang) {
       if (this.config.defaultLang) {
@@ -78,7 +78,7 @@ const system = {
     }
   },
   // 设置语言信息
-  resetLangText: function () {
+  resetLangText() {
     var items = $('*[system-lang]');
 
     $.each(items, function (key, item) {
@@ -86,7 +86,7 @@ const system = {
       $(item).html(eval('system.lang.' + name));
     });
   },
-  init: function (lang, islocal) {
+  init(lang, islocal) {
     this.readConfig();
     transmission.options.getFolders = false;
     if (!this.langInit) {
@@ -98,14 +98,14 @@ const system = {
       this.initdata();
     }
   },
-  initdata: function () {
+  initdata() {
     $(document).attr('title', this.lang.system.title + ' ' + APP_VERSION);
     // this.control.torrentlist = $("#content-torrent-list ul");
     this.control.torrentlist = $('#torrent-list');
     this.connect();
   },
   // 从 cookies 里加载配置
-  readConfig: function () {
+  readConfig() {
     // 将原来的cookies的方式改为本地存储的方式
     var config = this.getStorageData(this.configHead + '.system');
     if (config) {
@@ -113,17 +113,17 @@ const system = {
     }
   },
   // 在 cookies 里保存参数
-  saveConfig: function () {
+  saveConfig() {
     this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
   },
-  getStorageData: function (key, defaultValue) {
+  getStorageData(key, defaultValue) {
     return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
   },
-  setStorageData: function (key, value) {
+  setStorageData(key, value) {
     window.localStorage[key] = value;
   },
   // 连接服务器
-  connect: function () {
+  connect() {
     // 当种子总数发生变化时，重新获取种子信息
     transmission.on.torrentCountChange = function () {
       system.reloadTorrentBaseInfos();
@@ -161,7 +161,7 @@ const system = {
       }
     });
   },
-  showFreeSpace: function (size) {
+  showFreeSpace(size) {
     var tmp = size;
     if (tmp == -1) {
       tmp = system.lang.public['text-unknown'];
@@ -171,7 +171,7 @@ const system = {
     $('#status_freespace').text(tmp);
   },
   // 获取服务器当前状态
-  getServerStatus: function () {
+  getServerStatus() {
     if (this.reloading) {
       return;
     }
@@ -186,7 +186,7 @@ const system = {
     });
   },
   // 重新获取种子信息
-  reloadTorrentBaseInfos: function (ids) {
+  reloadTorrentBaseInfos(ids) {
     if (this.reloading) {
       return;
     }
@@ -218,7 +218,7 @@ const system = {
     }, ids);
   },
   //
-  resetTorrentInfos: function (oldInfos) {
+  resetTorrentInfos(oldInfos) {
     var currentTorrentId = this.currentTorrentId;
 
     // 已暂停
@@ -277,7 +277,7 @@ const system = {
     }
   },
   // 更新状态中
-  updateCount: function (nodeId, count) {
+  updateCount(nodeId, count) {
     var item = $('#count-' + nodeId);
     item.text(count);
     if (count == 0) {
@@ -287,7 +287,7 @@ const system = {
     }
   },
   // 重新加载数据
-  reloadData: function () {
+  reloadData() {
     this.reloadSession();
     this.reloading = false;
     this.getServerStatus();
@@ -295,7 +295,7 @@ const system = {
     this.reloadTorrentBaseInfos();
   },
   // 显示指定的内容
-  showContent: function (target) {
+  showContent(target) {
     var _default = {
       page: '',
       type: '',
@@ -345,7 +345,7 @@ const system = {
       config.callback();
     }
   },
-  getTorrentFromType: function (type) {
+  getTorrentFromType(type) {
     var torrents = null;
     switch (type) {
       case 'torrent-all':
@@ -400,7 +400,7 @@ const system = {
     return torrents;
   },
   // 加载种子列表
-  loadTorrentToList: function (config) {
+  loadTorrentToList(config) {
     // 如果有种子选中，则不重新加载列表
     if (this.torrentListChecked) {
       return;
@@ -494,7 +494,7 @@ const system = {
     this.torrentPager.setDatas(datas, config.target);
   },
   // 添加种子信息到列表
-  appendTorrentToList: function (data) {
+  appendTorrentToList(data) {
     var replaces = {
       id: data.id,
       name: data.name,
@@ -535,7 +535,7 @@ const system = {
     li.appendTo(this.control.torrentlist);
   },
   // 获取种子名称显示区域的内容
-  getTorrentNameBar: function (torrent) {
+  getTorrentNameBar(torrent) {
     var className = '';
     var tip = torrent.name;
     switch (torrent.status) {
@@ -575,7 +575,7 @@ const system = {
     return '<span class="' + className + '" title="' + tip + '">' + torrent.name + '</span>';
   },
   // 获取指定种子的进度条
-  getTorrentProgressBar: function (progress, torrent) {
+  getTorrentProgressBar(progress, torrent) {
     progress = progress + '%';
     var className = '';
     switch (torrent.status) {
@@ -617,7 +617,7 @@ const system = {
     );
   },
   // 改变种子的工具栏
-  changeTorrentToolbar: function (source, item) {
+  changeTorrentToolbar(source, item) {
     var checked = this.control.torrentlist.find('input:checked');
     $('#torrent-checked-count').html(checked.length);
     if (checked.length > 0) {
@@ -647,7 +647,7 @@ const system = {
       number: null,
     },
     head: '',
-    init: function (datas) {
+    init(datas) {
       this.pageBar = $('#torrent-page-bar');
       this.controls.next = this.pageBar.find('#page-next');
       this.controls.next.click(function () {
@@ -663,7 +663,7 @@ const system = {
         this.setDatas(datas);
       }
     },
-    setDatas: function (datas, head) {
+    setDatas(datas, head) {
       if (!this.datas) {
         this.init();
       }
@@ -684,7 +684,7 @@ const system = {
       }
       this.head = head;
     },
-    gotoPage: function (page) {
+    gotoPage(page) {
       if (typeof page == 'number') {
         this.pageNumber = page;
       } else {
@@ -726,7 +726,7 @@ const system = {
     },
   },
   // 开始/暂停已选择的种子
-  changeSelectedTorrentStatus: function (status, button, options) {
+  changeSelectedTorrentStatus(status, button, options) {
     var items = this.control.torrentlist.find('input:checked');
     var ids = [];
     if (!status) {
@@ -774,7 +774,7 @@ const system = {
     }
   },
   // 增加种子
-  addTorrentsToServer: function (urls, count, autostart, savepath, callback) {
+  addTorrentsToServer(urls, count, autostart, savepath, callback) {
     // this.config.autoReload = false;
     var index = count - urls.length;
     var url = urls.shift();
@@ -792,7 +792,7 @@ const system = {
       system.addTorrentsToServer(urls, count, autostart, savepath, callback);
     });
   },
-  showStatus: function (msg, count) {
+  showStatus(msg, count) {
     if (!msg) {
       $('#status').hide();
       return;

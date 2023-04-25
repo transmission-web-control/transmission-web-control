@@ -97,11 +97,7 @@ export const transmission = {
     throw new Error('failed to complete request');
   },
 
-  exec(
-    config: { method: string; arguments?: any },
-    callback: (data: any, tags?: any) => void,
-    tags?: any,
-  ) {
+  exec(config: { method: string; arguments?: any }, callback: (data: any, tags?: any) => void) {
     this.execAsync(config).then(callback, (err) => {
       console.error('failed to connect transmission', err);
     });
@@ -133,7 +129,7 @@ export const transmission = {
       },
     );
   },
-  getSession: function (callback?: (data: unknown) => void) {
+  getSession(callback?: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-get',
@@ -147,8 +143,9 @@ export const transmission = {
       },
     );
   },
+
   // 添加种子
-  addTorrentFromUrl: function (
+  addTorrentFromUrl(
     url: string,
     savepath: string,
     autostart: boolean,
@@ -198,7 +195,7 @@ export const transmission = {
     });
   },
   // 从文件内容增加种子
-  addTorrentFromFile: function (
+  addTorrentFromFile(
     file: Blob,
     savePath: string,
     paused: boolean,
@@ -257,7 +254,7 @@ export const transmission = {
     };
     fileReader.readAsDataURL(file);
   },
-  _onTorrentCountChange: function () {
+  _onTorrentCountChange() {
     this.torrents.loadSimpleInfo = false;
     if (this.on.torrentCountChange) {
       // @ts-expect-error
@@ -265,7 +262,7 @@ export const transmission = {
     }
   },
   // 删除种子
-  removeTorrent: function (ids: string[], removeData: boolean, callback?: (data: any) => void) {
+  removeTorrent(ids: string[], removeData: boolean, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'torrent-remove',
@@ -282,7 +279,7 @@ export const transmission = {
     );
   },
   // 獲取指定目錄的大小
-  getFreeSpace: function (path: string, callback?: (data: any) => void) {
+  getFreeSpace(path: string, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'free-space',
@@ -298,7 +295,7 @@ export const transmission = {
     );
   },
   // 更新黑名單
-  updateBlocklist: function (callback?: (data: any) => void) {
+  updateBlocklist(callback?: (data: any) => void) {
     this.exec(
       {
         method: 'blocklist-update',
@@ -314,7 +311,7 @@ export const transmission = {
   // torrentId 		只能指定一个
   // oldpath 			原文件路径或目录，如：opencd/info.txt 或 opencd/cd1
   // newname			新的文件或目录名，如：into1.txt 或 disc1
-  renameTorrent: function (
+  renameTorrent(
     torrentId: string,
     oldpath: string,
     newname: string,
@@ -342,7 +339,7 @@ export const transmission = {
     );
   },
   // 关闭连接？
-  closeSession: function (callback?: (data: unknown) => void) {
+  closeSession(callback?: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-close',
@@ -533,7 +530,7 @@ export const transmission = {
     getConfig(id: string, callback: (torrents: Torrent[] | null) => void) {
       this.getMoreInfos(this.fields.config, id, callback);
     },
-    getErrorIds: function (ignore: any, needUpdateOnly: boolean) {
+    getErrorIds(ignore: any, needUpdateOnly: boolean) {
       const result = [];
       const nowDate = new Date();
       let now = 0;
@@ -576,7 +573,7 @@ export const transmission = {
 
       return result;
     },
-    getFiles: function (id: any, callback: any) {
+    getFiles(id: any, callback: any) {
       transmission.exec(
         {
           method: 'torrent-get',
@@ -597,7 +594,7 @@ export const transmission = {
       );
     },
 
-    getMagnetLink: function (ids: string[], callback: any) {
+    getMagnetLink(ids: string[], callback: any) {
       let result = '';
       // is single number
       if (!Array.isArray(ids)) {
@@ -654,7 +651,7 @@ export const transmission = {
       );
     },
     // List of all the torrents that have been acquired
-    getMoreInfos: function (fields: any, ids: any, callback: (torrents: Torrent[] | null) => void) {
+    getMoreInfos(fields: any, ids: any, callback: (torrents: Torrent[] | null) => void) {
       transmission.exec(
         {
           method: 'torrent-get',
@@ -675,7 +672,7 @@ export const transmission = {
       );
     },
     // The list of recently acquired torrents
-    getPeers: function (ids: string[]) {
+    getPeers(ids: string[]) {
       transmission.exec(
         {
           method: 'torrent-get',
@@ -690,7 +687,7 @@ export const transmission = {
       );
     },
     // The recently removed seed
-    getallids: function (
+    getallids(
       callback: null | ((data: Torrent[] | null) => void),
       ids: string[] | undefined,
       moreFields?: Array<keyof Torrent>,
@@ -755,7 +752,7 @@ export const transmission = {
     removed: null,
     // 获取更多信息
 
-    search: function (key: any, source: any) {
+    search(key: any, source: any) {
       if (!key) {
         return null;
       }
@@ -777,7 +774,7 @@ export const transmission = {
     },
     // 从当前已获取的种子列表中搜索指定关键的种子
 
-    searchAndReplaceTrackers: function (
+    searchAndReplaceTrackers(
       oldTracker: string,
       newTracker: string,
       callback: (result: null, count?: number) => void,
@@ -839,7 +836,7 @@ export const transmission = {
     searchResult: null,
     // 获取指定种子的设置信息
 
-    splitid: function () {
+    splitid() {
       // Downloading
       this.downloading = [];
       // Paused

@@ -1,5 +1,5 @@
 system.plugin = {
-  exec: function (key) {
+  exec(key) {
     switch (key) {
       // Replace Tracker
       case 'replace-tracker':

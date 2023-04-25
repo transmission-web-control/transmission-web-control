@@ -199,7 +199,7 @@ const system = {
   /**
    * 设置语言
    */
-  setlang: function (lang, callback) {
+  setlang(lang, callback) {
     // If no language is specified, acquires the current browser default language
     if (!lang) {
       if (this.config.defaultLang) {
@@ -234,7 +234,7 @@ const system = {
   /**
    * 程序初始化
    */
-  init: function (lang, islocal, devicetype) {
+  init(lang, islocal, devicetype) {
     this.readConfig();
     this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
     this.islocal = islocal == 1;
@@ -271,7 +271,7 @@ const system = {
     this.clipboard = new ClipboardJS('#toolbar_copyPath');
   },
   // Set the language information
-  resetLangText: function (parent) {
+  resetLangText(parent) {
     if (!parent) {
       parent = $;
     }
@@ -297,7 +297,7 @@ const system = {
       }
     });
   },
-  initdata: function () {
+  initdata() {
     // this.panel.title.text(this.lang.system.title+" "+this.version+" ("+this.codeupdate+")");
     $(document).attr('title', this.lang.system.title + ' ' + this.version);
 
@@ -387,14 +387,14 @@ const system = {
     // 设置属性栏
     this.panel.attribute.panel({
       title: this.lang.title.attribute,
-      onExpand: function () {
+      onExpand() {
         if (system.currentTorrentId != 0 && $(this).data('isload')) {
           system.getTorrentInfos(system.currentTorrentId);
         } else {
           system.clearTorrentAttribute();
         }
       },
-      onLoad: function () {
+      onLoad() {
         if (!$(this).data('isload')) {
           $(this).data('isload', true);
           if (system.currentTorrentId != 0) {
@@ -431,7 +431,7 @@ const system = {
   /**
    * 初始化相关事件
    */
-  initEvent: function () {
+  initEvent() {
     // When the window size changes
     $(window).resize(function () {
       $('#main').layout('resize');
@@ -492,11 +492,11 @@ const system = {
 
     // 树型目录事件
     this.panel.left.tree({
-      onExpand: function (node) {
+      onExpand(node) {
         system.config.ui.status.tree[node.id] = node.state;
         system.saveConfig();
       },
-      onCollapse: function (node) {
+      onCollapse(node) {
         system.config.ui.status.tree[node.id] = node.state;
         system.saveConfig();
       },
@@ -504,39 +504,39 @@ const system = {
 
     // 设置属性栏
     this.panel.layout_body.layout({
-      onExpand: function (region) {
+      onExpand(region) {
         system.config.ui.status.layout.body[region] = 'open';
         system.saveConfig();
       },
-      onCollapse: function (region) {
+      onCollapse(region) {
         system.config.ui.status.layout.body[region] = 'closed';
         system.saveConfig();
       },
     });
 
     this.panel.layout_left.layout({
-      onExpand: function (region) {
+      onExpand(region) {
         system.config.ui.status.layout.left[region] = 'open';
         system.saveConfig();
       },
-      onCollapse: function (region) {
+      onCollapse(region) {
         system.config.ui.status.layout.left[region] = 'closed';
         system.saveConfig();
       },
     });
 
     this.panel.main.layout({
-      onExpand: function (region) {
+      onExpand(region) {
         system.config.ui.status.layout.main[region] = 'open';
         system.saveConfig();
       },
-      onCollapse: function (region) {
+      onCollapse(region) {
         system.config.ui.status.layout.main[region] = 'closed';
         system.saveConfig();
       },
     });
   },
-  layoutResize: function (target, size) {
+  layoutResize(target, size) {
     if (!system.uiIsInitialized) {
       return;
     }
@@ -546,7 +546,7 @@ const system = {
     }
   },
   // Navigation toolbar Click Events
-  navToolbarClick: function (source) {
+  navToolbarClick(source) {
     const key = source.id;
     let status = $(source).data('status');
     let treenode = null;
@@ -597,7 +597,7 @@ const system = {
     this.saveConfig();
   },
   // Check the dragged files
-  checkDropFiles: function (sources) {
+  checkDropFiles(sources) {
     if (!sources || !sources.length) {
       return;
     }
@@ -625,7 +625,7 @@ const system = {
     }
   },
   // Initialize the tree list
-  initTree: function () {
+  initTree() {
     const items = [
       {
         id: 'torrent-all',
@@ -789,7 +789,7 @@ const system = {
 
     this.panel.left.tree({
       data: items,
-      onSelect: function (node) {
+      onSelect(node) {
         system.loadTorrentToList({
           node,
         });
@@ -801,7 +801,7 @@ const system = {
   /**
    * 初始化界面状态
    */
-  initUIStatus: function () {
+  initUIStatus() {
     if (this.uiIsInitialized) {
       return;
     }
@@ -883,7 +883,7 @@ const system = {
     }
   },
   // Initialize the torrent list display table
-  initTorrentTable: function () {
+  initTorrentTable() {
     this.control.torrentlist = $('<table/>')
       .attr('class', 'torrent-list')
       .appendTo(this.panel.list);
@@ -940,35 +940,35 @@ const system = {
         sortOrder: system.userConfig.torrentList.sortOrder,
         drophead: true,
         columns: [fields],
-        onCheck: function (rowIndex, rowData) {
+        onCheck(rowIndex, rowData) {
           system.checkTorrentRow(rowIndex, rowData);
         },
-        onUncheck: function (rowIndex, rowData) {
+        onUncheck(rowIndex, rowData) {
           system.checkTorrentRow(rowIndex, rowData);
         },
-        onCheckAll: function (rows) {
+        onCheckAll(rows) {
           system.checkTorrentRow('all', false);
         },
-        onUncheckAll: function (rows) {
+        onUncheckAll(rows) {
           system.checkTorrentRow('all', true);
         },
-        onSelect: function (rowIndex, rowData) {
+        onSelect(rowIndex, rowData) {
           if (selectedIndex != -1) {
             system.control.torrentlist.datagrid('unselectRow', selectedIndex);
           }
           system.getTorrentInfos(rowData.id);
           selectedIndex = rowIndex;
         },
-        onUnselect: function (rowIndex, rowData) {
+        onUnselect(rowIndex, rowData) {
           system.currentTorrentId = 0;
           selectedIndex = -1;
         },
         // Before loading data
-        onBeforeLoad: function (param) {
+        onBeforeLoad(param) {
           system.currentTorrentId = 0;
         },
         // Header sorting
-        onSortColumn: function (field, order) {
+        onSortColumn(field, order) {
           const field_func = field;
           const datas = system.control.torrentlist
             .datagrid('getData')
@@ -982,7 +982,7 @@ const system = {
           system.userConfig.torrentList.sortOrder = order;
           system.saveUserConfig();
         },
-        onRowContextMenu: function (e, rowIndex, rowData) {
+        onRowContextMenu(e, rowIndex, rowData) {
           // console.log("onRowContextMenu");
           if (system.config.simpleCheckMode) {
             system.control.torrentlist.datagrid('uncheckAll');
@@ -995,20 +995,20 @@ const system = {
           e.preventDefault();
           system.showContextMenu('torrent-list', e);
         },
-        onHeadDrop: function (sourceField, targetField) {
+        onHeadDrop(sourceField, targetField) {
           // console.log("onHeadDrop");
           system.resetTorrentListFieldsUserConfig(
             system.control.torrentlist.datagrid('options').columns[0],
           );
           system.saveUserConfig();
         },
-        onResizeColumn: function (field, width) {
+        onResizeColumn(field, width) {
           system.resetTorrentListFieldsUserConfig(
             system.control.torrentlist.datagrid('options').columns[0],
           );
           system.saveUserConfig();
         },
-        onHeaderContextMenu: function (e, field) {
+        onHeaderContextMenu(e, field) {
           // console.log("onHeaderContextMenu");
           e.preventDefault();
           if (!headContextMenu) {
@@ -1036,7 +1036,7 @@ const system = {
       }
       headContextMenu = $('<div/>').appendTo('body');
       headContextMenu.menu({
-        onClick: function (item) {
+        onClick(item) {
           if (item.iconCls == 'icon-ok') {
             system.control.torrentlist.datagrid('hideColumn', item.name);
             headContextMenu.menu('setIcon', {
@@ -1077,7 +1077,7 @@ const system = {
 		});
 		*/
   },
-  resetTorrentListFieldsUserConfig: function (columns) {
+  resetTorrentListFieldsUserConfig(columns) {
     const fields = {};
     $.each(this.userConfig.torrentList.fields, function (index, item) {
       fields[item.field] = item;
@@ -1092,7 +1092,7 @@ const system = {
     });
   },
   // Show context menu
-  showContextMenu: function (type, e) {
+  showContextMenu(type, e) {
     let parent = this.contextMenus[type];
     if (!parent) {
       parent = $('<div/>')
@@ -1147,7 +1147,7 @@ const system = {
                 id: key,
                 iconCls: menu.linkbutton('options').iconCls,
                 disabled: menu.linkbutton('options').disabled,
-                onclick: function () {
+                onclick() {
                   system.panel.toolbar.find('#toolbar_' + $(this).attr('id')).click();
                 },
               });
@@ -1159,7 +1159,7 @@ const system = {
                   id: key,
                   iconCls: menu.attr('id').replace('menu-queue-move', 'iconfont tr-icon'),
                   disabled: toolbar.find('#toolbar_queue').linkbutton('options').disabled,
-                  onclick: function () {
+                  onclick() {
                     $('#' + $(this).attr('id')).click();
                   },
                 });
@@ -1197,7 +1197,7 @@ const system = {
    * @param parent 父节点
    * @return 菜单对象
    */
-  getContentMenuWithKey: function (key, parent) {
+  getContentMenuWithKey(key, parent) {
     switch (key) {
       case 'setLabels':
         return {
@@ -1205,7 +1205,7 @@ const system = {
           text: system.lang.menus.setLabels,
           iconCls: 'iconfont tr-icon-labels',
           disabled: this.checkedRows.length == 0,
-          onclick: function () {
+          onclick() {
             const rows = system.checkedRows;
             const values = [];
             for (const i in rows) {
@@ -1234,7 +1234,7 @@ const system = {
           text: system.lang.menus.copyMagnetLink,
           iconCls: 'iconfont tr-icon-labels',
           disabled: this.checkedRows.length == 0,
-          onclick: function () {
+          onclick() {
             system.getTorrentMagnetLink(function (data) {
               system.copyToClipboard(data);
               parent.css('display', 'block'); // 防止第一次复制碰链失败
@@ -1249,7 +1249,7 @@ const system = {
    * @param hashString 种子的hash值
    * @return 返回一组标签内容
    */
-  formetTorrentLabels: function (ids, hashString) {
+  formetTorrentLabels(ids, hashString) {
     const box = $("<div style='position: relative;'/>");
     if (ids) {
       if (typeof ids === 'string') {
@@ -1285,7 +1285,7 @@ const system = {
   /**
    * 快速设置当前种子标签
    */
-  setTorrentLabels: function (button, hashString) {
+  setTorrentLabels(button, hashString) {
     system.openDialogFromTemplate({
       id: 'dialog-torrent-setLabels',
       options: {
@@ -1306,7 +1306,7 @@ const system = {
    * @param rowData    当前行数据，当全选/反选时为 true 或 false，全选为false, 全反选为 true
    * @return void
    */
-  checkTorrentRow: function (rowIndex, rowData) {
+  checkTorrentRow(rowIndex, rowData) {
     // 获取当前已选中的行
     this.checkedRows = this.control.torrentlist.datagrid('getChecked');
     this.showCheckedInStatus();
@@ -1402,7 +1402,7 @@ const system = {
   /**
    * 显示已选中的内容
    */
-  showCheckedInStatus: function () {
+  showCheckedInStatus() {
     if (this.checkedRows.length > 0) {
       this.panel.status_text.empty();
       this.showStatus(undefined, 0);
@@ -1434,7 +1434,7 @@ const system = {
     }
   },
   // by https://stackoverflow.com/questions/22581345/click-button-copy-to-clipboard-using-jquery?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-  copyToClipboard: function (text) {
+  copyToClipboard(text) {
     // Create a "hidden" input
     const id = 'copy_to_clipboard_textarea';
     let aux = document.getElementById(id);
@@ -1455,7 +1455,7 @@ const system = {
     aux.style.display = 'none';
   },
   // Initialize the System Toolbar
-  initToolbar: function () {
+  initToolbar() {
     // refresh time
     this.panel.toolbar.find('#toolbar_label_reload_time').html(this.lang.toolbar['reload-time']);
     this.panel.toolbar
@@ -1465,7 +1465,7 @@ const system = {
       value: this.config.reloadStep / 1000,
       min: 3,
       disabled: !this.config.autoReload,
-      onChange: function () {
+      onChange() {
         const value = this.value;
         if ($.isNumeric(value)) {
           system.config.reloadStep = value * 1000;
@@ -1835,7 +1835,7 @@ const system = {
 
     // search
     this.panel.toolbar.find('#toolbar_search').searchbox({
-      searcher: function (value) {
+      searcher(value) {
         system.searchTorrents(value);
       },
       prompt: this.lang.toolbar['search-prompt'],
@@ -1847,14 +1847,14 @@ const system = {
       .attr('title', this.lang.toolbar.tip['copy-path-to-clipboard']);
   },
   // Initialize the status bar
-  initStatusBar: function () {
+  initStatusBar() {
     this.panel.statusbar
       .find('#status_title_downloadspeed')
       .html(this.lang.statusbar.downloadspeed);
     this.panel.statusbar.find('#status_title_uploadspeed').html(this.lang.statusbar.uploadspeed);
   },
   // connect to the server
-  connect: function () {
+  connect() {
     this.showStatus(this.lang.system.status.connect, 0);
 
     // When the total torrent number is changed, the torrent information is retrieved
@@ -1872,7 +1872,7 @@ const system = {
     });
   },
   // Reload the server information
-  reloadSession: function (isinit) {
+  reloadSession(isinit) {
     transmission.getSession(function (result) {
       system.serverConfig = result;
       // Version Information
@@ -1913,7 +1913,7 @@ const system = {
       }
     });
   },
-  showFreeSpace: function (size) {
+  showFreeSpace(size) {
     let tmp = size;
     if (tmp == -1) {
       tmp = system.lang.public['text-unknown'];
@@ -1925,7 +1925,7 @@ const system = {
     );
   },
   // Retrieve the torrent information again
-  reloadTorrentBaseInfos: function (ids, moreFields) {
+  reloadTorrentBaseInfos(ids, moreFields) {
     if (this.reloading) {
       return;
     }
@@ -1961,7 +1961,7 @@ const system = {
     );
   },
   // refresh the tree
-  resetTorrentInfos: function (oldInfos) {
+  resetTorrentInfos(oldInfos) {
     this.resetNavTorrentStatus();
     this.resetNavServers(oldInfos);
     this.resetNavStatistics();
@@ -1979,7 +1979,7 @@ const system = {
   /**
    * 重置导航栏种子状态信息
    */
-  resetNavTorrentStatus: function () {
+  resetNavTorrentStatus() {
     const currentTorrentId = this.currentTorrentId;
     // Paused
     if (transmission.torrents.status[transmission._status.stopped]) {
@@ -2139,7 +2139,7 @@ const system = {
   /**
    * 重置导航栏服务器信息
    */
-  resetNavServers: function (oldInfos) {
+  resetNavServers(oldInfos) {
     // 获取服务器分布主节点
     let serversNode = this.panel.left.tree('find', 'servers');
     if (!this.config.nav.servers) {
@@ -2232,7 +2232,7 @@ const system = {
   /**
    * 重置导航栏数据统计信息
    */
-  resetNavStatistics: function () {
+  resetNavStatistics() {
     if (!this.config.nav.statistics) {
       const node = this.panel.left.tree('find', 'statistics');
       if (node) {
@@ -2293,7 +2293,7 @@ const system = {
   /**
    * 重置导航栏数据目录信息
    */
-  resetNavFolders: function (oldInfos) {
+  resetNavFolders(oldInfos) {
     if (!this.config.nav.folders) {
       this.initUIStatus();
       const node = this.panel.left.tree('find', 'folders');
@@ -2313,7 +2313,7 @@ const system = {
   /**
    * 重置导航栏用户标签信息
    */
-  resetNavLabels: function (clear) {
+  resetNavLabels(clear) {
     if (!this.config.nav.labels) {
       var node = this.panel.left.tree('find', 'labels');
       if (node) {
@@ -2362,7 +2362,7 @@ const system = {
     }
   },
   // Displays the current torrent count and size
-  showNodeMoreInfos: function (count, size) {
+  showNodeMoreInfos(count, size) {
     let result = '';
     if (count > 0) {
       result = " <span class='nav-torrents-number'>(" + count + ')</span>';
@@ -2399,7 +2399,7 @@ const system = {
     });
   },
   // Displays status information
-  showStatus: function (msg, outtime) {
+  showStatus(msg, outtime) {
     if ($('#m_status').panel('options').collapsed) {
       $('#layout_left').layout('expand', 'south');
     }
@@ -2418,7 +2418,7 @@ const system = {
     });
   },
   // Updates the tree node text
-  updateTreeNodeText: function (id, text, iconCls) {
+  updateTreeNodeText(id, text, iconCls) {
     let node = this.panel.left.tree('find', id);
     if (node) {
       const data = {
@@ -2434,7 +2434,7 @@ const system = {
     node = null;
   },
   // Append tree nodes
-  appendTreeNode: function (parentid, data) {
+  appendTreeNode(parentid, data) {
     let parent = null;
     if (typeof parentid === 'string') {
       parent = this.panel.left.tree('find', parentid);
@@ -2455,7 +2455,7 @@ const system = {
     parent = null;
   },
   // Remove tree nodes
-  removeTreeNode: function (id) {
+  removeTreeNode(id) {
     let node = this.panel.left.tree('find', id);
     if (node) {
       this.panel.left.tree('remove', node.target);
@@ -2463,7 +2463,7 @@ const system = {
     node = null;
   },
   // Load the torrent list
-  loadTorrentToList: function (config) {
+  loadTorrentToList(config) {
     if (!transmission.torrents.all) {
       return;
     }
@@ -2665,7 +2665,7 @@ const system = {
   /**
    * shift 键选择
    */
-  initShiftCheck: function () {
+  initShiftCheck() {
     const items = $('#m_list div.datagrid-cell-check input:checkbox');
     const eventName = 'click.Shift';
     items.off(eventName);
@@ -2696,7 +2696,7 @@ const system = {
     });
   },
   // Update torrent list current page data
-  updateTorrentCurrentPageDatas: function (currentTypeDatas) {
+  updateTorrentCurrentPageDatas(currentTypeDatas) {
     // Get the current page data
     let rows = this.control.torrentlist.datagrid('getRows');
 
@@ -2806,7 +2806,7 @@ const system = {
     datas = null;
   },
   // Gets the contents of the torrent name display area
-  getTorrentNameBar: function (torrent) {
+  getTorrentNameBar(torrent) {
     let className = '';
     let tip = torrent.name;
     switch (torrent.status) {
@@ -2848,7 +2848,7 @@ const system = {
     return '<span class="' + className + '" title="' + tip + '">' + torrent.name + '</span>';
   },
   // Gets the progress bar for the specified torrent
-  getTorrentProgressBar: function (progress, torrent) {
+  getTorrentProgressBar(progress, torrent) {
     let className = '';
     let status = 0;
     if (typeof torrent === 'object') {
@@ -2921,7 +2921,7 @@ const system = {
     );
   },
   // Add torrent
-  addTorrentsToServer: function (urls, count, autostart, savepath, labels) {
+  addTorrentsToServer(urls, count, autostart, savepath, labels) {
     // this.config.autoReload = false;
     const index = count - urls.length;
     const url = urls.shift();
@@ -2943,7 +2943,7 @@ const system = {
     });
   },
   // Starts / pauses the selected torrent
-  changeSelectedTorrentStatus: function (status, button, method) {
+  changeSelectedTorrentStatus(status, button, method) {
     const rows = this.control.torrentlist.datagrid('getChecked');
     const ids = [];
     if (!status) {
@@ -2985,7 +2985,7 @@ const system = {
     }
   },
   // get the magnetlink of torrent
-  getTorrentMagnetLink: function (callback) {
+  getTorrentMagnetLink(callback) {
     const rows = this.control.torrentlist.datagrid('getChecked');
     const ids = [];
     for (const i in rows) {
@@ -2994,7 +2994,7 @@ const system = {
     transmission.torrents.getMagnetLink(ids, callback);
   },
   // Looks for the specified torrent from the torrent list
-  searchTorrents: function (key) {
+  searchTorrents(key) {
     if (key == '') {
       return;
     }
@@ -3024,7 +3024,7 @@ const system = {
     this.panel.left.tree('select', node.target);
   },
   // Get the torrent details
-  getTorrentInfos: function (id) {
+  getTorrentInfos(id) {
     if (!transmission.torrents.all[id]) {
       return;
     }
@@ -3077,14 +3077,14 @@ const system = {
       });
     }
   },
-  clearTorrentAttribute: function () {
+  clearTorrentAttribute() {
     system.panel.attribute.find('#torrent-files-table').datagrid('loadData', []);
     system.panel.attribute.find('#torrent-servers-table').datagrid('loadData', []);
     system.panel.attribute.find('#torrent-peers-table').datagrid('loadData', []);
     system.panel.attribute.find("span[id*='torrent-attribute-value']").html('');
   },
   // Updates the specified current page count
-  updateCurrentPageDatas: function (keyField, datas, sourceTable) {
+  updateCurrentPageDatas(keyField, datas, sourceTable) {
     // Get the current page data
     const rows = sourceTable.datagrid('getRows');
     const _options = sourceTable.datagrid('options');
@@ -3148,7 +3148,7 @@ const system = {
     }
   },
   // Fill the seed with basic information
-  fillTorrentBaseInfos: function (torrent) {
+  fillTorrentBaseInfos(torrent) {
     $.each(torrent, function (key, value) {
       switch (key) {
         // Speed
@@ -3239,7 +3239,7 @@ const system = {
     system.panel.attribute.find('#torrent-attribute-pieces').html(cells);
   },
   // Fill the torrent with a list of files
-  fillTorrentFileList: function (torrent) {
+  fillTorrentFileList(torrent) {
     const files = torrent.files;
     const fileStats = torrent.fileStats;
     const datas = [];
@@ -3271,7 +3271,7 @@ const system = {
     );
   },
   // Fill in the torrent server list
-  fillTorrentServerList: function (torrent) {
+  fillTorrentServerList(torrent) {
     const trackerStats = torrent.trackerStats;
     const datas = [];
     for (const index in trackerStats) {
@@ -3318,7 +3318,7 @@ const system = {
     // system.panel.attribute.find("#torrent-servers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
   },
   // Fill the torrent user list
-  fillTorrentPeersList: function (torrent) {
+  fillTorrentPeersList(torrent) {
     const peers = torrent.peers;
     const datas = [];
 
@@ -3414,7 +3414,7 @@ const system = {
     // system.panel.attribute.find("#torrent-peers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
   },
   // Fill torrent parameters
-  fillTorrentConfig: function (torrent) {
+  fillTorrentConfig(torrent) {
     if (system.panel.attribute.find('#torrent-attribute-tabs').data('selectedIndex') != 4) {
       return;
     }
@@ -3470,7 +3470,7 @@ const system = {
     });
   },
   // Set the field display format
-  setFieldFormat: function (field) {
+  setFieldFormat(field) {
     if (field.formatter) {
       switch (field.formatter) {
         case 'size':
@@ -3546,7 +3546,7 @@ const system = {
     }
   },
   // Reload the data
-  reloadData: function () {
+  reloadData() {
     if (this.popoverCount > 0) {
       setTimeout(function () {
         system.reloadData();
@@ -3562,7 +3562,7 @@ const system = {
     // this.checkTorrentRow("all", false);
   },
   // Loads the directory listing
-  loadFolderList: function (oldFolders) {
+  loadFolderList(oldFolders) {
     this.removeTreeNode('folders-loading');
     // Delete the directory that does not exist
     for (const index in oldFolders) {
@@ -3594,7 +3594,7 @@ const system = {
 
 		} */
   },
-  appendFolder: function (fullkey) {
+  appendFolder(fullkey) {
     if (!fullkey) {
       return;
     }
@@ -3643,14 +3643,14 @@ const system = {
       }
     }
   },
-  replaceURI: function (text) {
+  replaceURI(text) {
     const reg = /(http|https|ftp):\/\/([^/:]+)(:\d*)?([^# ]*)/gi;
     return text.replace(reg, function (url) {
       return '<a href="' + url + '" target="_blank">' + url + '</a>';
     });
   },
   // Load the parameters from cookies
-  readConfig: function () {
+  readConfig() {
     this.readUserConfig();
     // 将原来的cookies的方式改为本地存储的方式
     const config = this.getStorageData(this.configHead + '.system');
@@ -3663,7 +3663,7 @@ const system = {
     }
   },
   // Save the parameters in cookies
-  saveConfig: function () {
+  saveConfig() {
     this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
     for (const key in this.storageKeys.dictionary) {
       this.setStorageData(this.storageKeys.dictionary[key], this.dictionary[key]);
@@ -3671,7 +3671,7 @@ const system = {
     this.saveUserConfig();
   },
   // Save labels config for torrent if need
-  saveLabelsConfig: function (hash, labels) {
+  saveLabelsConfig(hash, labels) {
     if (system.config.nav.labels) {
       if (labels.length == 0) {
         delete system.config.labelMaps[hash];
@@ -3680,18 +3680,18 @@ const system = {
       }
     }
   },
-  readUserConfig: function () {
+  readUserConfig() {
     const local = window.localStorage[this.configHead];
     if (local) {
       const localOptions = JSON.parse(local);
       this.userConfig = $.extend(true, this.userConfig, localOptions);
     }
   },
-  saveUserConfig: function () {
+  saveUserConfig() {
     window.localStorage[this.configHead] = JSON.stringify(this.userConfig);
   },
   // Upload the torrent file
-  uploadTorrentFile: function (fileInputId, savePath, paused, callback) {
+  uploadTorrentFile(fileInputId, savePath, paused, callback) {
     // Determines whether the FileReader interface is supported
     if (window.FileReader) {
       const files = $("input[id='" + fileInputId + "']")[0].files;
@@ -3702,11 +3702,11 @@ const system = {
       alert(system.lang.public['text-browsers-not-support-features']);
     }
   },
-  checkUpdate: function () {
+  checkUpdate() {
     $.ajax({
       url: this.checkUpdateScript,
       dataType: 'json',
-      success: function (result) {
+      success(result) {
         if (result && result.tag_name) {
           const update = result.created_at.slice(0, 10).replace(/-/g, '');
           const version = result.tag_name;
@@ -3756,7 +3756,7 @@ const system = {
       },
     });
   },
-  addIgnoreVersion: function (version) {
+  addIgnoreVersion(version) {
     if ($.inArray(version, system.config.ignoreVersion) == -1) {
       this.config.ignoreVersion.push(version);
       this.saveConfig();
@@ -3765,7 +3765,7 @@ const system = {
     $('#area-update-infos').hide();
   },
   // Set the language to reload the page
-  changeLanguages: function (lang) {
+  changeLanguages(lang) {
     if (lang == this.lang.name || !lang) {
       return;
     }
@@ -3774,10 +3774,10 @@ const system = {
     this.saveConfig();
     location.href = '?lang=' + lang;
   },
-  getStorageData: function (key, defaultValue) {
+  getStorageData(key, defaultValue) {
     return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
   },
-  setStorageData: function (key, value) {
+  setStorageData(key, value) {
     window.localStorage[key] = value;
   },
   /**
@@ -3786,7 +3786,7 @@ const system = {
    * @param config 指定参数
    *  type: 0 窗口，1 tooltip；默认为 0
    */
-  openDialogFromTemplate: function (config) {
+  openDialogFromTemplate(config) {
     const defaultConfig = {
       id: null,
       options: null,
@@ -3862,7 +3862,7 @@ const system = {
         width: options.width,
         height: options.height - 18,
         padding: false,
-        onHide: function (e) {
+        onHide(e) {
           $(config.source).webuiPopover('destroy');
           $('#' + dialogId).remove();
           $(e).remove();
@@ -3871,7 +3871,7 @@ const system = {
             config.onClose(config.source);
           }
         },
-        onShow: function () {
+        onShow() {
           system.popoverCount++;
         },
       });
@@ -3904,7 +3904,7 @@ const system = {
     }
   },
   // Debugging information
-  debug: function (label, text) {
+  debug(label, text) {
     if (window.console) {
       if (window.console.log) {
         window.console.log(label, text);
@@ -3914,14 +3914,14 @@ const system = {
   /**
    * 初始化主题
    */
-  initThemes: function () {
+  initThemes() {
     if (this.themes) {
       $('#select-themes').combobox({
         groupField: 'group',
         data: this.themes,
         editable: false,
         panelHeight: 'auto',
-        onChange: function (value) {
+        onChange(value) {
           const values = (value + ';').split(';');
           const theme = values[0];
           const logo = values[1] || 'logo.png';
@@ -3933,7 +3933,7 @@ const system = {
           system.config.theme = value;
           system.saveConfig();
         },
-        onLoadSuccess: function () {
+        onLoadSuccess() {
           $(this).combobox('setValue', system.config.theme || 'default');
         },
       });
@@ -3942,7 +3942,7 @@ const system = {
   /**
    * 根据指定的文本获取有效的树形目录Key
    */
-  getValidTreeKey: function (text) {
+  getValidTreeKey(text) {
     if (!text) {
       return '';
     }
@@ -3950,7 +3950,7 @@ const system = {
     return _key.replace(/[+|\/|=]/g, '0');
   },
 
-  expandIpInfoUrl: function (url, ip) {
+  expandIpInfoUrl(url, ip) {
     if (url == '' || url == undefined) {
       return '';
     }
@@ -4001,7 +4001,7 @@ function restoreFileFilterInputbox(defaultFilter) {
       textField: 'desc',
       panelWidth: 400,
       panelHeight: 'auto',
-      formatter: function (row) {
+      formatter(row) {
         const s =
           '<span style="font-weight:bold; padding:3px;">' +
           row.text +
@@ -4053,7 +4053,7 @@ function pagerFilter(data) {
   const buttons = dg.data('buttons');
   // system.debug("pagerFilter.buttons:",buttons);
   pager.pagination({
-    onSelectPage: function (pageNum, pageSize) {
+    onSelectPage(pageNum, pageSize) {
       opts.pageNumber = pageNum;
       opts.pageSize = pageSize;
       pager.pagination('refresh', {
