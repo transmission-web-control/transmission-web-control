@@ -1,9 +1,7 @@
 import * as lo from 'lodash-es';
 
-import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
 import { transmission } from './transmission';
-import { getQueryString, getUserLang } from './utils';
 import { APP_VERSION } from './version';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
@@ -11,7 +9,7 @@ const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 /*
 	移动版
 */
-const system = {
+export const system = {
   // version: VERSION,
   rootPath: 'tr-web-control/',
   // codeupdate: VERSION,
@@ -806,11 +804,3 @@ const system = {
     }
   },
 };
-
-$(document).ready(function () {
-  // Loads a list of available languages
-  system.languages = i18nManifest;
-  system.init(getUserLang(), getQueryString('local'));
-});
-
-globalThis.system = system;

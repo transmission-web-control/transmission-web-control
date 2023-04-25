@@ -24,7 +24,7 @@ const templateFiles = import.meta.glob('../../public/tr-web-control/template/*.h
 
 const { browser } = UAParser(navigator.userAgent);
 // Current system global object
-const system = {
+export const system = {
   rootPath: 'tr-web-control/',
   configHead: 'transmission-web-control',
   defaultLang: enLocal,
@@ -3178,7 +3178,7 @@ const system = {
           break;
         // error
         case 'error':
-          if (value == 0) {
+          if (value.toString() === '0') {
             system.panel.attribute.find('#torrent-attribute-tr-error').hide();
           } else {
             system.panel.attribute.find('#torrent-attribute-tr-error').show();
@@ -3962,6 +3962,48 @@ const system = {
       .replace('%protocol', document.location.protocol)
       .replace('%navlang', navigator.language);
   },
+
+  plugin: {
+    exec(key) {
+      switch (key) {
+        // Replace Tracker
+        case 'replace-tracker':
+          system.openDialogFromTemplate({
+            id: 'dialog-system-replaceTracker',
+            options: {
+              title: system.lang.dialog['system-replaceTracker'].title,
+              width: 600,
+              height: 220,
+            },
+          });
+          break;
+
+        // Automatically match the data directory
+        case 'auto-match-data-folder':
+          var rows = system.control.torrentlist.datagrid('getChecked');
+          var ids = [];
+          for (const i in rows) {
+            ids.push(rows[i].id);
+          }
+          if (ids.length === 0) {
+            return;
+          }
+
+          system.openDialogFromTemplate({
+            id: 'dialog-auto-match-data-folder',
+            options: {
+              title: system.lang.dialog['auto-match-data-folder'].title,
+              width: 530,
+              height: 280,
+            },
+            datas: {
+              ids,
+            },
+          });
+          break;
+      }
+    },
+  },
 };
 
 function fileFilter(dataRows, filterString) {
@@ -4086,11 +4128,3 @@ function pagerFilter(data) {
 
   return data;
 }
-
-$(document).ready(function () {
-  // Loads a list of available languages
-  system.languages = i18nManifest;
-  system.init(getUserLang(), getQueryString('local'));
-});
-
-globalThis.system = system;

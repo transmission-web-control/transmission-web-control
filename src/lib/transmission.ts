@@ -1061,5 +1061,3 @@ export interface Torrent {
 }
 
 export type Transmission = typeof transmission;
-
-globalThis.transmission = transmission;
