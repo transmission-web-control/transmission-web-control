@@ -6,18 +6,11 @@ import { getHostName } from './utils';
 
 export const transmission = {
   SessionId: null as null | string,
-  isInitialized: false,
-  host: '',
-  port: '9091',
-  path: '/transmission/rpc',
-  rpcpath: '../rpc',
-  fullpath: '',
+  fullpath: '../rpc',
   on: {
     torrentCountChange: null,
     postError: null as null | ((req: unknown) => void),
   },
-  username: '',
-  password: '',
   // 种子状态
   _status: {
     stopped: 0,
@@ -51,12 +44,6 @@ export const transmission = {
   },
 
   async init() {
-    if (this.username && this.password) {
-      this.headers.Authorization = 'Basic ' + Base64.encode(this.username + ':' + this.password);
-    }
-
-    this.fullpath = this.rpcpath;
-
     await this.getSessionId();
   },
 
@@ -573,6 +560,7 @@ export const transmission = {
 
       return result;
     },
+
     getFiles(id: any, callback: any) {
       transmission.exec(
         {
@@ -651,12 +639,16 @@ export const transmission = {
       );
     },
     // List of all the torrents that have been acquired
-    getMoreInfos(fields: any, ids: any, callback: (torrents: Torrent[] | null) => void) {
+    getMoreInfos(
+      fields: string | string[],
+      ids: any,
+      callback: (torrents: Torrent[] | null) => void,
+    ) {
       transmission.exec(
         {
           method: 'torrent-get',
           arguments: {
-            fields,
+            fields: typeof fields === 'string' ? fields.split(',') : fields,
             ids,
           },
         },
@@ -687,7 +679,7 @@ export const transmission = {
       );
     },
     // The recently removed seed
-    getallids(
+    getAllIDs(
       callback: null | ((data: Torrent[] | null) => void),
       ids: string[] | undefined,
       moreFields?: Array<keyof Torrent>,
@@ -725,7 +717,7 @@ export const transmission = {
             transmission.torrents.loadSimpleInfo = true;
             transmission.torrents.recently = data.arguments.torrents;
             transmission.torrents.removed = data.arguments.removed;
-            transmission.torrents.splitid();
+            transmission.torrents.splitID();
             if (callback) {
               callback(data.arguments.torrents);
             }
@@ -827,7 +819,6 @@ export const transmission = {
               }
             }
           },
-          result[index].ids,
         );
       }
       /* eslint-enable */
@@ -836,7 +827,7 @@ export const transmission = {
     searchResult: null,
     // 获取指定种子的设置信息
 
-    splitid() {
+    splitID() {
       // Downloading
       this.downloading = [];
       // Paused
@@ -986,7 +977,7 @@ export const transmission = {
 
       // If there a need to acquire new seeds
       if (this.newIds.length > 0) {
-        this.getallids(null, this.newIds);
+        this.getAllIDs(null, this.newIds);
       }
     },
     // 获取错误/警告的ID列表

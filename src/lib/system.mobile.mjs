@@ -198,7 +198,7 @@ const system = {
     };
 
     // 获取所有种子id信息
-    transmission.torrents.getallids(function (resultTorrents) {
+    transmission.torrents.getAllIDs(function (resultTorrents) {
       var ignore = [];
       for (var index in resultTorrents) {
         var item = resultTorrents[index];
@@ -209,7 +209,7 @@ const system = {
       var errorIds = transmission.torrents.getErrorIds(ignore, true);
 
       if (errorIds.length > 0) {
-        transmission.torrents.getallids(function () {
+        transmission.torrents.getAllIDs(function () {
           system.resetTorrentInfos(oldInfos);
         }, errorIds);
       } else {

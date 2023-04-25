@@ -1937,7 +1937,7 @@ const system = {
     };
 
     // Gets all the torrent id information
-    transmission.torrents.getallids(
+    transmission.torrents.getAllIDs(
       function (resultTorrents) {
         const ignore = [];
         for (const index in resultTorrents) {
@@ -1949,7 +1949,7 @@ const system = {
         const errorIds = transmission.torrents.getErrorIds(ignore, true);
 
         if (errorIds.length > 0) {
-          transmission.torrents.getallids(function () {
+          transmission.torrents.getAllIDs(function () {
             system.resetTorrentInfos(oldInfos);
           }, errorIds);
         } else {
