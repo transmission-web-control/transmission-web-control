@@ -886,42 +886,43 @@ export class System extends SystemBase {
           menus.push('setLabels');
         }
         var toolbar = this.panel.toolbar;
-        for (const item in menus) {
-          const key = menus[item];
-          if (key == '-') {
+        for (const key of menus) {
+          if (key === '-') {
             $("<div class='menu-sep'></div>").appendTo(parent);
-          } else {
-            let menu = toolbar.find('#toolbar_' + key);
-            if (menu.length > 0) {
-              parent.menu('appendItem', {
-                text: menu.attr('title'),
-                id: key,
-                iconCls: menu.linkbutton('options').iconCls,
-                disabled: menu.linkbutton('options').disabled,
-                onclick() {
-                  system.panel.toolbar.find('#toolbar_' + $(this).attr('id')).click();
-                },
-              });
-            } else {
-              menu = $('#' + key);
-              if (menu.length > 0) {
-                parent.menu('appendItem', {
-                  text: menu.attr('title'),
-                  id: key,
-                  iconCls: menu.attr('id').replace('menu-queue-move', 'iconfont tr-icon'),
-                  disabled: toolbar.find('#toolbar_queue').linkbutton('options').disabled,
-                  onclick() {
-                    $('#' + $(this).attr('id')).click();
-                  },
-                });
-              } else {
-                menu = this.getContentMenuWithKey(key, parent);
-                if (menu) {
-                  parent.menu('appendItem', menu);
-                }
-              }
-            }
-            menu = null;
+            continue;
+          }
+
+          let menu = toolbar.find(`#toolbar_${key}`);
+          if (menu.length > 0) {
+            parent.menu('appendItem', {
+              text: menu.attr('title'),
+              id: key,
+              iconCls: menu.linkbutton('options').iconCls,
+              disabled: menu.linkbutton('options').disabled,
+              onclick() {
+                system.panel.toolbar.find('#toolbar_' + $(this).attr('id')).click();
+              },
+            });
+            continue;
+          }
+
+          menu = $(`#${key}`);
+          if (menu.length > 0) {
+            parent.menu('appendItem', {
+              text: menu.attr('title'),
+              id: key,
+              iconCls: menu.attr('id').replace('menu-queue-move', 'iconfont tr-icon'),
+              disabled: toolbar.find('#toolbar_queue').linkbutton('options').disabled,
+              onclick() {
+                $('#' + $(this).attr('id')).click();
+              },
+            });
+            continue;
+          }
+
+          menu = this.getContentMenuWithKey(key, parent);
+          if (menu) {
+            parent.menu('appendItem', menu);
           }
         }
         // 设置剪切板组件，因为直接调用 click 不能执行相关操作

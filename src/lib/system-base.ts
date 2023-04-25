@@ -241,30 +241,22 @@ export class SystemBase {
   // Set the language information
   resetLangText(parent?: JQuery) {
     if (!parent) {
-      parent = $();
+      parent = $(document.body);
     }
     let items = parent.find('*[system-lang]');
 
+    const system = this;
+
     $.each(items, function (key, item) {
-      const name = $(item).attr('system-lang');
-      if (name?.startsWith('[')) {
-        $(item).html(eval('system.lang' + name));
-      } else {
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        $(item).html(eval('system.lang.' + name));
-      }
+      const name = $(item).attr('system-lang') as string;
+      $(item).attr('title', lo.get(system.lang, name) as string);
     });
 
     items = parent.find('*[system-tip-lang]');
 
     $.each(items, function (key, item) {
-      const name = $(item).attr('system-tip-lang');
-      if (name?.startsWith('[')) {
-        $(item).attr('title', eval('system.lang' + name));
-      } else {
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        $(item).attr('title', eval('system.lang.' + name));
-      }
+      const name = $(item).attr('system-tip-lang') as string;
+      $(item).attr('title', lo.get(system.lang, name) as string);
     });
   }
 
