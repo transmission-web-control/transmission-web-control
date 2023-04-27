@@ -69,6 +69,7 @@
       "autoreload-enabled": "启用自动刷新",
       "tracker-replace": "替换 Tracker",
       "change-download-dir": "变更数据保存目录",
+      "change-speedlimit": "修改上传/下载限速",
       "ui-mobile": "切换到移动设备界面",
       "ui-original": "切换到原版界面",
       "more-peers": "获取更多Peer",
@@ -247,7 +248,7 @@
       "button-import": "导入"
     },
     "about": {
-      "infos": "程序设计：栽培者<br/>使用帮助：<a href='https://github.com/ronggang/transmission-web-control/wiki/Home-CN'>查看</a><br/>QQ群：723130968 <a target='_blank' href='https://shang.qq.com/wpa/qunwpa?idkey=353d3f247de2b78c071e28a31777022424660c97c9fdd6f25640a4a51c6b9d65' ><img border='0' src='https://pub.idqqimg.com/wpa/images/group.png' alt='Transmission Web Control' title='Transmission Web Control (723130968)'></a>",
+      "infos": "Author：culturist<br/> Maintainer: trim21",
       "check-update": "检查更新",
       "home": "项目主页",
       "help": "使用帮助",
@@ -308,7 +309,9 @@
       "newname": "新名称"
     },
     "torrent-attribute-add-tracker": {
-      "title": "增加 Tracker",
+      "button-search-best-ip": "最佳 trackers",
+      "button-search-all-ip": "全部 trackers",
+      "title": "增加 Trackers",
       "tip": "每行表示一个Tracker"
     },
     "torrent-setLabels": {
@@ -330,7 +333,9 @@
   },
   "torrent": {
     "fields": {
+      "id": "#",
       "name": "名称",
+      "hashString": "HASH",
       "downloadDir": "保存目录",
       "totalSize": "总大小",
       "status": "状态",
