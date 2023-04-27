@@ -5,7 +5,7 @@ on:
     branches:
       - tx
   schedule:
-    - cron: '5 4 3 * *' # monthly
+    - cron: '5 4 * * 4'
 
 permissions:
   contents: write
