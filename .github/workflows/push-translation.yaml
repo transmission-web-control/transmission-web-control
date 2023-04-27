@@ -1,4 +1,4 @@
-name: Sync Transifex
+name: Push Transifex
 
 on:
   push:
