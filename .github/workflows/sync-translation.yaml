@@ -24,6 +24,16 @@ jobs:
         env:
           TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - run: yarn
+
+      - run: yarn format
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
