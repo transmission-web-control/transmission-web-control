@@ -310,8 +310,8 @@
       "newname": "新名称"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best trackers",
-      "button-search-all-ip": "all trackers",
+      "button-search-best-ip": "最佳 trackers",
+      "button-search-all-ip": "全部 trackers",
       "title": "增加 Tracker",
       "tip": "每行表示一个Tracker"
     },
