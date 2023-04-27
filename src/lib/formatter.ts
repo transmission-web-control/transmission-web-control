@@ -14,41 +14,40 @@ export function formatDate(date: Date): string {
 }
 
 // Get the ETA
-export function formatDuration(timeMs: number | string) {
-  const ms = typeof timeMs === 'string' ? parseInt(timeMs) : timeMs;
+export function formatDuration(seconds: number | string) {
+  const ms = typeof seconds === 'string' ? parseInt(seconds) : seconds;
 
-  if (ms <= 1000) {
+  if (ms < 1) {
     return '';
   }
 
   return duration(ms);
 }
 
-function duration(ms: number) {
-  let temp = ms / 1000;
-  const s = [];
+function duration(durationSeconds: number) {
+  const s: string[] = [];
 
-  const years = Math.floor(temp / 31536000);
+  const years = Math.floor(durationSeconds / 31536000);
   if (years) {
     s.push(`${years}y`);
   }
 
-  const days = Math.floor((temp %= 31536000) / 86400);
+  const days = Math.floor((durationSeconds %= 31536000) / 86400);
   if (days) {
     s.push(`${days}d`);
   }
 
-  const hours = Math.floor((temp %= 86400) / 3600);
+  const hours = Math.floor((durationSeconds %= 86400) / 3600);
   if (hours) {
     s.push(`${hours}h`);
   }
 
-  const minutes = Math.floor((temp %= 3600) / 60);
+  const minutes = Math.floor((durationSeconds %= 3600) / 60);
   if (minutes) {
     s.push(`${minutes}m`);
   }
 
-  const seconds = Math.floor(temp % 60);
+  const seconds = Math.floor(durationSeconds % 60);
   if (seconds) {
     s.push(`${seconds}s`);
   }

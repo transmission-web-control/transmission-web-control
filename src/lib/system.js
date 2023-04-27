@@ -2017,13 +2017,13 @@ export class System extends SystemBase {
             item,
             system.lang.tree.statistics[item] +
               ' ' +
-              formatDuration(system.serverSessionStats['cumulative-stats'][item] * 1000),
+              formatDuration(system.serverSessionStats['cumulative-stats'][item]),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
               ' ' +
-              formatDuration(system.serverSessionStats['current-stats'][item] * 1000),
+              formatDuration(system.serverSessionStats['current-stats'][item]),
           );
           break;
         default:
@@ -3301,7 +3301,7 @@ export class System extends SystemBase {
 
       case 'remainingTime':
         field.formatter = function (value, row, index) {
-          if (value >= 3153600000000) {
+          if (value >= 3153600000) {
             return '∞';
           }
           return formatDuration(value);
