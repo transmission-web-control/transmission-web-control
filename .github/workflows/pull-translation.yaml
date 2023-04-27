@@ -1,0 +1,44 @@
+name: Pull Transifex
+
+on:
+  schedule:
+    - cron: '5 4 * * 4'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          mkdir -p ~/.local/bin
+          curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+          mv ./tx ~/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - run: tx pull --mode onlytranslated --all --use-git-timestamps
+        env:
+          TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - run: yarn
+
+      - run: node ./.github/scripts/remove-empty-string.mjs
+      - run: yarn format
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.PAT }}
+          title: 'chore: update translation'
+          branch: 'chore/i18n-pull'
