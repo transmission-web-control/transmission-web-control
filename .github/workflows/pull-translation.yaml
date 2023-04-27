@@ -36,6 +36,7 @@ jobs:
 
       - run: yarn
 
+      - run: node ./.github/scripts/remove-empty-string.mjs
       - run: yarn format
 
       - name: Create Pull Request
