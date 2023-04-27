@@ -704,6 +704,8 @@ export class System extends SystemBase {
         delete item.formatter_type;
       }
 
+      item.align = _field.align;
+
       if (_field && _field.sortable) {
         item.sortable = _field.sortable;
       } else if (item.sortable) {
