@@ -1,6 +1,6 @@
-String.prototype.right = function (len) {
-  return this.substr(-len);
-};
+function right(s, len) {
+  return s.substr(-len);
+}
 
 // 公用函数定义
 // 格式化数字
@@ -219,7 +219,7 @@ function formatSize(bytes, zeroToEmpty, type) {
 
 // 根据分钟获取小时
 function getHoursFromMinutes(minutes) {
-  return ('00' + parseInt(minutes / 60, 10)).right(2) + ':' + ('00' + (minutes % 60)).right(2);
+  return right('00' + parseInt(minutes / 60, 10), 2) + ':' + right('00' + (minutes % 60), 2);
 }
 
 // 根据小时获取分钟

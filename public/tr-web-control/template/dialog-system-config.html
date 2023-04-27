@@ -990,8 +990,11 @@
           .val(getHoursFromMinutes(system.serverConfig['alt-speed-time-end']))
           .prop('disabled', !system.serverConfig['alt-speed-time-enabled']);
 
-        var days = ('0000000' + system.serverConfig['alt-speed-time-day'].toString(2))
-          .right(7)
+        function right(s, len) {
+          return s.substr(-len);
+        }
+
+        var days = right('0000000' + system.serverConfig['alt-speed-time-day'].toString(2), 7)
           .split('')
           .reverse();
         var weekday = system.lang.dialog['system-config']['weekday'];
