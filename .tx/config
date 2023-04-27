@@ -1,0 +1,8 @@
+[main]
+host = https://app.transifex.com
+
+[o:transmission-web-control:p:transmission-web-control-1:r:ad00b965d2fa67107455a6c133495d2c]
+file_filter = src/i18n/<lang>.json
+source_file = src/i18n/en.json
+source_lang = en
+type = KEYVALUEJSON

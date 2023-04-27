@@ -1,12 +1,13 @@
 import { Base64 } from 'js-base64';
-import * as lo from 'lodash-es';
-import { UAParser } from 'ua-parser-js';
+import semver from 'semver';
 
 import { App } from '../app';
 import { useTorrentListStore } from '../state';
+import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
 import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
+import { formatSize } from './utils';
 import { APP_VERSION } from './version';
 
 const { browser } = UAParser(navigator.userAgent);
@@ -42,19 +43,16 @@ export class System extends SystemBase {
 
     if (!this.langInit) {
       this.setLang(lang);
-      this.langInit = true;
-      this.initdata();
-    } else {
-      this.initdata();
+      system.langInit = true;
     }
 
+    this.initData();
     this.initThemes();
     // 剪切板组件
     this.clipboard = new ClipboardJS('#toolbar_copyPath');
   }
 
-  initdata() {
-    // this.panel.title.text(this.lang.system.title+" "+this.version+" ("+this.codeupdate+")");
+  initData() {
     $(document).attr('title', this.lang.system.title + ' ' + this.version);
 
     // 设置开关组件默认文字
@@ -163,13 +161,14 @@ export class System extends SystemBase {
     });
 
     // Set the language
-    $.each(this.languages, function (key, value) {
+    Object.entries(this.languages).forEach(function ([key, value]) {
       $('<option/>')
         .text(value)
         .val(key)
-        .attr('selected', key == system.lang.name)
+        .attr('selected', key === system.lang.name)
         .appendTo(system.panel.top.find('#lang'));
     });
+
     this.panel.top.find('#lang').change(function () {
       location.href = '?lang=' + this.value;
     });
@@ -652,143 +651,6 @@ export class System extends SystemBase {
     let headContextMenu = null;
     let selectedIndex = -1;
 
-    {
-      let fields = torrentFields.fields;
-      const _fields = {};
-
-      for (const item of fields) {
-        _fields[item.field] = item;
-      }
-
-      if (system.userConfig.torrentList.fields.length) {
-        fields = lo.merge(fields, system.userConfig.torrentList.fields);
-      }
-
-      // User field settings
-      system.userConfig.torrentList.fields = fields;
-
-      for (const key in fields) {
-        const item = fields[key];
-        const _field = _fields[item.field];
-        if (_field && _field.formatter) {
-          item.formatter = _field.formatter;
-        } else if (item.formatter) {
-          delete item.formatter;
-        }
-
-        if (_field && _field.sortable) {
-          item.sortable = _field.sortable;
-        } else if (item.sortable) {
-          delete item.sortable;
-        }
-
-        item.title = system.lang.torrent.fields[item.field] || item.field;
-        system.setFieldFormat(item);
-      }
-
-      // 初始化种子列表
-      torrentList.datagrid({
-        autoRowHeight: false,
-        pagination: system.config.pagination,
-        rownumbers: true,
-        remoteSort: false,
-        checkOnSelect: false,
-        pageSize: system.config.pageSize,
-        pageList: system.config.pageList,
-        idField: 'id',
-        fit: true,
-        striped: true,
-        sortName: system.userConfig.torrentList.sortName,
-        sortOrder: system.userConfig.torrentList.sortOrder,
-        drophead: true,
-        columns: [fields],
-        onCheck(rowIndex, rowData) {
-          system.checkTorrentRow(rowIndex, rowData);
-        },
-        onUncheck(rowIndex, rowData) {
-          system.checkTorrentRow(rowIndex, rowData);
-        },
-        onCheckAll(rows) {
-          system.checkTorrentRow('all', false);
-        },
-        onUncheckAll(rows) {
-          system.checkTorrentRow('all', true);
-        },
-        onSelect(rowIndex, rowData) {
-          if (selectedIndex != -1) {
-            system.control.torrentlist.datagrid('unselectRow', selectedIndex);
-          }
-          system.getTorrentInfos(rowData.id);
-          selectedIndex = rowIndex;
-        },
-        onUnselect(rowIndex, rowData) {
-          system.currentTorrentId = 0;
-          selectedIndex = -1;
-        },
-        // Before loading data
-        onBeforeLoad(param) {
-          system.currentTorrentId = 0;
-        },
-        // Header sorting
-        onSortColumn(field, order) {
-          const field_func = field;
-          const datas = system.control.torrentlist
-            .datagrid('getData')
-            .originalRows.sort(arrayObjectSort(field_func, order));
-          system.control.torrentlist.datagrid('loadData', datas);
-
-          system.resetTorrentListFieldsUserConfig(
-            system.control.torrentlist.datagrid('options').columns[0],
-          );
-          system.userConfig.torrentList.sortName = field;
-          system.userConfig.torrentList.sortOrder = order;
-          system.saveUserConfig();
-        },
-        onRowContextMenu(e, rowIndex, rowData) {
-          // console.log("onRowContextMenu");
-          if (system.config.simpleCheckMode) {
-            system.control.torrentlist.datagrid('uncheckAll');
-          }
-
-          // 当没有种子被选中时，选中当前行
-          if (system.checkedRows.length == 0) {
-            system.control.torrentlist.datagrid('checkRow', rowIndex);
-          }
-          e.preventDefault();
-          system.showContextMenu('torrent-list', e);
-        },
-        onHeadDrop(sourceField, targetField) {
-          // console.log("onHeadDrop");
-          system.resetTorrentListFieldsUserConfig(
-            system.control.torrentlist.datagrid('options').columns[0],
-          );
-          system.saveUserConfig();
-        },
-        onResizeColumn(field, width) {
-          system.resetTorrentListFieldsUserConfig(
-            system.control.torrentlist.datagrid('options').columns[0],
-          );
-          system.saveUserConfig();
-        },
-        onHeaderContextMenu(e, field) {
-          // console.log("onHeaderContextMenu");
-          e.preventDefault();
-          if (!headContextMenu) {
-            createHeadContextMenu();
-          }
-          headContextMenu.menu('show', {
-            left: e.pageX,
-            top: e.pageY,
-          });
-        },
-      });
-    }
-
-    // 刷新当前页数据
-    torrentList.refresh = function () {
-      system.control.torrentlist.datagrid('getPager').find('.pagination-load').click();
-    };
-
     // Create a header right-click menu
     function createHeadContextMenu() {
       if (headContextMenu) {
@@ -829,6 +691,136 @@ export class System extends SystemBase {
         }
       }
     }
+
+    let fields = torrentFields.fields;
+    const _fields = Object.fromEntries(fields.map((x) => [x.field, x]));
+
+    if (system.userConfig.torrentList.fields.length) {
+      fields = $.extend(fields, system.userConfig.torrentList.fields);
+    }
+
+    // User field settings
+    system.userConfig.torrentList.fields = fields;
+
+    for (const item of fields) {
+      const _field = _fields[item.field];
+      if (_field && _field.formatter_type) {
+        item.formatter_type = _field.formatter_type;
+      } else if (item.formatter_type) {
+        delete item.formatter_type;
+      }
+
+      if (_field && _field.sortable) {
+        item.sortable = _field.sortable;
+      } else if (item.sortable) {
+        delete item.sortable;
+      }
+
+      item.title = this.lang.torrent.fields[item.field] || item.field;
+      system.setFieldFormat(item);
+    }
+
+    // 初始化种子列表
+    torrentList.datagrid({
+      autoRowHeight: false,
+      pagination: system.config.pagination,
+      rownumbers: true,
+      remoteSort: false,
+      checkOnSelect: false,
+      pageSize: system.config.pageSize,
+      pageList: system.config.pageList,
+      idField: 'id',
+      fit: true,
+      striped: true,
+      sortName: system.userConfig.torrentList.sortName,
+      sortOrder: system.userConfig.torrentList.sortOrder,
+      drophead: true,
+      columns: [fields],
+      onCheck(rowIndex, rowData) {
+        system.checkTorrentRow(rowIndex, rowData);
+      },
+      onUncheck(rowIndex, rowData) {
+        system.checkTorrentRow(rowIndex, rowData);
+      },
+      onCheckAll(rows) {
+        system.checkTorrentRow('all', false);
+      },
+      onUncheckAll(rows) {
+        system.checkTorrentRow('all', true);
+      },
+      onSelect(rowIndex, rowData) {
+        if (selectedIndex != -1) {
+          system.control.torrentlist.datagrid('unselectRow', selectedIndex);
+        }
+        system.getTorrentInfos(rowData.id);
+        selectedIndex = rowIndex;
+      },
+      onUnselect(rowIndex, rowData) {
+        system.currentTorrentId = 0;
+        selectedIndex = -1;
+      },
+      // Before loading data
+      onBeforeLoad(param) {
+        system.currentTorrentId = 0;
+      },
+      // Header sorting
+      onSortColumn(field, order) {
+        const field_func = field;
+        const datas = system.control.torrentlist
+          .datagrid('getData')
+          .originalRows.sort(arrayObjectSort(field_func, order));
+        system.control.torrentlist.datagrid('loadData', datas);
+
+        system.resetTorrentListFieldsUserConfig(
+          system.control.torrentlist.datagrid('options').columns[0],
+        );
+        system.userConfig.torrentList.sortName = field;
+        system.userConfig.torrentList.sortOrder = order;
+        system.saveUserConfig();
+      },
+      onRowContextMenu(e, rowIndex, rowData) {
+        // console.log("onRowContextMenu");
+        if (system.config.simpleCheckMode) {
+          system.control.torrentlist.datagrid('uncheckAll');
+        }
+
+        // 当没有种子被选中时，选中当前行
+        if (system.checkedRows.length == 0) {
+          system.control.torrentlist.datagrid('checkRow', rowIndex);
+        }
+        e.preventDefault();
+        system.showContextMenu('torrent-list', e);
+      },
+      onHeadDrop(sourceField, targetField) {
+        // console.log("onHeadDrop");
+        system.resetTorrentListFieldsUserConfig(
+          system.control.torrentlist.datagrid('options').columns[0],
+        );
+        system.saveUserConfig();
+      },
+      onResizeColumn(field, width) {
+        system.resetTorrentListFieldsUserConfig(
+          system.control.torrentlist.datagrid('options').columns[0],
+        );
+        system.saveUserConfig();
+      },
+      onHeaderContextMenu(e, field) {
+        // console.log("onHeaderContextMenu");
+        e.preventDefault();
+        if (!headContextMenu) {
+          createHeadContextMenu();
+        }
+        headContextMenu.menu('show', {
+          left: e.pageX,
+          top: e.pageY,
+        });
+      },
+    });
+
+    // 刷新当前页数据
+    torrentList.refresh = function () {
+      system.control.torrentlist.datagrid('getPager').find('.pagination-load').click();
+    };
   } // end initTorrentTable
 
   resetTorrentListFieldsUserConfig(columns) {
@@ -890,42 +882,43 @@ export class System extends SystemBase {
           menus.push('setLabels');
         }
         var toolbar = this.panel.toolbar;
-        for (const item in menus) {
-          const key = menus[item];
-          if (key == '-') {
+        for (const key of menus) {
+          if (key === '-') {
             $("<div class='menu-sep'></div>").appendTo(parent);
-          } else {
-            let menu = toolbar.find('#toolbar_' + key);
-            if (menu.length > 0) {
-              parent.menu('appendItem', {
-                text: menu.attr('title'),
-                id: key,
-                iconCls: menu.linkbutton('options').iconCls,
-                disabled: menu.linkbutton('options').disabled,
-                onclick() {
-                  system.panel.toolbar.find('#toolbar_' + $(this).attr('id')).click();
-                },
-              });
-            } else {
-              menu = $('#' + key);
-              if (menu.length > 0) {
-                parent.menu('appendItem', {
-                  text: menu.attr('title'),
-                  id: key,
-                  iconCls: menu.attr('id').replace('menu-queue-move', 'iconfont tr-icon'),
-                  disabled: toolbar.find('#toolbar_queue').linkbutton('options').disabled,
-                  onclick() {
-                    $('#' + $(this).attr('id')).click();
-                  },
-                });
-              } else {
-                menu = this.getContentMenuWithKey(key, parent);
-                if (menu) {
-                  parent.menu('appendItem', menu);
-                }
-              }
-            }
-            menu = null;
+            continue;
+          }
+
+          let menu = toolbar.find(`#toolbar_${key}`);
+          if (menu.length > 0) {
+            parent.menu('appendItem', {
+              text: menu.attr('title'),
+              id: key,
+              iconCls: menu.linkbutton('options').iconCls,
+              disabled: menu.linkbutton('options').disabled,
+              onclick() {
+                system.panel.toolbar.find('#toolbar_' + $(this).attr('id')).click();
+              },
+            });
+            continue;
+          }
+
+          menu = $(`#${key}`);
+          if (menu.length > 0) {
+            parent.menu('appendItem', {
+              text: menu.attr('title'),
+              id: key,
+              iconCls: menu.attr('id').replace('menu-queue-move', 'iconfont tr-icon'),
+              disabled: toolbar.find('#toolbar_queue').linkbutton('options').disabled,
+              onclick() {
+                $('#' + $(this).attr('id')).click();
+              },
+            });
+            continue;
+          }
+
+          menu = this.getContentMenuWithKey(key, parent);
+          if (menu) {
+            parent.menu('appendItem', menu);
           }
         }
         // 设置剪切板组件，因为直接调用 click 不能执行相关操作
@@ -1029,9 +1022,7 @@ export class System extends SystemBase {
     }
 
     const button = $(
-      '<button onclick=\'javascript:system.setTorrentLabels(this,"' +
-        hashString +
-        '");\' data-options="iconCls:\'iconfont tr-icon-labels\',plain:true" class="easyui-linkbutton user-label-set"/>',
+      `<button onclick='javascript:system.setTorrentLabels(this,"${hashString}");' data-options="iconCls:'iconfont tr-icon-labels',plain:true" class="easyui-linkbutton user-label-set"/>`,
     ).appendTo(box);
     button.linkbutton();
     button.find('span').first().attr({
@@ -1716,14 +1707,6 @@ export class System extends SystemBase {
     this.resetNavStatistics();
     this.resetNavFolders(oldInfos);
     this.resetNavLabels();
-
-    // FF browser displays the total size, will be moved down a row, so a separate treatment
-    // 新版本已无此问题
-    if (browser.name == 'Firefox' && browser.major < 60) {
-      system.panel.left.find('span.nav-total-size').css({
-        'margin-top': '-19px',
-      });
-    }
   }
 
   /**
@@ -1736,7 +1719,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'paused',
         system.lang.tree.paused +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.stopped].length),
+        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.stopped].length),
       );
     } else {
       system.updateTreeNodeText('paused', system.lang.tree.paused);
@@ -1747,7 +1730,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'sending',
         system.lang.tree.sending +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seed].length),
+        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seed].length),
       );
     } else {
       system.updateTreeNodeText('sending', system.lang.tree.sending);
@@ -1779,7 +1762,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'check',
         system.lang.tree.check +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.check].length),
+        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.check].length),
       );
     } else {
       system.updateTreeNodeText('check', system.lang.tree.check);
@@ -1811,9 +1794,9 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'downloading',
         system.lang.tree.downloading +
-          this.showNodeMoreInfos(
-            transmission.torrents.status[transmission._status.download].length,
-          ),
+        this.showNodeMoreInfos(
+          transmission.torrents.status[transmission._status.download].length,
+        ),
       );
     } else {
       system.updateTreeNodeText('downloading', system.lang.tree.downloading);
@@ -1883,7 +1866,7 @@ export class System extends SystemBase {
     system.updateTreeNodeText(
       'torrent-all',
       system.lang.tree.all +
-        this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
+      this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
     );
   }
 
@@ -2001,42 +1984,42 @@ export class System extends SystemBase {
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              formatSize(system.serverSessionStats['cumulative-stats'][item]),
+            ' ' +
+            formatSize(system.serverSessionStats['cumulative-stats'][item]),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              formatSize(system.serverSessionStats['current-stats'][item]),
+            ' ' +
+            formatSize(system.serverSessionStats['current-stats'][item]),
           );
           break;
         case 'secondsActive':
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              getTotalTime(system.serverSessionStats['cumulative-stats'][item] * 1000),
+            ' ' +
+            formatDuration(system.serverSessionStats['cumulative-stats'][item]),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              getTotalTime(system.serverSessionStats['current-stats'][item] * 1000),
+            ' ' +
+            formatDuration(system.serverSessionStats['current-stats'][item]),
           );
           break;
         default:
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              system.serverSessionStats['cumulative-stats'][item],
+            ' ' +
+            system.serverSessionStats['cumulative-stats'][item],
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              system.serverSessionStats['current-stats'][item],
+            ' ' +
+            system.serverSessionStats['current-stats'][item],
           );
           break;
       }
@@ -2964,7 +2947,7 @@ export class System extends SystemBase {
           if (value >= 3153600000000) {
             value = '∞';
           } else {
-            value = getTotalTime(value);
+            value = formatDuration(value);
           }
 
           break;
@@ -3251,78 +3234,81 @@ export class System extends SystemBase {
 
   // Set the field display format
   setFieldFormat(field) {
-    if (field.formatter) {
-      switch (field.formatter) {
-        case 'size':
-          field.formatter = function (value, row, index) {
-            return formatSize(value);
-          };
-          break;
-        case 'speed':
-          field.formatter = function (value, row, index) {
-            return formatSize(value, true, 'speed');
-          };
-          break;
+    if (!field.formatter_type) {
+      field.formatter = (v) => v?.toString();
+      return;
+    }
 
-        case 'longtime':
-          field.formatter = function (value, row, index) {
-            return formatLongTime(value);
-          };
-          break;
+    switch (field.formatter_type) {
+      case 'size':
+        field.formatter = function (value, row, index) {
+          return formatSize(value);
+        };
+        break;
+      case 'speed':
+        field.formatter = function (value, row, index) {
+          return formatSize(value, true, 'speed');
+        };
+        break;
 
-        case 'progress':
-          field.formatter = function (value, row, index) {
-            const percentDone = parseFloat(value * 100).toFixed(2);
-            return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
-          };
-          break;
+      case 'longtime':
+        field.formatter = function (value, row, index) {
+          return formatLongTime(value);
+        };
+        break;
 
-        case '_usename_':
-          switch (field.field) {
-            case 'name':
-              field.formatter = function (value, row, index) {
-                return system.getTorrentNameBar(transmission.torrents.all[row.id]);
-              };
-              break;
+      case 'progress':
+        field.formatter = function (value, row, index) {
+          const percentDone = parseFloat(value * 100).toFixed(2);
+          return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
+        };
+        break;
+
+      case '_usename_':
+        switch (field.field) {
+          case 'name':
+            field.formatter = function (value, row, index) {
+              return system.getTorrentNameBar(transmission.torrents.all[row.id]);
+            };
+            break;
+        }
+        break;
+      case 'ratio':
+        field.formatter = function (value, row, index) {
+          let className = '';
+          if (parseFloat(value) < 1 && value != -1) {
+            className = 'text-status-warning';
           }
-          break;
-        case 'ratio':
-          field.formatter = function (value, row, index) {
-            let className = '';
-            if (parseFloat(value) < 1 && value != -1) {
-              className = 'text-status-warning';
-            }
-            return '<span class="' + className + '">' + (value == -1 ? '∞' : value) + '</span>';
-          };
-          break;
+          return '<span class="' + className + '">' + (value == -1 ? '∞' : value) + '</span>';
+        };
+        break;
 
-        case 'remainingTime':
-          field.formatter = function (value, row, index) {
-            if (value >= 3153600000000) {
-              return '∞';
-            }
-            return getTotalTime(value);
-          };
-          break;
+      case 'remainingTime':
+        field.formatter = function (value, row, index) {
+          if (value >= 3153600000) {
+            return '∞';
+          }
+          return formatDuration(value);
+        };
+        break;
 
-        case 'labels':
-          field.formatter = function (value, row, index) {
-            return system.formetTorrentLabels(value, row.hashString);
-          };
-          break;
+      case 'labels':
+        field.formatter = function (value, row, index) {
+          return system.formetTorrentLabels(value, row.hashString);
+        };
+        break;
 
-        case 'color':
-          field.formatter = function (value, row, index) {
-            const box = $("<span class='user-label'/>")
-              .html(value)
-              .css({
-                'background-color': value,
-                color: getGrayLevel(value) > 0.5 ? '#000' : '#fff',
-              });
-            return box.get(0).outerHTML;
-          };
-          break;
-      }
+      case 'color':
+        field.formatter = function (value, row, index) {
+          const box = $("<span class='user-label'/>")
+            .html(value)
+            .css({
+              'background-color': value,
+              color: getGrayLevel(value) > 0.5 ? '#000' : '#fff',
+            });
+          return box.get(0).outerHTML;
+        };
+        break;
     }
   }
 
@@ -3358,14 +3344,6 @@ export class System extends SystemBase {
     }
 
     timedChunk(transmission.downloadDirs, this.appendFolder, this, 10, function () {
-      // FF browser displays the total size, will be moved down a row, so a separate treatment
-      // 新版本已无此问题
-      if (browser.name === 'Firefox' && browser.major < 60) {
-        system.panel.left.find('span.nav-total-size').css({
-          'margin-top': '-19px',
-        });
-      }
-
       system.initUIStatus();
     });
     /*
@@ -3448,15 +3426,6 @@ export class System extends SystemBase {
     }
   }
 
-  // Save the parameters in cookies
-  saveConfig() {
-    this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
-    for (const key in this.storageKeys.dictionary) {
-      this.setStorageData(this.storageKeys.dictionary[key], this.dictionary[key]);
-    }
-    this.saveUserConfig();
-  }
-
   // Save labels config for torrent if need
   saveLabelsConfig(hash, labels) {
     if (system.config.nav.labels) {
@@ -3474,10 +3443,6 @@ export class System extends SystemBase {
       const localOptions = JSON.parse(local);
       this.userConfig = $.extend(true, this.userConfig, localOptions);
     }
-  }
-
-  saveUserConfig() {
-    window.localStorage[this.configHead] = JSON.stringify(this.userConfig);
   }
 
   // Upload the torrent file
@@ -3527,8 +3492,8 @@ export class System extends SystemBase {
             $('<span/>').html(' ').appendTo(toolbar);
             $(
               '<button onclick="javascript:system.addIgnoreVersion(\'' +
-                version +
-                '\');" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-cancel-checked\'"/>',
+              version +
+              '\');" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-cancel-checked\'"/>',
             )
               .html(system.lang.public['text-ignore-this-version'])
               .appendTo(toolbar)
@@ -3572,45 +3537,12 @@ export class System extends SystemBase {
     return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
   }
 
-  setStorageData(key, value) {
-    window.localStorage[key] = value;
-  }
-
   // Debugging information
   debug(label, text) {
     if (window.console) {
       if (window.console.log) {
         window.console.log(label, text);
       }
-    }
-  }
-
-  /**
-   * 初始化主题
-   */
-  initThemes() {
-    if (this.themes) {
-      $('#select-themes').combobox({
-        groupField: 'group',
-        data: this.themes,
-        editable: false,
-        panelHeight: 'auto',
-        onChange(value) {
-          const values = (value + ';').split(';');
-          const theme = values[0];
-          const logo = values[1] || 'logo.png';
-          $('#styleEasyui').attr(
-            'href',
-            'tr-web-control/script/easyui/themes/' + theme + '/easyui.css',
-          );
-          $('#logo').attr('src', logo);
-          system.config.theme = value;
-          system.saveConfig();
-        },
-        onLoadSuccess() {
-          $(this).combobox('setValue', system.config.theme || 'default');
-        },
-      });
     }
   }
 

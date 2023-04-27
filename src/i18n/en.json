@@ -14,6 +14,7 @@
     }
   },
   "error": {
+    "addTorrentError": "Failed to add torrent(s) to transmission",
     "data-error": "Error recieving data!",
     "data-post-error": "Error posting data!",
     "rename-error": "Error renaming file/folder!"
@@ -310,8 +311,8 @@
       "newname": "New"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best IP",
-      "button-search-all-ip": "all IP",
+      "button-search-best-ip": "best trackers",
+      "button-search-all-ip": "all trackers",
       "title": "Add Trackers",
       "tip": "One Line, One Tracker"
     },

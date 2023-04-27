@@ -81,16 +81,39 @@ const browserLangMap: Record<string, string> = {
   zh: 'zh_CN',
 };
 
-export function formatBytes(bytes: number) {
-  if (bytes == 0) {
-    return '0 Bytes';
+export function formatSize(bytes: number, zeroToEmpty?: boolean, type?: 'speed'): string {
+  if (bytes === 0) {
+    if (zeroToEmpty) {
+      return '';
+    }
+
+    if (type === 'speed') {
+      return '0.00 KB/s';
+    } else {
+      return '0.00';
+    }
   }
+
+  if (type === 'speed') {
+    return formatBytes(bytes) + '/s';
+  }
+
+  return formatBytes(bytes);
+}
+
+const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+export function formatBytes(bytes: number): string {
   const k = 1000;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  if (i > sizes.length - 1) {
-    return `${parseFloat((bytes / Math.pow(k, sizes.length - 1)).toFixed(1))}YB`;
+
+  const unit = sizes[i];
+  if (unit) {
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${unit}`;
   }
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))}${sizes[i]}`;
+
+  const n = bytes / Math.pow(k, sizes.length);
+
+  return `${n.toFixed(2)} ${sizes[sizes.length - 1]!}`;
 }

@@ -9,7 +9,10 @@
     "noEmit": true,
     "pretty": true,
     "noUncheckedIndexedAccess": true,
-    "lib": ["DOM", "ES2022"],
+    "lib": [
+      "DOM",
+      "ES2022"
+    ],
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "noImplicitAny": true

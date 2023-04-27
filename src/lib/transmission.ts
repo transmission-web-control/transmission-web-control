@@ -1,4 +1,4 @@
-import $ from 'jquery';
+// import $ from 'jquery';
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 
@@ -905,12 +905,12 @@ export const transmission = {
 
         // Time left
         if (item.rateDownload > 0 && item.leftUntilDone > 0) {
-          item.remainingTime = Math.floor((item.leftUntilDone / item.rateDownload) * 1000);
+          item.remainingTime = Math.floor(item.leftUntilDone / item.rateDownload);
         } else if (item.rateDownload == 0 && item.leftUntilDone == 0 && item.totalSize != 0) {
           item.remainingTime = 0;
         } else {
           // ~100 years
-          item.remainingTime = 3153600000000;
+          item.remainingTime = 3153600000;
         }
 
         type.push(item);

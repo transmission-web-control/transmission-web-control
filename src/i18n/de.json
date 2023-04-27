@@ -175,13 +175,13 @@
       "alt-speed-time-enabled": "Zeitsteuerung benutzen",
       "alt-speed-time": "Zeit：",
       "weekday": {
+        "0": "Sonntag",
         "1": "Montag",
         "2": "Dienstag",
         "3": "Mittwoch",
         "4": "Donnerstag",
         "5": "Freitag",
-        "6": "Samstag",
-        "0": "Sonntag"
+        "6": "Samstag"
       },
       "blocklist-enabled": "Benutze Blocklist",
       "blocklist-size": "Blocklist hat %n Einträge.",

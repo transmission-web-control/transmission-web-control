@@ -2,15 +2,18 @@ import * as lo from 'lodash-es';
 
 import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
+import { type Field } from './torrent-fields';
 
-export const i18n = import.meta.glob('../i18n/*.json', { eager: true });
-const easyUILocale = import.meta.glob('../easyui/locale/easyui-lang-*.js', {
-  eager: true,
-  as: 'raw',
-});
 
-const templateFiles: Record<`../template/${string}.html`, string> = import.meta.glob(
-  '../template/*.html',
+const i18n = import.meta.glob('../i18n/*.json', { eager: true });
+const easyUILocale: Record<`../twc/easyui/locale/easyui-lang-${string}.js`, string> =
+  import.meta.glob('../twc/easyui/locale/easyui-lang-*.js', {
+    eager: true,
+    as: 'raw',
+  });
+
+const templateFiles: Record<`../twc/template/${string}.html`, string> = import.meta.glob(
+  '../twc/template/*.html',
   {
     eager: true,
     as: 'raw',
@@ -101,7 +104,7 @@ export class SystemBase {
 
   userConfig = {
     torrentList: {
-      fields: [],
+      fields: [] as Field[],
       sortName: null,
       sortOrder: 'asc',
     },
@@ -224,45 +227,33 @@ export class SystemBase {
     this.resetLangText();
 
     // Set the easyui language
-    const easyUILangFile = `../easyui/locale/easyui-lang-${lang}.js`;
+    const easyUILangFile = `../twc/easyui/locale/easyui-lang-${lang}.js` as const;
     if (easyUILangFile in easyUILocale) {
       eval(easyUILocale[easyUILangFile] as string);
     } else {
-      eval(
-        easyUILocale[
-          `../../public/tr-web-control/script/easyui/locale/easyui-lang-en.js`
-        ] as string,
-      );
+      eval(easyUILocale['../twc/easyui/locale/easyui-lang-en.js'] as string);
     }
   }
 
   // Set the language information
   resetLangText(parent?: JQuery) {
     if (!parent) {
-      parent = $();
+      parent = $(document.body);
     }
     let items = parent.find('*[system-lang]');
 
+    const system = this;
+
     $.each(items, function (key, item) {
-      const name = $(item).attr('system-lang');
-      if (name?.startsWith('[')) {
-        $(item).html(eval('system.lang' + name));
-      } else {
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        $(item).html(eval('system.lang.' + name));
-      }
+      const name = $(item).attr('system-lang') as string;
+      $(item).html(lo.get(system.lang, name) as string);
     });
 
     items = parent.find('*[system-tip-lang]');
 
     $.each(items, function (key, item) {
-      const name = $(item).attr('system-tip-lang');
-      if (name?.startsWith('[')) {
-        $(item).attr('title', eval('system.lang' + name));
-      } else {
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        $(item).attr('title', eval('system.lang.' + name));
-      }
+      const name = $(item).attr('system-tip-lang') as string;
+      $(item).attr('title', lo.get(system.lang, name) as string);
     });
   }
 
@@ -393,7 +384,7 @@ export class SystemBase {
       }
     };
 
-    const templateContent = templateFiles[`../template/${dialogId}.html`];
+    const templateContent = templateFiles[`../twc/template/${dialogId}.html`];
     if (templateContent) {
       dialogFileLoaded(templateContent);
     } else {
@@ -429,6 +420,53 @@ export class SystemBase {
           height: 280,
         },
         datas: { ids },
+      });
+    }
+  }
+
+  saveUserConfig() {
+    this.setStorageData(this.configHead, JSON.stringify(this.userConfig));
+  }
+
+  setStorageData(key: string, value: string) {
+    window.localStorage.setItem(key, value);
+  }
+
+  // Save the parameters in cookies
+  saveConfig() {
+    this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
+    for (const key in this.storageKeys.dictionary) {
+      // @ts-expect-error
+      this.setStorageData(this.storageKeys.dictionary[key], this.dictionary[key]);
+    }
+    this.saveUserConfig();
+  }
+
+  /**
+   * 初始化主题
+   */
+  initThemes() {
+    if (this.themes) {
+      const system = this;
+      // @ts-expect-error
+      $('#select-themes').combobox({
+        groupField: 'group',
+        data: this.themes,
+        editable: false,
+        panelHeight: 'auto',
+        onChange(value: string) {
+          const values = (value + ';').split(';');
+          const theme = values[0] as string;
+          const logo = values[1] || 'logo.png';
+          $('#styleEasyui').attr('href', `tr-web-control/script/easyui/themes/${theme}/easyui.css`);
+          $('#logo').attr('src', 'tr-web-control/' + logo);
+          system.config.theme = value;
+          system.saveConfig();
+        },
+        onLoadSuccess() {
+          // @ts-expect-error
+          $(this).combobox('setValue', system.config.theme || 'default');
+        },
       });
     }
   }

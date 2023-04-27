@@ -180,13 +180,13 @@
       "alt-speed-time-enabled": "Ütemezés bekapcsolása",
       "alt-speed-time": "Idő：",
       "weekday": {
+        "0": "Vasárnap",
         "1": "Hétfő",
         "2": "Kedd",
         "3": "Szerda",
         "4": "Csütörtök",
         "5": "Péntek",
-        "6": "Szombat",
-        "0": "Vasárnap"
+        "6": "Szombat"
       },
       "blocklist-enabled": "Feketelista használata",
       "blocklist-size": "A feketelista %n szabályt tartalmaz.",

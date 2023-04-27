@@ -1,5 +1,6 @@
 {
   "name": "zh-TW",
+  "languageName": "繁体中文",
   "author": "Sean, vodek3, Csineneo",
   "system": {
     "title": "Transmission WEB 控制台",
@@ -68,6 +69,7 @@
       "autoreload-enabled": "啟用自動重整",
       "tracker-replace": "取代 Tracker",
       "change-download-dir": "變更下載資料夾",
+      "change-speedlimit": "修改上传/下载限速",
       "ui-mobile": "切換至行動介面",
       "ui-original": "切換至原版介面",
       "more-peers": "取得更多 Peer",
@@ -191,13 +193,13 @@
       "alt-speed-time-enabled": "啟用時段限制",
       "alt-speed-time": "時間：",
       "weekday": {
+        "0": "星期天",
         "1": "星期一",
         "2": "星期二",
         "3": "星期三",
         "4": "星期四",
         "5": "星期五",
-        "6": "星期六",
-        "0": "星期天"
+        "6": "星期六"
       },
       "blocklist-enabled": "啟用黑名單：",
       "blocklist-size": "可用規則數量： %n",
