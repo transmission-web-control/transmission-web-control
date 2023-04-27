@@ -13,10 +13,9 @@ export class System extends SystemBase {
   /**
    * 程序初始化
    */
-  init(lang, isLocal, devicetype) {
+  init(lang) {
     this.readConfig();
     this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
-    this.islocal = isLocal == 1;
     this.panel = {
       main: $('#main'),
       top: $('#m_top'),

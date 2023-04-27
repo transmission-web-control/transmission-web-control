@@ -92,7 +92,6 @@ export class SystemBase {
   reloading = false;
   autoReloadTimer = null;
   downloadDir = '';
-  islocal = false;
   // The currently selected torrent number
   public currentTorrentId = 0;
   flags = [];
