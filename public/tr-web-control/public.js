@@ -151,8 +151,26 @@ function getHoursFromMinutes(minutes) {
 }
 
 // 根据小时获取分钟
+/**
+ *
+ * @param {string} hours
+ * @return {number}
+ */
 function getMinutesFromHours(hours) {
-  return parseInt(hours.split(':')[0], 10) * 60 + parseInt(hours.split(':')[1], 10);
+  const s = hours.split(':');
+  if (s.length === 1) {
+    return parseInt(s[0]);
+  }
+
+  if (s.length === 2) {
+    return parseInt(s[0]) * 60 + parseInt(s[1]);
+  }
+
+  if (s.length === 3) {
+    return parseInt(s[0]) * 24 * 60 + parseInt(s[1]) * 60 + parseInt(s[2]);
+  }
+
+  throw new Error('failed to parse hours');
 }
 
 // Get the cumulative time
