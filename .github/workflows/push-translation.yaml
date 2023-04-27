@@ -25,6 +25,6 @@ jobs:
           mv ./tx ~/.local/bin
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - run: tx push -l en --translation en
+      - run: tx push
         env:
           TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
