@@ -310,8 +310,8 @@
       "newname": "Novo"
     },
     "torrent-attribute-add-tracker": {
-      "button-search-best-ip": "best IP",
-      "button-search-all-ip": "all IP",
+      "button-search-best-ip": "best trackers",
+      "button-search-all-ip": "all trackers",
       "title": "Adicionar trackers",
       "tip": "Um tracker por linha"
     },
