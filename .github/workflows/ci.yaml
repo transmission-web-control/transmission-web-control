@@ -22,7 +22,7 @@ jobs:
 
       - run: npx tsc
 
-      - run: pnpm test --coverage
+      - run: pnpm run test --coverage
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
