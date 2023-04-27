@@ -20,7 +20,7 @@ jobs:
           mv ./tx ~/.local/bin
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - run: tx pull --mode onlytranslated --all --use-git-timestamps
+      - run: tx pull --mode onlytranslated --all --use-git-timestamps --force
         env:
           TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
 
