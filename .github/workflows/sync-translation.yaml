@@ -20,7 +20,7 @@ jobs:
           mv ./tx ~/.local/bin
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - run: tx --token pull -c .github/transifex.yaml -m onlytranslated
+      - run: tx --token pull -c .github/transifex.yaml -m onlytranslated -a
         env:
           TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
 
