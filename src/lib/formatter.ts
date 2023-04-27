@@ -1,4 +1,8 @@
 export function formatLongTime(time: string): string {
+  if (!time) {
+    return '';
+  }
+
   const now = new Date(parseInt(time) * 1000);
   return formatDate(now);
 }

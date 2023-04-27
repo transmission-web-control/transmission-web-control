@@ -38,18 +38,15 @@ export class System extends SystemBase {
     if (!system.langInit) {
       this.setLang(lang);
       system.langInit = true;
-      system.initdata();
-    } else {
-      this.initdata();
     }
 
+    this.initData();
     this.initThemes();
     // 剪切板组件
     this.clipboard = new ClipboardJS('#toolbar_copyPath');
   }
 
-  initdata() {
-    // this.panel.title.text(this.lang.system.title+" "+this.version+" ("+this.codeupdate+")");
+  initData() {
     $(document).attr('title', this.lang.system.title + ' ' + this.version);
 
     // 设置开关组件默认文字
@@ -158,13 +155,14 @@ export class System extends SystemBase {
     });
 
     // Set the language
-    $.each(this.languages, function (key, value) {
+    Object.entries(this.languages).forEach(function ([key, value]) {
       $('<option/>')
         .text(value)
         .val(key)
-        .attr('selected', key == system.lang.name)
+        .attr('selected', key === system.lang.name)
         .appendTo(system.panel.top.find('#lang'));
     });
+
     this.panel.top.find('#lang').change(function () {
       location.href = '?lang=' + this.value;
     });
@@ -1018,9 +1016,7 @@ export class System extends SystemBase {
     }
 
     const button = $(
-      '<button onclick=\'javascript:system.setTorrentLabels(this,"' +
-        hashString +
-        '");\' data-options="iconCls:\'iconfont tr-icon-labels\',plain:true" class="easyui-linkbutton user-label-set"/>',
+      `<button onclick='javascript:system.setTorrentLabels(this,"${hashString}");' data-options="iconCls:'iconfont tr-icon-labels',plain:true" class="easyui-linkbutton user-label-set"/>`,
     ).appendTo(box);
     button.linkbutton();
     button.find('span').first().attr({
