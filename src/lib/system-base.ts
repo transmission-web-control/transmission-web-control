@@ -249,7 +249,7 @@ export class SystemBase {
 
     $.each(items, function (key, item) {
       const name = $(item).attr('system-lang') as string;
-      $(item).attr('title', lo.get(system.lang, name) as string);
+      $(item).html(lo.get(system.lang, name) as string);
     });
 
     items = parent.find('*[system-tip-lang]');
