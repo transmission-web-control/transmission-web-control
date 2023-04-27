@@ -45,3 +45,4 @@ jobs:
           token: ${{ secrets.PAT }}
           title: 'chore: update translation'
           branch: 'chore/i18n-pull'
+          author: 'Trim21 <trim21.me@gmail.com>'
