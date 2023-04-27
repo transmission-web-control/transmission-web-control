@@ -6,6 +6,7 @@ on:
       - tx
     path:
       - ./src/i18n/en.json
+      - ./.github/workflows/push-translation.yaml
 
 permissions:
   contents: write
