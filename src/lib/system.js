@@ -3442,15 +3442,6 @@ export class System extends SystemBase {
     }
   }
 
-  // Save the parameters in cookies
-  saveConfig() {
-    this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
-    for (const key in this.storageKeys.dictionary) {
-      this.setStorageData(this.storageKeys.dictionary[key], this.dictionary[key]);
-    }
-    this.saveUserConfig();
-  }
-
   // Save labels config for torrent if need
   saveLabelsConfig(hash, labels) {
     if (system.config.nav.labels) {
@@ -3468,10 +3459,6 @@ export class System extends SystemBase {
       const localOptions = JSON.parse(local);
       this.userConfig = $.extend(true, this.userConfig, localOptions);
     }
-  }
-
-  saveUserConfig() {
-    window.localStorage[this.configHead] = JSON.stringify(this.userConfig);
   }
 
   // Upload the torrent file
@@ -3566,45 +3553,12 @@ export class System extends SystemBase {
     return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
   }
 
-  setStorageData(key, value) {
-    window.localStorage[key] = value;
-  }
-
   // Debugging information
   debug(label, text) {
     if (window.console) {
       if (window.console.log) {
         window.console.log(label, text);
       }
-    }
-  }
-
-  /**
-   * 初始化主题
-   */
-  initThemes() {
-    if (this.themes) {
-      $('#select-themes').combobox({
-        groupField: 'group',
-        data: this.themes,
-        editable: false,
-        panelHeight: 'auto',
-        onChange(value) {
-          const values = (value + ';').split(';');
-          const theme = values[0];
-          const logo = values[1] || 'logo.png';
-          $('#styleEasyui').attr(
-            'href',
-            'tr-web-control/script/easyui/themes/' + theme + '/easyui.css',
-          );
-          $('#logo').attr('src', 'tr-web-control/' + logo);
-          system.config.theme = value;
-          system.saveConfig();
-        },
-        onLoadSuccess() {
-          $(this).combobox('setValue', system.config.theme || 'default');
-        },
-      });
     }
   }
 

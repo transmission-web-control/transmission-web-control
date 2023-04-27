@@ -417,4 +417,51 @@ export class SystemBase {
       });
     }
   }
+
+  saveUserConfig() {
+    this.setStorageData(this.configHead, JSON.stringify(this.userConfig));
+  }
+
+  setStorageData(key: string, value: string) {
+    window.localStorage.setItem(key, value);
+  }
+
+  // Save the parameters in cookies
+  saveConfig() {
+    this.setStorageData(this.configHead + '.system', JSON.stringify(this.config));
+    for (const key in this.storageKeys.dictionary) {
+      // @ts-expect-error
+      this.setStorageData(this.storageKeys.dictionary[key], this.dictionary[key]);
+    }
+    this.saveUserConfig();
+  }
+
+  /**
+   * 初始化主题
+   */
+  initThemes() {
+    if (this.themes) {
+      const system = this;
+      // @ts-expect-error
+      $('#select-themes').combobox({
+        groupField: 'group',
+        data: this.themes,
+        editable: false,
+        panelHeight: 'auto',
+        onChange(value: string) {
+          const values = (value + ';').split(';');
+          const theme = values[0] as string;
+          const logo = values[1] || 'logo.png';
+          $('#styleEasyui').attr('href', `tr-web-control/script/easyui/themes/${theme}/easyui.css`);
+          $('#logo').attr('src', 'tr-web-control/' + logo);
+          system.config.theme = value;
+          system.saveConfig();
+        },
+        onLoadSuccess() {
+          // @ts-expect-error
+          $(this).combobox('setValue', system.config.theme || 'default');
+        },
+      });
+    }
+  }
 }
