@@ -8,6 +8,7 @@
     "start": "vite --host 127.0.0.1",
     "prebuild": "rimraf ./dist/",
     "build": "vite build",
+    "preview": "vite preview",
     "test": "vitest run",
     "vitest": "vitest",
     "tsc": "tsc",
