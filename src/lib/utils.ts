@@ -83,7 +83,7 @@ const browserLangMap: Record<string, string> = {
   zh: 'zh-CN',
 };
 
-export function formatSize(bytes: number, zeroToEmpty: boolean, type?: 'speed'): string {
+export function formatSize(bytes: number, zeroToEmpty?: boolean, type?: 'speed'): string {
   if (bytes === 0) {
     if (zeroToEmpty) {
       return '';
