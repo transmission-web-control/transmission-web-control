@@ -21,11 +21,8 @@
   "author": "",
   "private": true,
   "license": "MIT",
+  "packageManager": "pnpm@8.3.1",
   "dependencies": {
-    "@ag-grid-community/vue3": "^29.3.3",
-    "ag-grid-vue3": "^29.3.3",
-    "easyui": "^8.0.0",
-    "jquery": "^3.6.4",
     "js-base64": "^3.7.5",
     "lodash-es": "^4.17.21",
     "pinia": "^2.0.35",
@@ -33,9 +30,9 @@
     "semver": "^7.5.0",
     "tailwindcss": "^3.3.1",
     "ua-parser-js": "^1.0.35",
-    "vue-dialog-drag": "^0.1.29",
     "vue-i18n": "9.3.0-beta.17",
-    "vue-router": "^4"
+    "vue-router": "^4",
+    "vue-simple-context-menu": "^4.0.4"
   },
   "devDependencies": {
     "@babel/types": "^7.21.4",
