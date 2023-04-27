@@ -1,6 +1,6 @@
 {
   "name": "transmission-web-control",
-  "version": "1.6.16",
+  "version": "1.6.17",
   "description": "",
   "main": "index.js",
   "scripts": {
