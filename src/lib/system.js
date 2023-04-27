@@ -1,8 +1,7 @@
 import { Base64 } from 'js-base64';
-import * as lo from 'lodash-es';
 import semver from 'semver';
 
-import { formatLongTime, getGrayLevel, getTotalTime } from './formatter.mjs';
+import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
 import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
@@ -2018,13 +2017,13 @@ export class System extends SystemBase {
             item,
             system.lang.tree.statistics[item] +
               ' ' +
-              getTotalTime(system.serverSessionStats['cumulative-stats'][item] * 1000),
+              formatDuration(system.serverSessionStats['cumulative-stats'][item] * 1000),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
               ' ' +
-              getTotalTime(system.serverSessionStats['current-stats'][item] * 1000),
+              formatDuration(system.serverSessionStats['current-stats'][item] * 1000),
           );
           break;
         default:
@@ -2964,7 +2963,7 @@ export class System extends SystemBase {
           if (value >= 3153600000000) {
             value = '∞';
           } else {
-            value = getTotalTime(value);
+            value = formatDuration(value);
           }
 
           break;
@@ -3305,7 +3304,7 @@ export class System extends SystemBase {
           if (value >= 3153600000000) {
             return '∞';
           }
-          return getTotalTime(value);
+          return formatDuration(value);
         };
         break;
 
