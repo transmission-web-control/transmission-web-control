@@ -1,6 +1,8 @@
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
+import semver from 'semver';
 
+import { formatLongTime, getGrayLevel, getTotalTime } from './formatter.mjs';
 import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
@@ -646,143 +648,6 @@ export class System extends SystemBase {
     let headContextMenu = null;
     let selectedIndex = -1;
 
-    {
-      let fields = torrentFields.fields;
-      const _fields = {};
-
-      for (const item of fields) {
-        _fields[item.field] = item;
-      }
-
-      if (system.userConfig.torrentList.fields.length) {
-        fields = lo.merge(fields, system.userConfig.torrentList.fields);
-      }
-
-      // User field settings
-      system.userConfig.torrentList.fields = fields;
-
-      for (const key in fields) {
-        const item = fields[key];
-        const _field = _fields[item.field];
-        if (_field && _field.formatter) {
-          item.formatter = _field.formatter;
-        } else if (item.formatter) {
-          delete item.formatter;
-        }
-
-        if (_field && _field.sortable) {
-          item.sortable = _field.sortable;
-        } else if (item.sortable) {
-          delete item.sortable;
-        }
-
-        item.title = system.lang.torrent.fields[item.field] || item.field;
-        system.setFieldFormat(item);
-      }
-
-      // 初始化种子列表
-      torrentList.datagrid({
-        autoRowHeight: false,
-        pagination: system.config.pagination,
-        rownumbers: true,
-        remoteSort: false,
-        checkOnSelect: false,
-        pageSize: system.config.pageSize,
-        pageList: system.config.pageList,
-        idField: 'id',
-        fit: true,
-        striped: true,
-        sortName: system.userConfig.torrentList.sortName,
-        sortOrder: system.userConfig.torrentList.sortOrder,
-        drophead: true,
-        columns: [fields],
-        onCheck(rowIndex, rowData) {
-          system.checkTorrentRow(rowIndex, rowData);
-        },
-        onUncheck(rowIndex, rowData) {
-          system.checkTorrentRow(rowIndex, rowData);
-        },
-        onCheckAll(rows) {
-          system.checkTorrentRow('all', false);
-        },
-        onUncheckAll(rows) {
-          system.checkTorrentRow('all', true);
-        },
-        onSelect(rowIndex, rowData) {
-          if (selectedIndex != -1) {
-            system.control.torrentlist.datagrid('unselectRow', selectedIndex);
-          }
-          system.getTorrentInfos(rowData.id);
-          selectedIndex = rowIndex;
-        },
-        onUnselect(rowIndex, rowData) {
-          system.currentTorrentId = 0;
-          selectedIndex = -1;
-        },
-        // Before loading data
-        onBeforeLoad(param) {
-          system.currentTorrentId = 0;
-        },
-        // Header sorting
-        onSortColumn(field, order) {
-          const field_func = field;
-          const datas = system.control.torrentlist
-            .datagrid('getData')
-            .originalRows.sort(arrayObjectSort(field_func, order));
-          system.control.torrentlist.datagrid('loadData', datas);
-
-          system.resetTorrentListFieldsUserConfig(
-            system.control.torrentlist.datagrid('options').columns[0],
-          );
-          system.userConfig.torrentList.sortName = field;
-          system.userConfig.torrentList.sortOrder = order;
-          system.saveUserConfig();
-        },
-        onRowContextMenu(e, rowIndex, rowData) {
-          // console.log("onRowContextMenu");
-          if (system.config.simpleCheckMode) {
-            system.control.torrentlist.datagrid('uncheckAll');
-          }
-
-          // 当没有种子被选中时，选中当前行
-          if (system.checkedRows.length == 0) {
-            system.control.torrentlist.datagrid('checkRow', rowIndex);
-          }
-          e.preventDefault();
-          system.showContextMenu('torrent-list', e);
-        },
-        onHeadDrop(sourceField, targetField) {
-          // console.log("onHeadDrop");
-          system.resetTorrentListFieldsUserConfig(
-            system.control.torrentlist.datagrid('options').columns[0],
-          );
-          system.saveUserConfig();
-        },
-        onResizeColumn(field, width) {
-          system.resetTorrentListFieldsUserConfig(
-            system.control.torrentlist.datagrid('options').columns[0],
-          );
-          system.saveUserConfig();
-        },
-        onHeaderContextMenu(e, field) {
-          // console.log("onHeaderContextMenu");
-          e.preventDefault();
-          if (!headContextMenu) {
-            createHeadContextMenu();
-          }
-          headContextMenu.menu('show', {
-            left: e.pageX,
-            top: e.pageY,
-          });
-        },
-      });
-    }
-
-    // 刷新当前页数据
-    torrentList.refresh = function () {
-      system.control.torrentlist.datagrid('getPager').find('.pagination-load').click();
-    };
-
     // Create a header right-click menu
     function createHeadContextMenu() {
       if (headContextMenu) {
@@ -814,6 +679,7 @@ export class System extends SystemBase {
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i];
         const col = torrentList.datagrid('getColumnOption', field);
+
         if (col.allowCustom?.toString() !== 'false') {
           headContextMenu.menu('appendItem', {
             text: col.title,
@@ -823,6 +689,136 @@ export class System extends SystemBase {
         }
       }
     }
+
+    let fields = torrentFields.fields;
+    const _fields = Object.fromEntries(fields.map((x) => [x.field, x]));
+
+    if (system.userConfig.torrentList.fields.length) {
+      fields = $.extend(fields, system.userConfig.torrentList.fields);
+    }
+
+    // User field settings
+    system.userConfig.torrentList.fields = fields;
+
+    for (const item of fields) {
+      const _field = _fields[item.field];
+      if (_field && _field.formatter_type) {
+        item.formatter_type = _field.formatter_type;
+      } else if (item.formatter_type) {
+        delete item.formatter_type;
+      }
+
+      if (_field && _field.sortable) {
+        item.sortable = _field.sortable;
+      } else if (item.sortable) {
+        delete item.sortable;
+      }
+
+      item.title = this.lang.torrent.fields[item.field] || item.field;
+      system.setFieldFormat(item);
+    }
+
+    // 初始化种子列表
+    torrentList.datagrid({
+      autoRowHeight: false,
+      pagination: system.config.pagination,
+      rownumbers: true,
+      remoteSort: false,
+      checkOnSelect: false,
+      pageSize: system.config.pageSize,
+      pageList: system.config.pageList,
+      idField: 'id',
+      fit: true,
+      striped: true,
+      sortName: system.userConfig.torrentList.sortName,
+      sortOrder: system.userConfig.torrentList.sortOrder,
+      drophead: true,
+      columns: [fields],
+      onCheck(rowIndex, rowData) {
+        system.checkTorrentRow(rowIndex, rowData);
+      },
+      onUncheck(rowIndex, rowData) {
+        system.checkTorrentRow(rowIndex, rowData);
+      },
+      onCheckAll(rows) {
+        system.checkTorrentRow('all', false);
+      },
+      onUncheckAll(rows) {
+        system.checkTorrentRow('all', true);
+      },
+      onSelect(rowIndex, rowData) {
+        if (selectedIndex != -1) {
+          system.control.torrentlist.datagrid('unselectRow', selectedIndex);
+        }
+        system.getTorrentInfos(rowData.id);
+        selectedIndex = rowIndex;
+      },
+      onUnselect(rowIndex, rowData) {
+        system.currentTorrentId = 0;
+        selectedIndex = -1;
+      },
+      // Before loading data
+      onBeforeLoad(param) {
+        system.currentTorrentId = 0;
+      },
+      // Header sorting
+      onSortColumn(field, order) {
+        const field_func = field;
+        const datas = system.control.torrentlist
+          .datagrid('getData')
+          .originalRows.sort(arrayObjectSort(field_func, order));
+        system.control.torrentlist.datagrid('loadData', datas);
+
+        system.resetTorrentListFieldsUserConfig(
+          system.control.torrentlist.datagrid('options').columns[0],
+        );
+        system.userConfig.torrentList.sortName = field;
+        system.userConfig.torrentList.sortOrder = order;
+        system.saveUserConfig();
+      },
+      onRowContextMenu(e, rowIndex, rowData) {
+        // console.log("onRowContextMenu");
+        if (system.config.simpleCheckMode) {
+          system.control.torrentlist.datagrid('uncheckAll');
+        }
+
+        // 当没有种子被选中时，选中当前行
+        if (system.checkedRows.length == 0) {
+          system.control.torrentlist.datagrid('checkRow', rowIndex);
+        }
+        e.preventDefault();
+        system.showContextMenu('torrent-list', e);
+      },
+      onHeadDrop(sourceField, targetField) {
+        // console.log("onHeadDrop");
+        system.resetTorrentListFieldsUserConfig(
+          system.control.torrentlist.datagrid('options').columns[0],
+        );
+        system.saveUserConfig();
+      },
+      onResizeColumn(field, width) {
+        system.resetTorrentListFieldsUserConfig(
+          system.control.torrentlist.datagrid('options').columns[0],
+        );
+        system.saveUserConfig();
+      },
+      onHeaderContextMenu(e, field) {
+        // console.log("onHeaderContextMenu");
+        e.preventDefault();
+        if (!headContextMenu) {
+          createHeadContextMenu();
+        }
+        headContextMenu.menu('show', {
+          left: e.pageX,
+          top: e.pageY,
+        });
+      },
+    });
+
+    // 刷新当前页数据
+    torrentList.refresh = function () {
+      system.control.torrentlist.datagrid('getPager').find('.pagination-load').click();
+    };
   } // end initTorrentTable
 
   resetTorrentListFieldsUserConfig(columns) {
@@ -3255,78 +3251,81 @@ export class System extends SystemBase {
 
   // Set the field display format
   setFieldFormat(field) {
-    if (field.formatter) {
-      switch (field.formatter) {
-        case 'size':
-          field.formatter = function (value, row, index) {
-            return formatSize(value);
-          };
-          break;
-        case 'speed':
-          field.formatter = function (value, row, index) {
-            return formatSize(value, true, 'speed');
-          };
-          break;
+    if (!field.formatter_type) {
+      field.formatter = (v) => v?.toString();
+      return;
+    }
 
-        case 'longtime':
-          field.formatter = function (value, row, index) {
-            return formatLongTime(value);
-          };
-          break;
+    switch (field.formatter_type) {
+      case 'size':
+        field.formatter = function (value, row, index) {
+          return formatSize(value);
+        };
+        break;
+      case 'speed':
+        field.formatter = function (value, row, index) {
+          return formatSize(value, true, 'speed');
+        };
+        break;
 
-        case 'progress':
-          field.formatter = function (value, row, index) {
-            const percentDone = parseFloat(value * 100).toFixed(2);
-            return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
-          };
-          break;
+      case 'longtime':
+        field.formatter = function (value, row, index) {
+          return formatLongTime(value);
+        };
+        break;
 
-        case '_usename_':
-          switch (field.field) {
-            case 'name':
-              field.formatter = function (value, row, index) {
-                return system.getTorrentNameBar(transmission.torrents.all[row.id]);
-              };
-              break;
+      case 'progress':
+        field.formatter = function (value, row, index) {
+          const percentDone = parseFloat(value * 100).toFixed(2);
+          return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
+        };
+        break;
+
+      case '_usename_':
+        switch (field.field) {
+          case 'name':
+            field.formatter = function (value, row, index) {
+              return system.getTorrentNameBar(transmission.torrents.all[row.id]);
+            };
+            break;
+        }
+        break;
+      case 'ratio':
+        field.formatter = function (value, row, index) {
+          let className = '';
+          if (parseFloat(value) < 1 && value != -1) {
+            className = 'text-status-warning';
           }
-          break;
-        case 'ratio':
-          field.formatter = function (value, row, index) {
-            let className = '';
-            if (parseFloat(value) < 1 && value != -1) {
-              className = 'text-status-warning';
-            }
-            return '<span class="' + className + '">' + (value == -1 ? '∞' : value) + '</span>';
-          };
-          break;
+          return '<span class="' + className + '">' + (value == -1 ? '∞' : value) + '</span>';
+        };
+        break;
 
-        case 'remainingTime':
-          field.formatter = function (value, row, index) {
-            if (value >= 3153600000000) {
-              return '∞';
-            }
-            return getTotalTime(value);
-          };
-          break;
+      case 'remainingTime':
+        field.formatter = function (value, row, index) {
+          if (value >= 3153600000000) {
+            return '∞';
+          }
+          return getTotalTime(value);
+        };
+        break;
 
-        case 'labels':
-          field.formatter = function (value, row, index) {
-            return system.formetTorrentLabels(value, row.hashString);
-          };
-          break;
+      case 'labels':
+        field.formatter = function (value, row, index) {
+          return system.formetTorrentLabels(value, row.hashString);
+        };
+        break;
 
-        case 'color':
-          field.formatter = function (value, row, index) {
-            const box = $("<span class='user-label'/>")
-              .html(value)
-              .css({
-                'background-color': value,
-                color: getGrayLevel(value) > 0.5 ? '#000' : '#fff',
-              });
-            return box.get(0).outerHTML;
-          };
-          break;
-      }
+      case 'color':
+        field.formatter = function (value, row, index) {
+          const box = $("<span class='user-label'/>")
+            .html(value)
+            .css({
+              'background-color': value,
+              color: getGrayLevel(value) > 0.5 ? '#000' : '#fff',
+            });
+          return box.get(0).outerHTML;
+        };
+        break;
     }
   }
 
