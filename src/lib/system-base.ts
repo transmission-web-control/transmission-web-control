@@ -327,16 +327,11 @@ export class SystemBase {
     if (config.type === 0) {
       dialog.dialog(opt);
     } else {
-      dialog
-        .css({
-          width: opt.width,
-          height: opt.height,
-        })
-        .data('popoverSource', config.source);
+      dialog.css({ width: opt.width, height: opt.height }).data('popoverSource', config.source);
 
       // @ts-expect-error
       $(config.source).webuiPopover({
-        url: '#' + dialogId,
+        url: `#${dialogId}`,
         title: opt.title,
         width: opt.width,
         height: opt.height - 18,
@@ -348,6 +343,7 @@ export class SystemBase {
           $(e).remove();
           sys.popoverCount--;
           if (config.onClose) {
+            console.log('config.onClose');
             config.onClose(config.source);
           }
         },
@@ -361,17 +357,15 @@ export class SystemBase {
       this.templates[dialogId] = data;
       if (datas) {
         $.each(datas, function (key, value) {
-          $('#' + dialogId).data(key, value);
+          $(`#${dialogId}`).data(key, value);
         });
       }
 
       if (config.type == 0) {
-        $('#' + dialogId).dialog({
-          content: data,
-        });
+        $(`#${dialogId}`).dialog({ content: data });
       } else {
         dialog.html(data);
-        $.parser.parse('#' + dialogId);
+        $.parser.parse(`#${dialogId}`);
         // @ts-expect-error
         $(config.source).webuiPopover('show');
       }

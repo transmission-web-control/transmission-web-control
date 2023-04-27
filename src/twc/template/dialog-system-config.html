@@ -1,490 +1,494 @@
-<div class="easyui-layout" data-options="fit:true" style="width:100%;height:100%;">
-    <div data-options="region:'center'" style="padding:5px 6px 0px 6px;border:0px;">
-        <div id="system-config-tabs" class="easyui-tabs" style="width:100%;height:100%;"
-             data-options="fit:true,plain:true">
-            <div title="Basic Information" style="padding:5px;padding-right:10px;" class="dialog">
-                <table style="width:100%;">
-                    <tr>
-                        <td width="100%" colspan="2">
-                            <span id="system-config-download-dir"></span>
-                            <span style="float:right;">(<span id="system-config-download-dir-free-space"></span><span
-                                    id="download-dir-free-space"></span>)</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><select id="download-dir" style="width:100%;"></select></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input id="incomplete-dir-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-incomplete-dir-enabled" for="incomplete-dir-enabled"></label></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input id="incomplete-dir" value="" type="text"
-                                               enabledof="incomplete-dir-enabled" style="width:100%;"/></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input id="rename-partial-files" type="checkbox" style="width:16px;"/><label
-                                id="system-config-rename-partial-files" for="rename-partial-files"></label></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input id="start-added-torrents" type="checkbox" style="width:16px;"/><label
-                                id="system-config-start-added-torrents" for="start-added-torrents"></label></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td width="65%"><span id="system-config-cache-size-mb"></span></td>
-                        <td width="35%"><input id="cache-size-mb" value="" type="text" class="easyui-numberspinner"
-                                               style="width:70px;"/> MB
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input id="script-torrent-done-enabled" type="checkbox"
-                                               style="width:16px;"/><label for="script-torrent-done-enabled"
-                                                                           system-lang="dialog['system-config']['script-torrent-done-enabled']"></label>
-                            <a href="https://github.com/ronggang/transmission-web-control/wiki/About-script-torrent-done-filename"
-                               target="_blank">Wiki</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input id="script-torrent-done-filename" value="" type="text"
-                                               enabledof="script-torrent-done-enabled" style="width:100%;"/></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <span id="system-config-config-dir"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input id="config-dir" value="" type="text" readonly="readonly"
-                                               disabled="disabled" style="width:100%;"/></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" align="right">
-                            <span id="system-config-language"></span>&nbsp;<select id="system-config-lang" value=""
-                                                                                   style="width:200px;"></select>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div title="Network" style="padding:5px;padding-right:10px;" class="dialog">
-                <table style="width:100%;">
-                    <tr>
-                        <td width="65%">
-                            <input id="download-queue-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-download-queue-enabled" for="download-queue-enabled"></label>
-                        </td>
-                        <td width="35%"><input id="download-queue-size" value="" type="text"
-                                               class="easyui-numberspinner" enabledof="download-queue-enabled"/></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="seed-queue-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-seed-queue-enabled" for="seed-queue-enabled"></label>
-                        </td>
-                        <td><input id="seed-queue-size" value="" type="text" class="easyui-numberspinner"
-                                   enabledof="seed-queue-enabled"/></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span id="system-config-encryption"></span>
-                        </td>
-                        <td>
-                            <select id="encryption" class="easyui-combobox" data-options="editable:false"></select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top">
-                            <input id="peer-port-random-on-start" type="checkbox" style="width:16px;"/><label
-                                id="system-config-peer-port-random-on-start" for="peer-port-random-on-start"></label>
-                        </td>
-                        <td>
-                            <input id="peer-port" value="" type="text" class="easyui-numberspinner"
-                                   style="width:70px;"/> <a id="system-config-test-port" href="javascript:void(0);"
-                                                            class="easyui-linkbutton"
-                                                            data-options="plain:true,iconCls:'icon-test-port'"></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="port-forwarding-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-port-forwarding-enabled" for="port-forwarding-enabled"></label>
-                        </td>
-                        <td>
-                            <span id="system-config-port-is-open-true" style="display:none;color:#339900;"></span>
-                            <span id="system-config-port-is-open-false" style="display:none;color:red;"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="lpd-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-lpd-enabled" for="lpd-enabled"></label>
-                        </td>
-                        <td>
-                            <input id="utp-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-utp-enabled" for="utp-enabled"></label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="dht-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-dht-enabled" for="dht-enabled"></label>
-                        </td>
-                        <td>
-                            <input id="pex-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-pex-enabled" for="pex-enabled"></label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <input id="blocklist-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-blocklist-enabled" for="blocklist-enabled"></label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <input id="blocklist-url" type="text" enabledof="blocklist-enabled"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <span id="system-config-blocklist-size"
+<div class='easyui-layout' data-options='fit:true' style='width:100%;height:100%;'>
+  <div data-options="region:'center'" style='padding:5px 6px 0px 6px;border:0px;'>
+    <div id='system-config-tabs' class='easyui-tabs' style='width:100%;height:100%;'
+         data-options='fit:true,plain:true'>
+      <div title='Basic Information' style='padding:5px;padding-right:10px;' class='dialog'>
+        <table style='width:100%;'>
+          <tr>
+            <td width='100%' colspan='2'>
+              <span id='system-config-download-dir'></span>
+              <span style='float:right;'>(<span id='system-config-download-dir-free-space'></span><span
+                id='download-dir-free-space'></span>)</span>
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'><select id='download-dir' style='width:100%;'></select></td>
+          </tr>
+          <tr>
+            <td colspan='2'><input id='incomplete-dir-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-incomplete-dir-enabled' for='incomplete-dir-enabled'></label></td>
+          </tr>
+          <tr>
+            <td colspan='2'><input id='incomplete-dir' value='' type='text'
+                                   enabledof='incomplete-dir-enabled' style='width:100%;' /></td>
+          </tr>
+          <tr>
+            <td colspan='2'><input id='rename-partial-files' type='checkbox' style='width:16px;' /><label
+              id='system-config-rename-partial-files' for='rename-partial-files'></label></td>
+          </tr>
+          <tr>
+            <td colspan='2'><input id='start-added-torrents' type='checkbox' style='width:16px;' /><label
+              id='system-config-start-added-torrents' for='start-added-torrents'></label></td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td width='65%'><span id='system-config-cache-size-mb'></span></td>
+            <td width='35%'><input id='cache-size-mb' value='' type='text' class='easyui-numberspinner'
+                                   style='width:70px;' /> MB
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'><input id='script-torrent-done-enabled' type='checkbox'
+                                   style='width:16px;' /><label for='script-torrent-done-enabled'
+                                                                system-lang="dialog['system-config']['script-torrent-done-enabled']"></label>
+              <a href='https://github.com/ronggang/transmission-web-control/wiki/About-script-torrent-done-filename'
+                 target='_blank'>Wiki</a>
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'><input id='script-torrent-done-filename' value='' type='text'
+                                   enabledof='script-torrent-done-enabled' style='width:100%;' /></td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <span id='system-config-config-dir'></span>
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'><input id='config-dir' value='' type='text' readonly='readonly'
+                                   disabled='disabled' style='width:100%;' /></td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2' align='right'>
+              <span id='system-config-language'></span>&nbsp;<select id='system-config-lang' value=''
+                                                                     style='width:200px;'></select>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div title='Network' style='padding:5px;padding-right:10px;' class='dialog'>
+        <table style='width:100%;'>
+          <tr>
+            <td width='65%'>
+              <input id='download-queue-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-download-queue-enabled' for='download-queue-enabled'></label>
+            </td>
+            <td width='35%'><input id='download-queue-size' value='' type='text'
+                                   class='easyui-numberspinner' enabledof='download-queue-enabled' /></td>
+          </tr>
+          <tr>
+            <td>
+              <input id='seed-queue-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-seed-queue-enabled' for='seed-queue-enabled'></label>
+            </td>
+            <td><input id='seed-queue-size' value='' type='text' class='easyui-numberspinner'
+                       enabledof='seed-queue-enabled' /></td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span id='system-config-encryption'></span>
+            </td>
+            <td>
+              <select id='encryption' class='easyui-combobox' data-options='editable:false'></select>
+            </td>
+          </tr>
+          <tr>
+            <td valign='top'>
+              <input id='peer-port-random-on-start' type='checkbox' style='width:16px;' /><label
+              id='system-config-peer-port-random-on-start' for='peer-port-random-on-start'></label>
+            </td>
+            <td>
+              <input id='peer-port' value='' type='text' class='easyui-numberspinner'
+                     style='width:70px;' /> <a id='system-config-test-port' href='javascript:void(0);'
+                                               class='easyui-linkbutton'
+                                               data-options="plain:true,iconCls:'icon-test-port'"></a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input id='port-forwarding-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-port-forwarding-enabled' for='port-forwarding-enabled'></label>
+            </td>
+            <td>
+              <span id='system-config-port-is-open-true' style='display:none;color:#339900;'></span>
+              <span id='system-config-port-is-open-false' style='display:none;color:red;'></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input id='lpd-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-lpd-enabled' for='lpd-enabled'></label>
+            </td>
+            <td>
+              <input id='utp-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-utp-enabled' for='utp-enabled'></label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input id='dht-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-dht-enabled' for='dht-enabled'></label>
+            </td>
+            <td>
+              <input id='pex-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-pex-enabled' for='pex-enabled'></label>
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <input id='blocklist-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-blocklist-enabled' for='blocklist-enabled'></label>
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <input id='blocklist-url' type='text' enabledof='blocklist-enabled' />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+                            <span id='system-config-blocklist-size'
                                   system-lang="dialog['system-config']['blocklist-size']"></span>
-                            <button id="system-conifg-button-update-blocklist" class="easyui-linkbutton"
-                                    data-options="iconCls:'iconfont tr-icon-reload'"
-                                    system-lang="dialog['public']['button-update']"
-                                    enabledof="blocklist-enabled"></button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div title="Limit" style="padding:5px;padding-right:10px;" class="dialog">
-                <table style="width:100%;">
-                    <tr>
-                        <td width="65%">
-                            <input id="speed-limit-down-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-speed-limit-down-enabled" for="speed-limit-down-enabled"></label>
-                        </td>
-                        <td width="35%"><input id="speed-limit-down" value="" type="text" class="easyui-numberspinner"
-                                               enabledof="speed-limit-down-enabled"/> KB/s
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="speed-limit-up-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-speed-limit-up-enabled" for="speed-limit-up-enabled"></label>
-                        </td>
-                        <td><input id="speed-limit-up" value="" type="text" class="easyui-numberspinner"
-                                   enabledof="speed-limit-up-enabled"/> KB/s
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span id="system-config-peer-limit-global"></span>
-                        </td>
-                        <td>
-                            <input id="peer-limit-global" value="" type="text" class="easyui-numberspinner"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span id="system-config-peer-limit-per-torrent"></span>
-                        </td>
-                        <td>
-                            <input id="peer-limit-per-torrent" value="" type="text" class="easyui-numberspinner"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="seedRatioLimited" type="checkbox" style="width:16px;"/><label
-                                id="system-config-seedRatioLimited" for="seedRatioLimited"></label>
-                        </td>
-                        <td><input id="seedRatioLimit" value="" type="text" class="easyui-numberspinner"
-                                   enabledof="seedRatioLimited" data-options="precision:2"/></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="idle-seeding-limit-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-idle-seeding-limit-enabled" for="idle-seeding-limit-enabled"></label>
-                        </td>
-                        <td><input id="idle-seeding-limit" value="" type="text" class="easyui-numberspinner"
-                                   enabledof="idle-seeding-limit-enabled"/> <span name="system-config-minutes"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="queue-stalled-enabled" type="checkbox" style="width:16px;"/><label
-                                id="system-config-queue-stalled-enabled" for="queue-stalled-enabled"></label>
-                        </td>
-                        <td><input id="queue-stalled-minutes" value="" type="text" class="easyui-numberspinner"
-                                   enabledof="queue-stalled-enabled"/> <span name="system-config-minutes"></span></td>
-                    </tr>
-                </table>
-            </div>
-            <div title="Alt speeds" style="padding:5px;" class="dialog">
-                <fieldset>
-                    <table style="width:100%;">
-                        <tr>
-                            <td width="65%">
-                                <span id="system-config-alt-speed-down"></span>
-                            </td>
-                            <td width="35%"><input id="alt-speed-down" value="" type="text" class="easyui-numberspinner"
-                                                   _enabledof="alt-speed-enabled"/> KB/s
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label id="system-config-alt-speed-up"></label>
-                            </td>
-                            <td><input id="alt-speed-up" value="" type="text" class="easyui-numberspinner"
-                                       _enabledof="alt-speed-enabled"/> KB/s
-                            </td>
-                        </tr>
-                    </table>
-                </fieldset>
-                <fieldset>
-                    <legend id="">
-                        <input id="alt-speed-time-enabled" type="checkbox" style="width:16px;"/><label
-                            id="system-config-alt-speed-time-enabled" for="alt-speed-time-enabled"></label>
-                    </legend>
-                    <table style="width:100%;">
-                        <tr>
-                            <td>
-                                <span id="system-config-alt-speed-time"></span>
-                                <input id="alt-speed-time-begin" value="" type="text" class="easyui-timespinner"
-                                       style="width:80px;" enabledof="alt-speed-time-enabled"/> -
-                                <input id="alt-speed-time-end" value="" type="text" class="easyui-timespinner"
-                                       style="width:80px;" enabledof="alt-speed-time-enabled"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding:10px 0px 5px 0px;">
-                                <input id="alt-speed-time-weekday-1" type="checkbox" style="width:16px;"
-                                       enabledof="alt-speed-time-enabled"/><label id="system-config-weekday-1"
-                                                                                  for="alt-speed-time-weekday-1"></label>
-                                <input id="alt-speed-time-weekday-2" type="checkbox" style="width:16px;"
-                                       enabledof="alt-speed-time-enabled"/><label id="system-config-weekday-2"
-                                                                                  for="alt-speed-time-weekday-2"></label>
-                                <input id="alt-speed-time-weekday-3" type="checkbox" style="width:16px;"
-                                       enabledof="alt-speed-time-enabled"/><label id="system-config-weekday-3"
-                                                                                  for="alt-speed-time-weekday-3"></label>
-                                <input id="alt-speed-time-weekday-4" type="checkbox" style="width:16px;"
-                                       enabledof="alt-speed-time-enabled"/><label id="system-config-weekday-4"
-                                                                                  for="alt-speed-time-weekday-4"></label>
-                                <input id="alt-speed-time-weekday-5" type="checkbox" style="width:16px;"
-                                       enabledof="alt-speed-time-enabled"/><label id="system-config-weekday-5"
-                                                                                  for="alt-speed-time-weekday-5"></label>
-                                <input id="alt-speed-time-weekday-6" type="checkbox" style="width:16px;"
-                                       enabledof="alt-speed-time-enabled"/><label id="system-config-weekday-6"
-                                                                                  for="alt-speed-time-weekday-6"></label>
-                                <input id="alt-speed-time-weekday-0" type="checkbox" style="width:16px;"
-                                       enabledof="alt-speed-time-enabled"/><label id="system-config-weekday-0"
-                                                                                  for="alt-speed-time-weekday-0"></label>
-                            </td>
-                        </tr>
-                    </table>
-                </fieldset>
-                <input id="alt-speed-enabled" type="checkbox" style="width:16px;"/><label
-                    id="system-config-alt-speed-enabled" for="alt-speed-enabled"></label>
-            </div>
-            <div title="Folders Dictionary" style="padding:5px;padding-right:10px;" class="dialog">
-                <table style="width:100%;height:100%;">
-                    <tr>
-                        <td width="100%" height="100%">
-                            <textarea id="local-storage-dictionary-folders" style="width:100%;height:100%;"></textarea>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div title="More" style="padding:10px;" class="dialog">
-                <table style="width:100%;">
-                    <tr>
-                        <td width="80%">
-                            <label for="show-bt-servers"
-                                   system-lang="dialog['system-config']['show-bt-servers']"></label>
-                        </td>
-                        <td>
-                            <input id="show-bt-servers" class="easyui-switchbutton" type="checkbox" config-type="1"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="hide-subfolders"
-                                   system-lang="dialog['system-config']['hide-subfolders']"></label>
-                        </td>
-                        <td>
-                            <input id="hide-subfolders" class="easyui-switchbutton" type="checkbox" config-type="1"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="simpleCheckMode"
-                                   system-lang="dialog['system-config']['simple-check-mode']"></label>
-                        </td>
-                        <td>
-                            <input id="simpleCheckMode" class="easyui-switchbutton" type="checkbox" config-type="1"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><span system-lang="dialog['system-config']['nav-contents']"></span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label system-lang="tree['servers']"></label>
-                        </td>
-                        <td>
-                            <input id="nav-servers" class="easyui-switchbutton" type="checkbox" config-type="1"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label system-lang="tree['folders']"></label>
-                        </td>
-                        <td>
-                            <input id="nav-folders" class="easyui-switchbutton" type="checkbox" config-type="1"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label system-lang="tree['statistics']['title']"></label>
-                        </td>
-                        <td>
-                            <input id="nav-statistics" class="easyui-switchbutton" type="checkbox" config-type="1"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label system-lang="tree['labels']"></label>
-                        </td>
-                        <td>
-                            <input id="nav-labels" class="easyui-switchbutton" type="checkbox" config-type="1"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <label system-lang="dialog['system-config']['ipinfo']"></label>
-                            <a id="system-config-test-port" href="http://ipinfo.io" target="_blank"
-                                                            class="easyui-linkbutton"
-                                                            data-options="plain:true,iconCls:'icon-about'"></a>
-                            <input id="ipInfoToken" value="" class="easyui-textbox" type="text" style="width: 100%;"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <hr/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <label system-lang="dialog['system-config']['ipInfoCustom']"></label><br>
+              <button id='system-conifg-button-update-blocklist' class='easyui-linkbutton'
+                      data-options="iconCls:'iconfont tr-icon-reload'"
+                      system-lang="dialog['public']['button-update']"
+                      enabledof='blocklist-enabled'></button>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div title='Limit' style='padding:5px;padding-right:10px;' class='dialog'>
+        <table style='width:100%;'>
+          <tr>
+            <td width='65%'>
+              <input id='speed-limit-down-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-speed-limit-down-enabled' for='speed-limit-down-enabled'></label>
+            </td>
+            <td width='35%'><input id='speed-limit-down' value='' type='text' class='easyui-numberspinner'
+                                   enabledof='speed-limit-down-enabled' /> KB/s
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input id='speed-limit-up-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-speed-limit-up-enabled' for='speed-limit-up-enabled'></label>
+            </td>
+            <td><input id='speed-limit-up' value='' type='text' class='easyui-numberspinner'
+                       enabledof='speed-limit-up-enabled' /> KB/s
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span id='system-config-peer-limit-global'></span>
+            </td>
+            <td>
+              <input id='peer-limit-global' value='' type='text' class='easyui-numberspinner' />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span id='system-config-peer-limit-per-torrent'></span>
+            </td>
+            <td>
+              <input id='peer-limit-per-torrent' value='' type='text' class='easyui-numberspinner' />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input id='seedRatioLimited' type='checkbox' style='width:16px;' /><label
+              id='system-config-seedRatioLimited' for='seedRatioLimited'></label>
+            </td>
+            <td><input id='seedRatioLimit' value='' type='text' class='easyui-numberspinner'
+                       enabledof='seedRatioLimited' data-options='precision:2' /></td>
+          </tr>
+          <tr>
+            <td>
+              <input id='idle-seeding-limit-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-idle-seeding-limit-enabled' for='idle-seeding-limit-enabled'></label>
+            </td>
+            <td><input id='idle-seeding-limit' value='' type='text' class='easyui-numberspinner'
+                       enabledof='idle-seeding-limit-enabled' /> <span name='system-config-minutes'></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input id='queue-stalled-enabled' type='checkbox' style='width:16px;' /><label
+              id='system-config-queue-stalled-enabled' for='queue-stalled-enabled'></label>
+            </td>
+            <td><input id='queue-stalled-minutes' value='' type='text' class='easyui-numberspinner'
+                       enabledof='queue-stalled-enabled' /> <span name='system-config-minutes'></span></td>
+          </tr>
+        </table>
+      </div>
+      <div title='Alt speeds' style='padding:5px;' class='dialog'>
+        <fieldset>
+          <table style='width:100%;'>
+            <tr>
+              <td width='65%'>
+                <span id='system-config-alt-speed-down'></span>
+              </td>
+              <td width='35%'><input id='alt-speed-down' value='' type='text' class='easyui-numberspinner'
+                                     _enabledof='alt-speed-enabled' /> KB/s
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label id='system-config-alt-speed-up'></label>
+              </td>
+              <td><input id='alt-speed-up' value='' type='text' class='easyui-numberspinner'
+                         _enabledof='alt-speed-enabled' /> KB/s
+              </td>
+            </tr>
+          </table>
+        </fieldset>
+        <fieldset>
+          <legend id=''>
+            <input id='alt-speed-time-enabled' type='checkbox' style='width:16px;' /><label
+            id='system-config-alt-speed-time-enabled' for='alt-speed-time-enabled'></label>
+          </legend>
+          <table style='width:100%;'>
+            <tr>
+              <td>
+                <span id='system-config-alt-speed-time'></span>
+                <input id='alt-speed-time-begin' value='' type='text' class='easyui-timespinner'
+                       style='width:80px;' enabledof='alt-speed-time-enabled' /> -
+                <input id='alt-speed-time-end' value='' type='text' class='easyui-timespinner'
+                       style='width:80px;' enabledof='alt-speed-time-enabled' />
+              </td>
+            </tr>
+            <tr>
+              <td style='padding:10px 0px 5px 0px;'>
+                <input id='alt-speed-time-weekday-1' type='checkbox' style='width:16px;'
+                       enabledof='alt-speed-time-enabled' /><label id='system-config-weekday-1'
+                                                                   for='alt-speed-time-weekday-1'></label>
+                <input id='alt-speed-time-weekday-2' type='checkbox' style='width:16px;'
+                       enabledof='alt-speed-time-enabled' /><label id='system-config-weekday-2'
+                                                                   for='alt-speed-time-weekday-2'></label>
+                <input id='alt-speed-time-weekday-3' type='checkbox' style='width:16px;'
+                       enabledof='alt-speed-time-enabled' /><label id='system-config-weekday-3'
+                                                                   for='alt-speed-time-weekday-3'></label>
+                <input id='alt-speed-time-weekday-4' type='checkbox' style='width:16px;'
+                       enabledof='alt-speed-time-enabled' /><label id='system-config-weekday-4'
+                                                                   for='alt-speed-time-weekday-4'></label>
+                <input id='alt-speed-time-weekday-5' type='checkbox' style='width:16px;'
+                       enabledof='alt-speed-time-enabled' /><label id='system-config-weekday-5'
+                                                                   for='alt-speed-time-weekday-5'></label>
+                <input id='alt-speed-time-weekday-6' type='checkbox' style='width:16px;'
+                       enabledof='alt-speed-time-enabled' /><label id='system-config-weekday-6'
+                                                                   for='alt-speed-time-weekday-6'></label>
+                <input id='alt-speed-time-weekday-0' type='checkbox' style='width:16px;'
+                       enabledof='alt-speed-time-enabled' /><label id='system-config-weekday-0'
+                                                                   for='alt-speed-time-weekday-0'></label>
+              </td>
+            </tr>
+          </table>
+        </fieldset>
+        <input id='alt-speed-enabled' type='checkbox' style='width:16px;' /><label
+        id='system-config-alt-speed-enabled' for='alt-speed-enabled'></label>
+      </div>
+      <div title='Folders Dictionary' style='padding:5px;padding-right:10px;' class='dialog'>
+        <table style='width:100%;height:100%;'>
+          <tr>
+            <td width='100%' height='100%'>
+              <textarea id='local-storage-dictionary-folders' style='width:100%;height:100%;'></textarea>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div title='More' style='padding:10px;' class='dialog'>
+        <table style='width:100%;'>
+          <tr>
+            <td width='80%'>
+              <label for='show-bt-servers'
+                     system-lang="dialog['system-config']['show-bt-servers']"></label>
+            </td>
+            <td>
+              <input id='show-bt-servers' class='easyui-switchbutton' type='checkbox' config-type='1' />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for='hide-subfolders'
+                     system-lang="dialog['system-config']['hide-subfolders']"></label>
+            </td>
+            <td>
+              <input id='hide-subfolders' class='easyui-switchbutton' type='checkbox' config-type='1' />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for='simpleCheckMode'
+                     system-lang="dialog['system-config']['simple-check-mode']"></label>
+            </td>
+            <td>
+              <input id='simpleCheckMode' class='easyui-switchbutton' type='checkbox' config-type='1' />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'><span system-lang="dialog['system-config']['nav-contents']"></span></td>
+          </tr>
+          <tr>
+            <td>
+              <label system-lang="tree['servers']"></label>
+            </td>
+            <td>
+              <input id='nav-servers' class='easyui-switchbutton' type='checkbox' config-type='1' />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label system-lang="tree['folders']"></label>
+            </td>
+            <td>
+              <input id='nav-folders' class='easyui-switchbutton' type='checkbox' config-type='1' />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label system-lang="tree['statistics']['title']"></label>
+            </td>
+            <td>
+              <input id='nav-statistics' class='easyui-switchbutton' type='checkbox' config-type='1' />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label system-lang="tree['labels']"></label>
+            </td>
+            <td>
+              <input id='nav-labels' class='easyui-switchbutton' type='checkbox' config-type='1' />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <label system-lang="dialog['system-config']['ipinfo']"></label>
+              <a id='system-config-test-port' href='http://ipinfo.io' target='_blank'
+                 class='easyui-linkbutton'
+                 data-options="plain:true,iconCls:'icon-about'"></a>
+              <input id='ipInfoToken' value='' class='easyui-textbox' type='text' style='width: 100%;' />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td colspan='2'>
+              <label system-lang="dialog['system-config']['ipInfoCustom']"></label><br>
 
-                            <label system-lang="dialog['system-config']['ipInfoCountryCodeUrl']"></label>
-                            <input id="ipInfoFlagUrl" value="" class="easyui-textbox"
-                                data-options="prompt:'%protocol//%hostname:5000/code/%ip',buttonText:'Test'" type="text" style="width: 100%"/><br>
+              <label system-lang="dialog['system-config']['ipInfoCountryCodeUrl']"></label>
+              <input id='ipInfoFlagUrl' value='' class='easyui-textbox'
+                     data-options="prompt:'%protocol//%hostname:5000/code/%ip',buttonText:'Test'" type='text'
+                     style='width: 100%' /><br>
 
-                            <label system-lang="dialog['system-config']['ipInfoDetailUrl']"></label>
-                            <input id="ipInfoDetailUrl" value="" class="easyui-textbox"
-                                data-options="prompt:'%protocol//%hostname:5000/detail/%ip/%navlang',buttonText:'Test'" type="text" style="width: 100%"/><br>
+              <label system-lang="dialog['system-config']['ipInfoDetailUrl']"></label>
+              <input id='ipInfoDetailUrl' value='' class='easyui-textbox'
+                     data-options="prompt:'%protocol//%hostname:5000/detail/%ip/%navlang',buttonText:'Test'" type='text'
+                     style='width: 100%' /><br>
 
-                            <label system-lang="dialog['system-config']['ipInfoCustomTips']"></label>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div title="User Labels" style="padding:5px;" class="dialog">
-                <div id="divLabels" style="width:100%;height: 100%;"></div>
-                <div id="divLabelsToolbar" style="height: auto;">
-                    <a id="btn-UserLabel-addNew" href="javascript:void(0)" class="easyui-linkbutton"
-                       data-options="iconCls:'iconfont tr-icon-plus',plain:true"
-                       system-lang="dialog['public']['button-addnew']"></a>
-                    <a id="btn-UserLabel-remove" href="javascript:void(0)" class="easyui-linkbutton"
-                       style="color:crimson;" data-options="iconCls:'iconfont tr-icon-delete',plain:true"
-                       system-lang="dialog['public']['button-delete']"></a>
-                    <span class="button-split">|</span>
-                    <a id="btn-UserLabel-import" href="javascript:void(0)" class="easyui-linkbutton"
-                       data-options="iconCls:'iconfont tr-icon-download',plain:true"
-                       system-lang="dialog['public']['button-import']"></a>
-                    <a id="btn-UserLabel-export" href="javascript:void(0)" class="easyui-linkbutton"
-                       data-options="iconCls:'iconfont tr-icon-upload',plain:true"
-                       system-lang="dialog['public']['button-export']"></a>
-                </div>
-            </div>
+              <label system-lang="dialog['system-config']['ipInfoCustomTips']"></label>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div title='User Labels' style='padding:5px;' class='dialog'>
+        <div id='divLabels' style='width:100%;height: 100%;'></div>
+        <div id='divLabelsToolbar' style='height: auto;'>
+          <a id='btn-UserLabel-addNew' href='javascript:void(0)' class='easyui-linkbutton'
+             data-options="iconCls:'iconfont tr-icon-plus',plain:true"
+             system-lang="dialog['public']['button-addnew']"></a>
+          <a id='btn-UserLabel-remove' href='javascript:void(0)' class='easyui-linkbutton'
+             style='color:crimson;' data-options="iconCls:'iconfont tr-icon-delete',plain:true"
+             system-lang="dialog['public']['button-delete']"></a>
+          <span class='button-split'>|</span>
+          <a id='btn-UserLabel-import' href='javascript:void(0)' class='easyui-linkbutton'
+             data-options="iconCls:'iconfont tr-icon-download',plain:true"
+             system-lang="dialog['public']['button-import']"></a>
+          <a id='btn-UserLabel-export' href='javascript:void(0)' class='easyui-linkbutton'
+             data-options="iconCls:'iconfont tr-icon-upload',plain:true"
+             system-lang="dialog['public']['button-export']"></a>
         </div>
+      </div>
     </div>
-    <div data-options="region:'south',border:false" style="text-align:right;padding:6px;">
-        <a id="system-config-button-reload" href="javascript:void(0)" class="easyui-linkbutton"
-           data-options="plain:true,iconCls:'icon-reload'" style="float:left;display:none;"></a>
-        <button id="restore-default-settings" style="float:left;"
-                system-lang="dialog['system-config']['restore-default-settings']"
-                data-options="iconCls:'iconfont tr-icon-restore',plain:true" class="easyui-linkbutton"></button>
-        <span style="float:left;margin-top: 4px;height: auto;" class="button-split">|</span>
-        <button id="btn-import-config" style="float:left;" system-lang="dialog['public']['button-import']"
-                system-tip-lang="dialog['system-config']['import-config']"
-                data-options="iconCls:'iconfont tr-icon-download',plain:true" class="easyui-linkbutton"></button>
-        <button id="btn-export-config" style="float:left;" system-lang="dialog['public']['button-export']"
-                system-tip-lang="dialog['system-config']['export-config']"
-                data-options="iconCls:'iconfont tr-icon-upload',plain:true" class="easyui-linkbutton"></button>
-        <span id="system-config-nochange" style="display:none;"></span>
-        <span id="system-config-saved" style="display:none;"></span>
-        <a id="system-config-button-save" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true"
-           href="javascript:void(0);">Ok</a>
-        <a id="system-config-button-cancel" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true"
-           href="javascript:void(0);">Cancel</a>
-    </div>
+  </div>
+  <div data-options="region:'south',border:false" style='text-align:right;padding:6px;'>
+    <a id='system-config-button-reload' href='javascript:void(0)' class='easyui-linkbutton'
+       data-options="plain:true,iconCls:'icon-reload'" style='float:left;display:none;'></a>
+    <button id='restore-default-settings' style='float:left;'
+            system-lang="dialog['system-config']['restore-default-settings']"
+            data-options="iconCls:'iconfont tr-icon-restore',plain:true" class='easyui-linkbutton'></button>
+    <span style='float:left;margin-top: 4px;height: auto;' class='button-split'>|</span>
+    <button id='btn-import-config' style='float:left;' system-lang="dialog['public']['button-import']"
+            system-tip-lang="dialog['system-config']['import-config']"
+            data-options="iconCls:'iconfont tr-icon-download',plain:true" class='easyui-linkbutton'></button>
+    <button id='btn-export-config' style='float:left;' system-lang="dialog['public']['button-export']"
+            system-tip-lang="dialog['system-config']['export-config']"
+            data-options="iconCls:'iconfont tr-icon-upload',plain:true" class='easyui-linkbutton'></button>
+    <span id='system-config-nochange' style='display:none;'></span>
+    <span id='system-config-saved' style='display:none;'></span>
+    <a id='system-config-button-save' class='easyui-linkbutton' data-options="iconCls:'icon-save',plain:true"
+       href='javascript:void(0);'>Ok</a>
+    <a id='system-config-button-cancel' class='easyui-linkbutton' data-options="iconCls:'icon-cancel',plain:true"
+       href='javascript:void(0);'>Cancel</a>
+  </div>
 </div>
-<script type="text/javascript">
-  (function (thisDialog) {
+<script type='text/javascript'>
+  console.log('dialog-system-config');
+
+  (function(thisDialog) {
     var page = {
       selectedIndex: -1,
-      init: function () {
+      init: function() {
         this.initLangText();
         this.initTabs();
         this.initLanguageCombo();
@@ -493,7 +497,7 @@
         this.initUserLabels();
       },
       // 初始化选项卡
-      initTabs: function () {
+      initTabs: function() {
         var tabs = thisDialog.find('#system-config-tabs');
         tabs.tabs();
         var base = tabs.tabs('getTab', 0);
@@ -501,60 +505,60 @@
         tabs.tabs('update', {
           tab: tabs.tabs('getTab', 0),
           options: {
-            title: system.lang.dialog['system-config'].tabs.base
-          }
+            title: system.lang.dialog['system-config'].tabs.base,
+          },
         });
         tabs.tabs('update', {
           tab: tabs.tabs('getTab', 1),
           options: {
-            title: system.lang.dialog['system-config'].tabs.network
-          }
+            title: system.lang.dialog['system-config'].tabs.network,
+          },
         });
         tabs.tabs('update', {
           tab: tabs.tabs('getTab', 2),
           options: {
-            title: system.lang.dialog['system-config'].tabs.limit
-          }
+            title: system.lang.dialog['system-config'].tabs.limit,
+          },
         });
         tabs.tabs('update', {
           tab: tabs.tabs('getTab', 3),
           options: {
-            title: system.lang.dialog['system-config'].tabs['alt-speed']
-          }
+            title: system.lang.dialog['system-config'].tabs['alt-speed'],
+          },
         });
         tabs.tabs('update', {
           tab: tabs.tabs('getTab', 4),
           options: {
-            title: system.lang.dialog['system-config'].tabs['dictionary-folders']
-          }
+            title: system.lang.dialog['system-config'].tabs['dictionary-folders'],
+          },
         });
         tabs.tabs('update', {
           tab: tabs.tabs('getTab', 5),
           options: {
-            title: system.lang.dialog['system-config'].tabs['more']
-          }
+            title: system.lang.dialog['system-config'].tabs['more'],
+          },
         });
         tabs.tabs('update', {
           tab: tabs.tabs('getTab', 6),
           options: {
-            title: system.lang.dialog['system-config'].tabs['labels']
-          }
+            title: system.lang.dialog['system-config'].tabs['labels'],
+          },
         });
       },
       // Set the language
-      initLanguageCombo: function () {
-        $.each(system.languages, function (key, value) {
+      initLanguageCombo: function() {
+        $.each(system.languages, function(key, value) {
           $('<option/>').text(value).val(key).attr('selected', (key == system.lang.name ? true : false)).appendTo(thisDialog.find('#system-config-lang'));
         });
         $('#system-config-lang', thisDialog).combobox({
           editable: false,
-          panelHeight: 'auto'
+          panelHeight: 'auto',
         });
       },
       // 初始化界面文字
-      initLangText: function () {
+      initLangText: function() {
         var title = 'button-save,button-cancel,button-reload'.split(',');
-        $.each(title, function (i, item) {
+        $.each(title, function(i, item) {
           thisDialog.find('#system-config-' + item).html(system.lang.dialog.public[item]);
         });
 
@@ -567,23 +571,23 @@
           ',peer-limit-global,peer-limit-per-torrent,blocklist-enabled,seedRatioLimited,queue-stalled-enabled,idle-seeding-limit-enabled' +
           ',alt-speed-time-enabled,alt-speed-time,nochange,port-is-open-true,port-is-open-false,language'
         ).split(',');
-        $.each(title, function (i, item) {
+        $.each(title, function(i, item) {
           thisDialog.find('#system-config-' + item).html(system.lang.dialog['system-config'][item]);
         });
 
         thisDialog.find('span[name=\'system-config-minutes\']').html(system.lang.dialog['system-config']['minutes']);
       },
       // 初始化参数值
-      initConfigValue: function () {
+      initConfigValue: function() {
         // Replace system settings
         var title = ('incomplete-dir-enabled,rename-partial-files,start-added-torrents,download-queue-enabled,seed-queue-enabled' +
           ',peer-port-random-on-start,speed-limit-down-enabled,speed-limit-up-enabled,alt-speed-enabled,idle-seeding-limit-enabled' +
           ',port-forwarding-enabled,utp-enabled,dht-enabled,lpd-enabled,pex-enabled,blocklist-enabled,seedRatioLimited,queue-stalled-enabled' +
           ',alt-speed-time-enabled,script-torrent-done-enabled'
         ).split(',');
-        $.each(title, function (i, item) {
+        $.each(title, function(i, item) {
           thisDialog.find('#' + item).prop('checked', system.serverConfig[item])
-            .click(function () {
+            .click(function() {
               thisDialog.find('*[enabledof=\'' + this.id + '\']').prop('disabled', !this.checked);
               if (this.checked) {
                 thisDialog.find('.easyui-numberspinner[enabledof=\'' + this.id + '\']').numberspinner('enable');
@@ -599,7 +603,7 @@
 
         // Set content
         thisDialog.find('#download-dir').val(system.downloadDir);
-        $.each(transmission.downloadDirs, function (i, item) {
+        $.each(transmission.downloadDirs, function(i, item) {
           $('<option/>').text(item).val(item).attr('selected', (item == system.downloadDir ? true : false)).appendTo(thisDialog.find('#download-dir'));
         });
         if (transmission.downloadDirs.length == 0) {
@@ -667,13 +671,13 @@
         //thisDialog.find("#local-storage-dictionary-folders").val(transmission.downloadDirs);
 
         thisDialog.find('#show-bt-servers').switchbutton({
-          checked: system.config.showBTServers
+          checked: system.config.showBTServers,
         });
         thisDialog.find('#hide-subfolders').switchbutton({
-          checked: system.config.hideSubfolders
+          checked: system.config.hideSubfolders,
         });
         thisDialog.find('#simpleCheckMode').switchbutton({
-          checked: system.config.simpleCheckMode
+          checked: system.config.simpleCheckMode,
         });
 
         thisDialog.find('#ipInfoToken').val(system.config.ipInfoToken);
@@ -684,28 +688,29 @@
         for (var key in system.config.nav) {
           var value = system.config.nav[key];
           thisDialog.find('#nav-' + key).switchbutton({
-            checked: value
+            checked: value,
           });
         }
       },
       // 初始化相关按钮事件
-      initEvents: function () {
+      initEvents: function() {
         // Cancel
-        thisDialog.find('#system-config-button-cancel').click(function () {
+        thisDialog.find('#system-config-button-cancel').click(function() {
           thisDialog.dialog('close');
         });
         /**/
         // 测试端口
-        thisDialog.find('#system-config-test-port').click(function () {
+        thisDialog.find('#system-config-test-port').click(function() {
           var button = $(this);
           var newPort = parseInt(thisDialog.find('#peer-port').val());
 
           function buttonPortTestStatus(enabled) {
             button.linkbutton({
-              text: system.lang.dialog['system-config'][enabled?'test-port':'testing'],
-              disabled: !enabled
+              text: system.lang.dialog['system-config'][enabled ? 'test-port' : 'testing'],
+              disabled: !enabled,
             });
           }
+
           function labelPortOpenStatus(opened) {
             if (opened) {
               thisDialog.find('#system-config-port-is-open-true').fadeInAndOut();
@@ -721,16 +726,16 @@
             transmission.exec({
               method: 'session-set',
               arguments: {
-                'peer-port': newPort
-              }
-            }, function (data) {
+                'peer-port': newPort,
+              },
+            }, function(data) {
               if (data.result == 'success') {
                 system.serverConfig['peer-port'] = newPort;
                 transmission.exec({
-                  method: 'port-test'
-                }, function (data) {
+                  method: 'port-test',
+                }, function(data) {
                   if (data.result == 'success') {
-                    labelPortOpenStatus(data.arguments['port-is-open']==true);
+                    labelPortOpenStatus(data.arguments['port-is-open'] == true);
                   }
                   buttonPortTestStatus(true);
                 });
@@ -740,10 +745,10 @@
             });
           } else {
             transmission.exec({
-              method: 'port-test'
-            }, function (data) {
+              method: 'port-test',
+            }, function(data) {
               if (data.result == 'success') {
-                labelPortOpenStatus(data.arguments['port-is-open']==true);
+                labelPortOpenStatus(data.arguments['port-is-open'] == true);
               }
               buttonPortTestStatus(true);
             });
@@ -751,7 +756,7 @@
         });
 
         // 保存参数
-        thisDialog.find('#system-config-button-save').click(function () {
+        thisDialog.find('#system-config-button-save').click(function() {
           var inputs = thisDialog.find('input');
           var config = {};
           var days = new Array();
@@ -844,29 +849,29 @@
           if (!$.isEmptyObject(config)) {
             $(this).linkbutton({
               text: system.lang.dialog['system-config'].saving,
-              disabled: true
+              disabled: true,
             });
             // Start setting parameters
             transmission.exec({
               method: 'session-set',
-              arguments: config
-            }, function (data) {
+              arguments: config,
+            }, function(data) {
               if (data.result == 'success') {
                 // Once the settings are successful, regain the current parameters
                 transmission.exec({
-                  method: 'session-get'
-                }, function (data) {
+                  method: 'session-get',
+                }, function(data) {
                   if (data.result == 'success') {
                     system.serverConfig = data.arguments;
                     $('#status_version').html(system.lang.statusbar.version + data.arguments['version']);
                     if (data.arguments['alt-speed-enabled'] == true) {
                       system.panel.toolbar.find('#toolbar_alt_speed').linkbutton({
-                        iconCls: 'icon-alt-speed-true'
+                        iconCls: 'icon-alt-speed-true',
                       });
                       $('#status_alt_speed').show();
                     } else {
                       system.panel.toolbar.find('#toolbar_alt_speed').linkbutton({
-                        iconCls: 'icon-alt-speed-false'
+                        iconCls: 'icon-alt-speed-false',
                       });
                       $('#status_alt_speed').hide();
                     }
@@ -896,7 +901,7 @@
           saveLocalData();
 
           // Save the local data
-          function saveLocalData () {
+          function saveLocalData() {
             if (thisDialog.find('#local-storage-dictionary-folders').val().replace(/^\s*[\r\n]/gm, '').length == 0) {
               system.dictionary.folders = '';
             } else {
@@ -912,10 +917,10 @@
         });
 
         // Update blacklist
-        thisDialog.find('#system-conifg-button-update-blocklist').click(function () {
+        thisDialog.find('#system-conifg-button-update-blocklist').click(function() {
           var button = $(this);
           button.prop('disabled', true);
-          transmission.updateBlocklist(function (data) {
+          transmission.updateBlocklist(function(data) {
             if (data.result == 'success') {
               thisDialog.find('#system-config-blocklist-size').html(system.lang.dialog['system-config']['blocklist-size'].replace('%n', data.arguments['blocklist-size']));
             }
@@ -924,21 +929,25 @@
           });
         });
 
-        thisDialog.find('#ipInfoFlagUrl').textbox({onClickButton: function (){
+        thisDialog.find('#ipInfoFlagUrl').textbox({
+          onClickButton: function() {
             if (this.value !== '' && this.value !== undefined) {
-                alert(system.expandIpInfoUrl(this.value, '8.8.8.8'));
+              alert(system.expandIpInfoUrl(this.value, '8.8.8.8'));
             }
-        }});
+          },
+        });
 
-        thisDialog.find('#ipInfoDetailUrl').textbox({onClickButton: function (){
+        thisDialog.find('#ipInfoDetailUrl').textbox({
+          onClickButton: function() {
             if (this.value !== '' && this.value !== undefined) {
-                alert(system.expandIpInfoUrl(this.value, '8.8.8.8'));
+              alert(system.expandIpInfoUrl(this.value, '8.8.8.8'));
             }
-        }});
+          },
+        });
 
 
         // 恢复界面默认设置
-        $('#restore-default-settings', thisDialog).click(function () {
+        $('#restore-default-settings', thisDialog).click(function() {
           if (confirm(system.lang['public']['text-confirm']) == false) {
             return;
           }
@@ -951,17 +960,17 @@
         });
       },
       // 初始化用户标签列表
-      initUserLabels: function () {
+      initUserLabels: function() {
         this.userLabelsTable = $('<table/>').appendTo($('#divLabels', thisDialog));
         var headContextMenu = null;
         var selectedIndex = -1;
 
         // 添加
-        $('#btn-UserLabel-addNew', thisDialog).on('click', function () {
+        $('#btn-UserLabel-addNew', thisDialog).on('click', function() {
           if (page.endEditing()) {
             page.userLabelsTable.datagrid('appendRow', {
               'ck': false,
-              'color': '#000000'
+              'color': '#000000',
             });
             page.editIndex = page.userLabelsTable.datagrid('getRows').length - 1;
             page.userLabelsTable.datagrid('selectRow', page.editIndex).datagrid('beginEdit', page.editIndex);
@@ -969,7 +978,7 @@
         });
 
         // 删除
-        $('#btn-UserLabel-remove', thisDialog).on('click', function () {
+        $('#btn-UserLabel-remove', thisDialog).on('click', function() {
           var checkedRows = page.userLabelsTable.datagrid('getChecked');
           if (checkedRows.length == 0) {
             return;
@@ -1008,10 +1017,10 @@
         });
 
         // 导出
-        $('#btn-UserLabel-export', thisDialog).on('click', function () {
+        $('#btn-UserLabel-export', thisDialog).on('click', function() {
           var data = {
             labels: system.config.labels,
-            maps: system.config.labelMaps
+            maps: system.config.labelMaps,
           };
           var exportData = JSON.parse(JSON.stringify(data));
 
@@ -1019,8 +1028,8 @@
         });
 
         // 导入
-        $('#btn-UserLabel-import', thisDialog).on('click', function () {
-          loadFileContent('json', function (content) {
+        $('#btn-UserLabel-import', thisDialog).on('click', function() {
+          loadFileContent('json', function(content) {
             var item = content;
             if (typeof (content) === 'string') {
               try {
@@ -1044,9 +1053,9 @@
           });
         });
 
-        function reloadData () {
+        function reloadData() {
           page.userLabelsTable.empty();
-          $.get(system.rootPath + 'template/config-user-labels-fields.json?time=' + (new Date()), function (data) {
+          $.get(system.rootPath + 'template/config-user-labels-fields.json?time=' + (new Date()), function(data) {
             var fields = data.fields;
             var _fields = {};
             for (var i = 0; i < fields.length; i++) {
@@ -1077,16 +1086,16 @@
               striped: true,
               columns: [fields],
               data: system.config.labels,
-              onSelect: function (rowIndex, rowData) {
+              onSelect: function(rowIndex, rowData) {
                 if (page.selectedIndex != -1) {
                   // page.userLabelsTable.datagrid("unselectRow", page.selectedIndex);
                 }
                 page.selectedIndex = rowIndex;
               },
-              onUnselect: function (rowIndex, rowData) {
+              onUnselect: function(rowIndex, rowData) {
                 page.selectedIndex = -1;
               },
-              onClickCell: function (index, field) {
+              onClickCell: function(index, field) {
                 if (page.editIndex != index) {
                   if (page.endEditing()) {
                     page.userLabelsTable.datagrid('selectRow', index).datagrid('beginEdit', index);
@@ -1096,13 +1105,13 @@
                     }
                     page.editIndex = index;
                   } else {
-                    setTimeout(function () {
+                    setTimeout(function() {
                       page.userLabelsTable.datagrid('selectRow', page.editIndex);
                     }, 0);
                   }
                 }
               },
-              onEndEdit: function (index, row, changes) {
+              onEndEdit: function(index, row, changes) {
                 if (row.name) {
                   if (row.ck !== undefined) {
                     delete row.ck;
@@ -1112,23 +1121,25 @@
                   system.control.torrentlist.refresh();
                   system.resetNavLabels(true);
                 }
-              }
+              },
             });
           }, 'json');
         };
 
         reloadData();
 
-        $('#btn-export-config', thisDialog).on('click.cus', function () {
+        $('#btn-export-config', thisDialog).on('click.cus', function() {
           page.exportConfig(this);
         });
 
-        $('#btn-import-config', thisDialog).on('click', function () {
+        $('#btn-import-config', thisDialog).on('click', function() {
           page.importConfig(this);
         });
       },
-      endEditing: function () {
-        if (page.editIndex == undefined) {return true;}
+      endEditing: function() {
+        if (page.editIndex == undefined) {
+          return true;
+        }
         if (page.userLabelsTable.datagrid('validateRow', page.editIndex)) {
           page.userLabelsTable.datagrid('endEdit', page.editIndex);
           page.editIndex = undefined;
@@ -1137,8 +1148,8 @@
           return false;
         }
       },
-      importConfig: function (button) {
-        loadFileContent('json', function (content) {
+      importConfig: function(button) {
+        loadFileContent('json', function(content) {
           var item = content;
           if (typeof (content) === 'string') {
             try {
@@ -1155,18 +1166,18 @@
               options: {
                 title: system.lang.dialog['import-config'].title,
                 width: 500,
-                height: 120
+                height: 120,
               },
               datas: {
-                config: item
+                config: item,
               },
               type: 1,
               source: $(button),
-              onClose: function () {
-                $(button).on('click', function () {
+              onClose: function() {
+                $(button).on('click', function() {
                   page.importConfig(this);
                 });
-              }
+              },
             });
           } else {
             alert(system.lang.dialog['import-config']['invalid-file']);
@@ -1177,23 +1188,24 @@
       /**
        * 导出当前配置到文件
        */
-      exportConfig: function (button) {
+      exportConfig: function(button) {
         system.openDialogFromTemplate({
           id: 'dialog-export-config',
           options: {
             title: system.lang.dialog['export-config'].title,
             width: 500,
-            height: 120
+            height: 200,
           },
-          type: 1,
+          type: 0,
           source: $(button),
-          onClose: function () {
-            $(button).on('click', function () {
+          onClose: function() {
+            console.log('dialog-system-config: onClose');
+            $(button).on('click', function() {
               page.exportConfig(this);
             });
-          }
+          },
         });
-      }
+      },
     };
     page.init();
   })($('#dialog-system-config'));

@@ -1,3 +1,4 @@
+import ClipboardJS from 'clipboard';
 import { Base64 } from 'js-base64';
 import semver from 'semver';
 

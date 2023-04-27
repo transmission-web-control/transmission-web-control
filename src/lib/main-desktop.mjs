@@ -1,5 +1,6 @@
 import '../style/iconfont/iconfont.css';
 
+import ClipboardJS from 'clipboard';
 import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
 
@@ -19,6 +20,7 @@ globalThis.saveFileAs = saveFileAs;
 globalThis.loadFileContent = loadFileContent;
 globalThis.formatSize = formatSize;
 globalThis.getHoursFromMinutes = getHoursFromMinutes;
+globalThis.ClipboardJS = ClipboardJS;
 
 // jQuery Extended
 (function ($) {

@@ -1,3 +1,5 @@
+import { saveAs } from 'file-saver';
+
 /**
  * 将指定的内容保存为文件
  * @param fileName 文件名
