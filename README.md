@@ -51,8 +51,11 @@ https://app.transifex.com/transmission-web-control/transmission-web-control-1/
 git clone https://github.com/transmission-web-control/transmission-web-control
 cd transmission-web-control
 
-yarn
-yarn start
+# corepack enable
+# corepack prepare --activate
+
+pnpm i
+pnpm run start
 ```
 
 <!--

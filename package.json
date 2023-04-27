@@ -20,9 +20,8 @@
   "author": "",
   "private": true,
   "license": "MIT",
+  "packageManager": "pnpm@8.3.1",
   "dependencies": {
-    "easyui": "^8.0.0",
-    "jquery": "^3.6.4",
     "js-base64": "^3.7.5",
     "lodash-es": "^4.17.21",
     "semver": "^7.5.0",
@@ -32,6 +31,7 @@
     "@types/jquery": "^3.5.16",
     "@types/lodash-es": "^4.17.7",
     "@types/node": "^18.16.0",
+    "@types/semver": "^7.3.13",
     "@types/ua-parser-js": "^0.7.36",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.0.0",
