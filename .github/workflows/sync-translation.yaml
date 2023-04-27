@@ -41,5 +41,6 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
+          token: ${{ secrets.PAT }}
           title: 'chore: update translation'
           branch: 'chore/i18n-pull'
