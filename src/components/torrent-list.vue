@@ -40,6 +40,7 @@
         </tbody>
       </table>
     </div>
+
     <div class="bottom">
       page
       <select v-model="currentPage">
@@ -106,53 +107,54 @@ const setSort = (v: string) => {
 
 <style scoped>
 .layout {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .head {
-  flex: 0 0 30px;
-  background: #f39322;
+    flex: 0 0 30px;
+    background: #f39322;
 }
 
 .main {
-  /*flex: 1;*/
-  display: block;
-  /*flex-direction: column;*/
-  overflow: auto;
-  overflow-y: scroll;
+    height: 100%;
+    /*flex: 1;*/
+    display: block;
+    /*flex-direction: column;*/
+    overflow: auto;
+    overflow-y: scroll;
 }
 
 .bottom {
-  flex: 0 0 30px;
-  background: #c7262f;
+    flex: 0 0 30px;
+    background: #c7262f;
 }
 
 td.tr2-torrent-cell {
-  user-select: none;
-  border: solid 2px blue;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  text-align: left;
-  display: table-cell;
+    user-select: none;
+    border: solid 2px blue;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: left;
+    display: table-cell;
 }
 
 table {
-  table-layout: fixed;
-  width: 1%;
+    table-layout: fixed;
+    width: 1%;
 }
 
 tbody > tr {
-  display: table-row;
+    display: table-row;
 }
 
 .main thead th {
-  height: 0px !important;
-  line-height: 0px !important;
-  padding-bottom: 0px !important;
-  padding-top: 0px !important;
+    height: 0px !important;
+    line-height: 0px !important;
+    padding-bottom: 0px !important;
+    padding-top: 0px !important;
 }
 </style>
