@@ -814,7 +814,7 @@ export class System extends SystemBase {
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i];
         const col = torrentList.datagrid('getColumnOption', field);
-        if (col.allowCustom.toString() !== 'false') {
+        if (col.allowCustom?.toString() !== 'false') {
           headContextMenu.menu('appendItem', {
             text: col.title,
             name: field,
