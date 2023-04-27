@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - master
-    path:
-      - ./src/i18n/en.json
-      - ./.github/workflows/push-translation.yaml
 
 jobs:
   sync:
@@ -21,6 +18,6 @@ jobs:
           mv ./tx ~/.local/bin
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - run: tx push
+      - run: tx push --use-git-timestamps
         env:
           TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
