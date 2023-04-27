@@ -8,7 +8,7 @@ on:
     - cron: '5 4 3 * *' # monthly
 
 jobs:
-  lint:
+  sync:
     runs-on: ubuntu-latest
 
     steps:
