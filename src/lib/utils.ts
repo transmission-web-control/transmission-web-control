@@ -82,3 +82,40 @@ export function getUserLang(): string {
 const browserLangMap: Record<string, string> = {
   zh: 'zh-CN',
 };
+
+export function formatSize(bytes: number, zeroToEmpty?: boolean, type?: 'speed'): string {
+  if (bytes === 0) {
+    if (zeroToEmpty) {
+      return '';
+    }
+
+    if (type === 'speed') {
+      return '0.00 KB/s';
+    } else {
+      return '0.00';
+    }
+  }
+
+  if (type === 'speed') {
+    return formatBytes(bytes) + '/s';
+  }
+
+  return formatBytes(bytes);
+}
+
+const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+export function formatBytes(bytes: number): string {
+  const k = 1000;
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  const unit = sizes[i];
+  if (unit) {
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${unit}`;
+  }
+
+  const n = bytes / Math.pow(k, sizes.length);
+
+  return `${n.toFixed(2)} ${sizes[sizes.length - 1]!}`;
+}

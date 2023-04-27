@@ -8,6 +8,8 @@
     "start": "vite --host 127.0.0.1",
     "prebuild": "rimraf ./dist/",
     "build": "vite build",
+    "test": "vitest run",
+    "vitest": "vitest",
     "tsc": "tsc",
     "format": "prettier --list-different -w .",
     "lint-staged": "lint-staged",
@@ -32,6 +34,8 @@
     "@types/ua-parser-js": "^0.7.36",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@vitest/coverage-c8": "^0.30.1",
+    "@vitest/ui": "^0.30.1",
     "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard-with-typescript": "^34.0.1",
@@ -45,7 +49,9 @@
     "prettier": "^2.8.8",
     "rimraf": "^5.0.0",
     "typescript": "^5.0.4",
-    "vite": "^4.3.1"
+    "vite": "^4.3.1",
+    "vitest": "^0.30.1",
+    "vitest-github-actions-reporter": "^0.10.0"
   },
   "lint-staged": {
     "*.{js,mjs,mts,html,css,ts,md,json,yml,yaml}": [

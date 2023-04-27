@@ -11,3 +11,4 @@ testFile/
 .vscode/
 dist/
 yarn-error.log
+coverage/

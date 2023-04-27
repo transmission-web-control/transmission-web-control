@@ -1,13 +1,11 @@
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
-import { UAParser } from 'ua-parser-js';
 
 import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
+import { formatSize } from './utils';
 import { APP_VERSION } from './version';
-
-const { browser } = UAParser(navigator.userAgent);
 
 // Current system global object
 export class System extends SystemBase {
@@ -1732,14 +1730,6 @@ export class System extends SystemBase {
     this.resetNavStatistics();
     this.resetNavFolders(oldInfos);
     this.resetNavLabels();
-
-    // FF browser displays the total size, will be moved down a row, so a separate treatment
-    // 新版本已无此问题
-    if (browser.name == 'Firefox' && browser.major < 60) {
-      system.panel.left.find('span.nav-total-size').css({
-        'margin-top': '-19px',
-      });
-    }
   }
 
   /**
@@ -3372,14 +3362,6 @@ export class System extends SystemBase {
     }
 
     timedChunk(transmission.downloadDirs, this.appendFolder, this, 10, function () {
-      // FF browser displays the total size, will be moved down a row, so a separate treatment
-      // 新版本已无此问题
-      if (browser.name === 'Firefox' && browser.major < 60) {
-        system.panel.left.find('span.nav-total-size').css({
-          'margin-top': '-19px',
-        });
-      }
-
       system.initUIStatus();
     });
     /*

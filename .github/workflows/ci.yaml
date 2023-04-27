@@ -11,6 +11,29 @@ on:
       - '!renovate/**'
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - run: yarn
+
+      - run: npx prettier --check ./
+
+      - run: npx tsc
+
+      - run: yarn test --coverage
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+
   lint:
     runs-on: ubuntu-latest
 
