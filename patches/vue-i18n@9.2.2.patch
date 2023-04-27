@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index ef48c84972640ad4bf1048efcfe83578541ab936..9e4681fc34cb01a152e252e9d4e77bb0887ea1d5 100644
+--- a/package.json
++++ b/package.json
+@@ -65,6 +65,7 @@
+   "exports": {
+     ".": {
+       "import": {
++        "types": "./dist/vue-i18n.d.ts",
+         "node": "./index.mjs",
+         "default": "./dist/vue-i18n.esm-bundler.js"
+       },

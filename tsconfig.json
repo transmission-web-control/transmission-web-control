@@ -8,6 +8,7 @@
     "strictNullChecks": true,
     "noEmit": true,
     "pretty": true,
+    "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
     "lib": ["DOM", "ES2022"],
     "allowImportingTsExtensions": true,

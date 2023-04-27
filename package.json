@@ -30,7 +30,7 @@
     "semver": "^7.5.0",
     "tailwindcss": "^3.3.1",
     "ua-parser-js": "^1.0.35",
-    "vue-i18n": "9.3.0-beta.17",
+    "vue-i18n": "9.2.2",
     "vue-router": "^4",
     "vue-simple-context-menu": "^4.0.4"
   },
@@ -99,5 +99,10 @@
         "printWidth": 120
       }
     ]
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "vue-i18n@9.2.2": "patches/vue-i18n@9.2.2.patch"
+    }
   }
 }
