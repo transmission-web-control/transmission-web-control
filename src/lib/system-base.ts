@@ -4,19 +4,19 @@ import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
-const easyUILocale = import.meta.glob(
-  '../../public/tr-web-control/script/easyui/locale/easyui-lang-*.js',
+const easyUILocale: Record<`../twc/easyui/locale/easyui-lang-${string}.js`, string> =
+  import.meta.glob('../twc/easyui/locale/easyui-lang-*.js', {
+    eager: true,
+    as: 'raw',
+  });
+
+const templateFiles: Record<`../twc/template/${string}.html`, string> = import.meta.glob(
+  '../twc/template/*.html',
   {
     eager: true,
     as: 'raw',
   },
 );
-
-const templateFiles: Record<`../../public/tr-web-control/template/${string}.html`, string> =
-  import.meta.glob('../../public/tr-web-control/template/*.html', {
-    eager: true,
-    as: 'raw',
-  });
 
 export class SystemBase {
   rootPath = 'tr-web-control/';
@@ -226,15 +226,11 @@ export class SystemBase {
     this.resetLangText();
 
     // Set the easyui language
-    const easyUILangFile = `../../public/tr-web-control/script/easyui/locale/easyui-lang-${lang}.js`;
+    const easyUILangFile = `../twc/easyui/locale/easyui-lang-${lang}.js` as const;
     if (easyUILangFile in easyUILocale) {
       eval(easyUILocale[easyUILangFile] as string);
     } else {
-      eval(
-        easyUILocale[
-          `../../public/tr-web-control/script/easyui/locale/easyui-lang-en.js`
-        ] as string,
-      );
+      eval(easyUILocale['../twc/easyui/locale/easyui-lang-en.js'] as string);
     }
   }
 
@@ -381,7 +377,7 @@ export class SystemBase {
       }
     };
 
-    const templateContent = templateFiles[`../../public/tr-web-control/template/${dialogId}.html`];
+    const templateContent = templateFiles[`../twc/template/${dialogId}.html`];
     if (templateContent) {
       dialogFileLoaded(templateContent);
     } else {

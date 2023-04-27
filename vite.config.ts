@@ -1,5 +1,3 @@
-import { fileURLToPath } from 'node:url';
-
 import { defineConfig } from 'vite';
 
 import { version } from './package.json';
@@ -8,17 +6,8 @@ const TRANSMISSION_RPC = process.env.TRANSMISSION_RPC || 'http://192.168.1.3:909
 
 export default defineConfig(({ mode }) => {
   return {
-    root: 'src',
-    base: './',
-    publicDir: '../public/',
     build: {
-      outDir: '../dist',
-      rollupOptions: {
-        input: {
-          main: fileURLToPath(new URL('./src/index.html', import.meta.url)),
-          mobile: fileURLToPath(new URL('./src/index.mobile.html', import.meta.url)),
-        },
-      },
+      chunkSizeWarningLimit: 1024 * 1024 * 1024,
       sourcemap: true,
     },
     server: {

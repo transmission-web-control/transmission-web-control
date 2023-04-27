@@ -5,3 +5,5 @@
 /public/tr-web-control/script/min/
 /public/tr-web-control/script/FileSaver.js
 /dist/
+public/
+src/twc/

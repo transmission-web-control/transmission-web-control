@@ -5,3 +5,6 @@
 /public/tr-web-control/script/min/
 /dist/
 coverage/
+
+public/
+src/twc/

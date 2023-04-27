@@ -64,9 +64,9 @@
   filter: alpha(opacity=0);
 }
 .webui-popover.pop-out {
-  -webkit-transition-property: 'opacity,transform';
-  -o-transition-property: 'opacity,transform';
-  transition-property: 'opacity,transform';
+  -webkit-transition-property: "opacity,transform";
+  -o-transition-property: "opacity,transform";
+  transition-property: "opacity,transform";
   -webkit-transition: 0.15s linear;
   -o-transition: 0.15s linear;
   transition: 0.15s linear;
@@ -119,7 +119,7 @@
   filter: alpha(opacity=50);
 }
 .webui-popover-inner .close:after {
-  content: '\00D7';
+  content: "\00D7";
   width: 0.8em;
   height: 0.8em;
   padding: 4px;
@@ -176,7 +176,7 @@
 }
 .webui-popover > .webui-arrow:after {
   border-width: 10px;
-  content: '';
+  content: "";
 }
 .webui-popover.top > .webui-arrow,
 .webui-popover.top-right > .webui-arrow,
@@ -191,7 +191,7 @@
 .webui-popover.top > .webui-arrow:after,
 .webui-popover.top-right > .webui-arrow:after,
 .webui-popover.top-left > .webui-arrow:after {
-  content: ' ';
+  content: " ";
   bottom: 1px;
   margin-left: -10px;
   border-top-color: #ffffff;
@@ -210,7 +210,7 @@
 .webui-popover.right > .webui-arrow:after,
 .webui-popover.right-top > .webui-arrow:after,
 .webui-popover.right-bottom > .webui-arrow:after {
-  content: ' ';
+  content: " ";
   left: 1px;
   bottom: -10px;
   border-left-width: 0;
@@ -229,7 +229,7 @@
 .webui-popover.bottom > .webui-arrow:after,
 .webui-popover.bottom-right > .webui-arrow:after,
 .webui-popover.bottom-left > .webui-arrow:after {
-  content: ' ';
+  content: " ";
   top: 1px;
   margin-left: -10px;
   border-bottom-color: #ffffff;
@@ -248,7 +248,7 @@
 .webui-popover.left > .webui-arrow:after,
 .webui-popover.left-top > .webui-arrow:after,
 .webui-popover.left-bottom > .webui-arrow:after {
-  content: ' ';
+  content: " ";
   right: 1px;
   border-right-width: 0;
   border-left-color: #ffffff;
@@ -287,7 +287,7 @@
   border-left-color: #333333;
 }
 .webui-popover i.icon-refresh:before {
-  content: '';
+  content: "";
 }
 .webui-popover i.icon-refresh {
   display: block;
