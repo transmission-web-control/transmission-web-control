@@ -13,7 +13,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+
+      - run: |
+          mkdir -p ~/.local/bin
+          curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+          mv ./tx ~/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - run: tx --token pull -c .github/transifex.yaml --mode onlytranslated
         env:

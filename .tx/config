@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[transmission-web-control.enjson]
+[transmission-web-control-1.enjson]
 file_filter = src/i18n/<lang>.json
 source_file = src/i18n/en.json
 source_lang = en
