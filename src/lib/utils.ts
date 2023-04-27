@@ -119,3 +119,29 @@ export function formatBytes(bytes: number): string {
 
   return `${n.toFixed(2)} ${sizes[sizes.length - 1]!}`;
 }
+
+// Array object sort extension
+export function arrayObjectSort<T>(
+  field: keyof T,
+  sortOrder: 'desc' | 'asc',
+): (a: T, b: T) => number {
+  return function (object1, object2) {
+    const value1 = object1[field];
+    const value2 = object2[field];
+    if (value1 < value2) {
+      if (sortOrder == 'desc') {
+        return 1;
+      } else {
+        return -1;
+      }
+    } else if (value1 > value2) {
+      if (sortOrder == 'desc') {
+        return -1;
+      } else {
+        return 1;
+      }
+    } else {
+      return 0;
+    }
+  };
+}

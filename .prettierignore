@@ -10,3 +10,4 @@ public/
 src/twc/
 coverage/
 pnpm-lock.yaml
+/src/style/

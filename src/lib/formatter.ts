@@ -7,6 +7,10 @@ export function formatLongTime(time: string): string {
   return formatDate(now);
 }
 
+export function getHoursFromMinutes(minutes: number) {
+  return `${pad(Math.round(minutes / 60))}:${pad(minutes % 60)}`;
+}
+
 function pad(s: number, n = 2): string {
   return s.toString().padStart(n, '0');
 }

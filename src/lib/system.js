@@ -2,10 +2,11 @@ import { Base64 } from 'js-base64';
 import semver from 'semver';
 
 import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
+import { timedChunk } from './public.ts';
 import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
-import { formatSize } from './utils';
+import { arrayObjectSort, formatSize } from './utils';
 import { APP_VERSION } from './version';
 
 // Current system global object
@@ -3356,9 +3357,17 @@ export class System extends SystemBase {
       return;
     }
 
-    timedChunk(transmission.downloadDirs, this.appendFolder, this, 10, function () {
-      system.initUIStatus();
-    });
+    timedChunk(
+      {
+        items: transmission.downloadDirs,
+        process: this.appendFolder,
+        context: this,
+        delay: 10,
+      },
+      () => {
+        system.initUIStatus();
+      },
+    );
     /*
 		for (var index in transmission.downloadDirs)
 		{
