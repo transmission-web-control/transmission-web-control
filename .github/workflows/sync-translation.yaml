@@ -27,6 +27,5 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          title: Update Private Openapi Specification from bangumi/server-private
-          push-to-fork: bangumi-bot/dev-docs
-          branch: 'update-sync'
+          title: 'chore: update translation'
+          branch: 'chore/i18n-pull'
