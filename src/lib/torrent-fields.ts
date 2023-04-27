@@ -100,4 +100,4 @@ export default {
       formatter_type: 'longtime',
     },
   ] satisfies Field[],
-};
+} as { fields: Field[] };

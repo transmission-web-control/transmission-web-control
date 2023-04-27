@@ -8,18 +8,18 @@
       <div class="flex flex-row">
         <UserButton
           icon="icon-transmission"
-          :title="$t(`toolbar.tip['ui-original']`)"
-          :text="$t(`toolbar['ui-original']`)"
+          :title="$lang.toolbar.tip['ui-original']"
+          :text="$lang.toolbar['ui-original']"
           @click="console.log('click')"
         />
 
         <span class="mx-2"> | </span>
 
         <!-- 关于 -->
-        <RouterLink to="/about" :title="$t('toolbar.about')" class="mr-2">
+        <RouterLink to="/about" :title="$lang.toolbar.about" class="mr-2">
           <span class="l-btn-left l-btn-icon-left">
             <span class="l-btn-text">
-              <span>{{ $t('toolbar.about') }}</span>
+              <span>{{ $lang.toolbar.about }}</span>
             </span>
             <span class="l-btn-icon icon-about">&nbsp;</span>
           </span>

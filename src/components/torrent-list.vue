@@ -1,6 +1,6 @@
 <template>
   <div class="layout">
-    <div class="head" style="height: 100%; width: 100%">
+    <div class="head">
       <table>
         <thead>
           <tr>
@@ -8,9 +8,13 @@
               v-for="field in fields"
               :key="field.field"
               :style="`width: ${field.width}px`"
-              @click="setSort(field.field)"
+              @click="e => setSort(e, field.field)"
+              @mousedown="(e) => resize(e, field, 'mousedown')"
+              @mouseup="(e) => resize(e, field, 'mouseup')"
+              @keyup="(e) => resize(e, field, 'keyup')"
+              @resize="(e) => resize(e, field, 'resize')"
             >
-              {{ $t('torrent.fields.' + field.field) }}
+              {{ lo.get(lang.torrent.fields, field.field) }}
               {{ currentSort === field.field ? sortOrderArrow[currentSortOrder] : '' }}
             </th>
           </tr>
@@ -32,10 +36,17 @@
               userConfig.page * currentPage,
             )"
             :key="torrent.hashString"
+            :class="{ selected: selectedTorrent.has(torrent.hashString) }"
+            @click="setSelected(torrent)"
           >
-            <td v-for="field in fields" :key="field.field" class="tr2-torrent-cell">
-              {{ field.valueFormatter?.(torrent[field.field]) ?? torrent[field.field] }}
-            </td>
+            <template v-for="field in fields" :key="field.field">
+              <td v-if="field.formatter_type === 'progress'" class="tr2-torrent-cell">
+                {{ torrent[field.field] * 100 }} %
+              </td>
+              <td v-else class="tr2-torrent-cell">
+                {{ field.valueFormatter?.(torrent[field.field]) ?? torrent[field.field] }}
+              </td>
+            </template>
           </tr>
         </tbody>
       </table>
@@ -57,26 +68,33 @@
 import * as lo from 'lodash-es';
 import { computed, ref } from 'vue';
 
-import { formatBytes } from '../lib/utils';
+import { lang } from '../i18n.ts';
+import { getFormatter } from '../lib/formatter.ts';
+import type { Field } from '../lib/torrent-fields.ts';
+import torrentFields from '../lib/torrent-fields.ts';
+import type { Torrent } from '../lib/transmission.ts';
 import { useTorrentListStore, useUserConfigStore } from '../state';
 
 const torrentList = useTorrentListStore();
 const userConfig = useUserConfigStore();
 
-const fields: { field: string; width: number; valueFormatter?: (v: any) => string }[] =
-  userConfig.fields.map((x) => {
-    if (x.field === 'totalSize') {
-      return {
-        field: x.field,
-        width: x.width,
-        valueFormatter: (x: any) => {
-          return formatBytes(x as number);
-        },
-      };
-    }
-    return { field: x.field, width: x.width };
-  });
+const fields = ref(
+  torrentFields.fields.slice(1).map((x) => {
+    return {
+      field: x.field,
+      width: x.width ?? 100,
+      formatter_type: x.formatter_type,
+      valueFormatter: getFormatter(x.formatter_type),
+    };
+  }) as {
+    field: string;
+    width: number;
+    formatter_type?: string;
+    valueFormatter?: (v: any) => string;
+  }[],
+);
 
+const selectedTorrent = ref<Set<string>>(new Set());
 const currentSort = ref<string | null>(null);
 const currentSortOrder = ref<'asc' | 'desc'>('desc');
 
@@ -86,7 +104,12 @@ const sortOrderArrow = { asc: ' ↑', desc: ' ↓' };
 const totalPage = computed(() => Math.ceil(torrentList.torrents.length / userConfig.page));
 const currentPage = ref(1);
 
-const setSort = (v: string) => {
+const setSort = (e: MouseEvent, v: string) => {
+  const el = e.target as HTMLElement;
+  if (el.offsetWidth - e.offsetX < 20) {
+    return;
+  }
+
   if (currentSort.value === null) {
     currentSort.value = v;
     currentSortOrder.value = 'desc';
@@ -97,64 +120,116 @@ const setSort = (v: string) => {
     } else {
       currentSortOrder.value = sortRevert[currentSortOrder.value];
     }
+  } else {
+    currentSort.value = v;
+    currentSortOrder.value = 'desc';
   }
 
   torrentList.setValue(
     lo.orderBy(torrentList.torrents, currentSort.value ?? 'id', currentSortOrder.value),
   );
 };
+
+const setSelected = (t: Torrent) => {
+  if (selectedTorrent.value.has(t.hashString)) {
+    selectedTorrent.value.delete(t.hashString);
+  } else {
+    selectedTorrent.value.add(t.hashString);
+  }
+};
+
+const resize = (e: MouseEvent, f: Field, n: string) => {
+  const el = e.target as HTMLElement;
+
+  const width = el?.offsetWidth as number;
+
+  if (width) {
+    f.width = width;
+  }
+
+  console.log(n);
+};
 </script>
 
-<style scoped>
+<style scoped lang="less">
+.layout * {
+  font-family: Consolas, monospace;
+}
+
 .layout {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
 }
 
 .head {
-    flex: 0 0 30px;
-    background: #f39322;
+  flex: 0 0 10px;
+}
+
+.head thead tr.col-resize {
+  cursor: e-resize;
+}
+
+.head thead tr th {
+  height: 5px;
+  resize: horizontal;
+  border: solid 2px grey;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  //box-sizing: border-box;
+  /*;*/
+}
+
+.head thead tr th,
+.main thead tr th {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .main {
-    height: 100%;
-    /*flex: 1;*/
-    display: block;
-    /*flex-direction: column;*/
-    overflow: auto;
-    overflow-y: scroll;
+  user-select: none;
+  height: 100%;
+  /*flex: 1;*/
+  display: block;
+  /*flex-direction: column;*/
+  overflow: auto;
 }
 
 .bottom {
-    flex: 0 0 30px;
-    background: #c7262f;
+  flex: 0 0 20px;
+  background: #c7262f;
 }
 
 td.tr2-torrent-cell {
-    user-select: none;
-    border: solid 2px blue;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    text-align: left;
-    display: table-cell;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  border: solid 2px blue;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
 }
 
 table {
-    table-layout: fixed;
-    width: 1%;
+  table-layout: fixed;
+  width: 1%;
 }
 
-tbody > tr {
-    display: table-row;
+tbody > tr.selected {
+  background: blue;
 }
 
 .main thead th {
-    height: 0px !important;
-    line-height: 0px !important;
-    padding-bottom: 0px !important;
-    padding-top: 0px !important;
+  height: 0px;
+  line-height: 0px;
+  padding-bottom: 0px;
+  padding-top: 0px;
 }
 </style>

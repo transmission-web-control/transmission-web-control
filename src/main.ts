@@ -1,4 +1,5 @@
 import './app.ts';
+import './index.css';
 
 import UAParser from 'ua-parser-js';
 

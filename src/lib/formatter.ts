@@ -1,3 +1,5 @@
+import { formatSize } from './utils.ts';
+
 export function formatLongTime(time: string): string {
   if (!time) {
     return '';
@@ -116,4 +118,63 @@ export function getGrayLevel(color: string | undefined | Color): number {
     color = getRGB(color);
   }
   return (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255;
+}
+
+export function getFormatter(type?: string): undefined | ((v: any) => string) {
+  if (!type) {
+    return;
+  }
+
+  if (type === 'size') {
+    return function (value) {
+      return formatSize(value);
+    };
+  }
+
+  if (type === 'speed') {
+    return function (value) {
+      return formatSize(value, true, 'speed');
+    };
+  }
+
+  if (type === 'longtime') {
+    return function (value) {
+      return formatLongTime(value);
+    };
+  }
+
+  if (type === 'progress') {
+    return function (value: number) {
+      const percentDone = (value * 100).toFixed(2);
+      return percentDone.toString();
+    };
+  }
+
+  if (type === 'ratio') {
+    return function (value: number) {
+      return value.toFixed(2);
+    };
+  }
+
+  if (type === 'remainingTime') {
+    return function (value) {
+      if (value >= 3153600000) {
+        return '∞';
+      }
+      return formatDuration(value);
+    };
+  }
+
+  if (type === 'color') {
+    return function (value) {
+      const box = $("<span class='user-label'/>")
+        .html(value)
+        .css({
+          'background-color': value,
+          color: getGrayLevel(value) > 0.5 ? '#000' : '#fff',
+        });
+      // @ts-expect-error
+      return box.get(0).outerHTML;
+    };
+  }
 }

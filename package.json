@@ -12,7 +12,7 @@
     "test": "vitest run",
     "vitest": "vitest",
     "tsc": "tsc",
-    "format": "yarn prettier",
+    "format": "pnpm run prettier",
     "prettier": "prettier --list-different -w . ;",
     "lint-staged": "lint-staged",
     "prepare": "husky install"
@@ -30,7 +30,7 @@
     "semver": "^7.5.0",
     "tailwindcss": "^3.3.1",
     "ua-parser-js": "^1.0.35",
-    "vue-i18n": "9.2.2",
+    "vue": "^3.2.47",
     "vue-router": "^4",
     "vue-simple-context-menu": "^4.0.4"
   },
@@ -70,8 +70,7 @@
     "vite": "^4.3.1",
     "vite-plugin-node-polyfills": "^0.8.2",
     "vitest": "^0.30.1",
-    "vitest-github-actions-reporter": "^0.10.0",
-    "vue": "^3.2.47"
+    "vitest-github-actions-reporter": "^0.10.0"
   },
   "lint-staged": {
     "*.{js,mjs,mts,html,css,ts,md,json,yml,yaml}": [
@@ -99,10 +98,5 @@
         "printWidth": 120
       }
     ]
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "vue-i18n@9.2.2": "patches/vue-i18n@9.2.2.patch"
-    }
   }
 }

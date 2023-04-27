@@ -1012,6 +1012,7 @@ export interface TrackerStat {
 }
 
 export interface Torrent {
+  selected?: boolean;
   isPrivate: boolean;
   id: number;
   name: string;
