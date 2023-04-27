@@ -16,20 +16,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - run: yarn
+      - uses: ./.github/actions/setup-js-env
 
       - run: npx prettier --check ./
 
       - run: npx tsc
 
-      - run: yarn test --coverage
+      - run: pnpm test --coverage
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -39,36 +32,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - run: yarn
+      - uses: ./.github/actions/setup-js-env
 
       - run: npx prettier --check ./
 
       - run: npx tsc
 
-      - run: yarn lint
+      - run: pnpm lint
 
   build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-js-env
 
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - run: yarn
-
-      - run: yarn build
+      - run: pnpm build
 
       - run: zip -r dist.zip ./dist/
       - run: tar -czvf dist.tar.gz ./dist/

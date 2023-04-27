@@ -28,16 +28,10 @@ jobs:
         env:
           TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
 
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - run: yarn
+      - uses: ./.github/actions/setup-js-env
 
       - run: node ./.github/scripts/remove-empty-string.mjs
-      - run: yarn format
+      - run: pnpm format
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5

@@ -12,15 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
+      - uses: ./.github/actions/setup-js-env
 
-      - run: yarn
-
-      - run: yarn build
+      - run: pnpm build
 
       - run: zip -r dist.zip ./dist/
       - run: tar -czvf dist.tar.gz ./dist/
