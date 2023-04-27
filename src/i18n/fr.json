@@ -182,13 +182,13 @@
       "alt-speed-time-enabled": "Utiliser planificateur",
       "alt-speed-time": "Horaires：",
       "weekday": {
+        "0": "Dimanche",
         "1": "Lundi",
         "2": "Mardi",
         "3": "Mercredi",
         "4": "Jeudi",
         "5": "Vendredi",
-        "6": "Samedi",
-        "0": "Dimanche"
+        "6": "Samedi"
       },
       "blocklist-enabled": "Utiliser la liste de blocage",
       "blocklist-size": "La liste de blocage possède %n règles.",

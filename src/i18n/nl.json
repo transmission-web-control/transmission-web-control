@@ -157,13 +157,13 @@
       "alt-speed-time-enabled": "Gebruik tijdschema",
       "alt-speed-time": "Tijdbestek",
       "weekday": {
+        "0": "Zondag",
         "1": "Maandag",
         "2": "Dinsdag",
         "3": "Woensdag",
         "4": "Donderdag",
         "5": "Vrijdag",
-        "6": "Zaterdag",
-        "0": "Zondag"
+        "6": "Zaterdag"
       },
       "blocklist-enabled": "Blocklist gebruiken",
       "seedRatioLimited": "Seed ratio:",

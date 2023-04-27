@@ -182,13 +182,13 @@
       "alt-speed-time-enabled": "Usar programación",
       "alt-speed-time": "Hora：",
       "weekday": {
+        "0": "Domingo",
         "1": "Lunes",
         "2": "Martes",
         "3": "Miércoles",
         "4": "Jueves",
         "5": "Viernes",
-        "6": "Sábado",
-        "0": "Domingo"
+        "6": "Sábado"
       },
       "blocklist-enabled": "Usar blocklist",
       "blocklist-size": "Blocklist tiene %n reglas.",
