@@ -1,72 +1,3 @@
-function right(s, len) {
-  return s.substr(-len);
-}
-
-// 公用函数定义
-// 格式化数字
-Number.prototype.formatNumber = function (f) {
-  this.fStr = function (n, f, p) {
-    if (n == '' || n == undefined) {
-      if (f == '' || f == undefined) {
-        return '';
-      } else {
-        return f;
-      }
-    }
-    let fc = (s = r = '');
-    let pos;
-    if (!p) {
-      n = n.split('').reverse().join('');
-      f = f.split('').reverse().join('');
-    }
-
-    for (let i = (j = 0); i < f.length; i++, j++) {
-      s = n.charAt(j);
-      if (s == undefined) continue;
-      fc = f.charAt(i);
-      switch (fc) {
-        case '#':
-          r += s;
-          pos = i;
-          break;
-        case '0':
-          r = s || s == fc ? r + s : r + 0;
-          pos = i;
-          break; // 原方法,这里对小数点后的处理有点问题.
-        case '.':
-          r += s == fc ? s : (j--, fc);
-          break;
-        case ',':
-          r += s == fc ? s : (j--, fc);
-          break;
-        default:
-          r += fc;
-          j--;
-      }
-    }
-    if (j != n.length && f.charAt(f.length - 1) != '0' && pos != f.length && f.charAt(pos) != '0') {
-      r = r.substr(0, pos + 1) + n.substr(j) + r.substr(pos + 1);
-    }
-
-    r = (p ? r : r.split('').reverse().join('')).replace(/(^,)|(,$)|(,,+)/g, '');
-    if (r.substr(0, 1) == ',') {
-      r = r.substr(1);
-    }
-    if (r.substr(0, 2) == '-,') {
-      r = '-' + r.substr(2);
-    }
-    return r;
-  };
-  let n = this.toString();
-  if (n.length === 0) return '';
-  if (f === undefined) return this;
-  // eslint-disable-next-line no-sequences
-  (f = f.split('.')), (n = n.split('.'));
-  return f.length > 1
-    ? this.fStr(n[0], f[0]) + '.' + this.fStr(n[1], f[1], 1)
-    : this.fStr(n[0], f[0]);
-};
-
 /**
  * 根据指定的十六进制颜色值，返回RGB颜色数值
  */
@@ -181,45 +112,42 @@ function formatDate(formatDate, formatString) {
   }
 }
 
+/**
+ * @param {number} bytes
+ * @param {boolean} zeroToEmpty
+ * @param {'speed'|undefined} type
+ */
 function formatSize(bytes, zeroToEmpty, type) {
-  if (bytes == 0) {
-    if (zeroToEmpty == true) {
+  if (bytes === 0) {
+    if (zeroToEmpty) {
       return '';
+    }
+
+    if (type === 'speed') {
+      return '0.00 KB/s';
     } else {
-      if (type == 'speed') {
-        return '0.00 KB/s';
-      } else return '0.00';
+      return '0.00';
     }
   }
-  let r = '';
-  let u = 'KB';
-  if (bytes < 1000 * 1024) {
-    r = bytes / 1024;
-    u = 'KB';
-  } else if (bytes < 1000 * 1048576) {
-    r = bytes / 1048576;
-    u = 'MB';
-  } else if (bytes < 1000 * 1073741824) {
-    r = bytes / 1073741824;
-    u = 'GB';
-  } else if (bytes < 1000 * 1099511627776) {
-    r = bytes / 1099511627776;
-    u = 'TB';
-  } else {
-    r = bytes / 1125899906842624;
-    u = 'PB';
+
+  if (type === 'speed') {
+    return formatBytes(bytes) + '/s';
   }
 
-  if (type == 'speed') {
-    u += '/s';
-  }
+  return formatBytes(bytes);
+}
 
-  return r.formatNumber('###,###,###,###.00 ') + u;
+function formatBytes(bytes, decimals) {
+  const k = 1000;
+  const dm = decimals || 2;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 // 根据分钟获取小时
 function getHoursFromMinutes(minutes) {
-  return right('00' + parseInt(minutes / 60, 10), 2) + ':' + right('00' + (minutes % 60), 2);
+  return (Math.floor(minutes / 60) % 60).toString() + ':' + (minutes % 60).toString();
 }
 
 // 根据小时获取分钟
@@ -252,19 +180,19 @@ function getTotalTime(time, format) {
   const seconds = Math.round(leave3 / 1000);
 
   let result = format;
-  if (days == 0) {
+  if (days === 0) {
     result = result.replace(/(%d+\s)/, '');
   } else result = result.replace('%d', days);
 
-  if (hours == 0) {
+  if (hours === 0) {
     result = result.replace(/(%h+\s)/, '');
   } else result = result.replace('%h', hours);
 
-  if (minutes == 0) {
+  if (minutes === 0) {
     result = result.replace(/(%m+\s)/, '');
   } else result = result.replace('%m', minutes);
 
-  if (seconds == 0) {
+  if (seconds === 0) {
     result = result.replace(/(%s+\s)/, '');
   } else result = result.replace('%s', seconds);
   return result;
@@ -276,11 +204,11 @@ function arrayObjectSort(field, sortOrder) {
     const value1 = object1[field];
     const value2 = object2[field];
     if (value1 < value2) {
-      if (sortOrder == 'desc') {
+      if (sortOrder === 'desc') {
         return 1;
       } else return -1;
     } else if (value1 > value2) {
-      if (sortOrder == 'desc') {
+      if (sortOrder === 'desc') {
         return -1;
       } else return 1;
     } else {
