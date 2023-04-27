@@ -1,5 +1,7 @@
 import './app.ts';
 
+import UAParser from 'ua-parser-js';
+
 // @ts-expect-error
 import { System } from './lib/system.js';
 import { transmission } from './lib/transmission';

@@ -10,8 +10,6 @@ import { transmission } from './transmission';
 import { formatSize } from './utils';
 import { APP_VERSION } from './version';
 
-const { browser } = UAParser(navigator.userAgent);
-
 const torrentListStore = useTorrentListStore();
 
 // Current system global object
@@ -1719,7 +1717,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'paused',
         system.lang.tree.paused +
-        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.stopped].length),
+          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.stopped].length),
       );
     } else {
       system.updateTreeNodeText('paused', system.lang.tree.paused);
@@ -1730,7 +1728,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'sending',
         system.lang.tree.sending +
-        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seed].length),
+          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seed].length),
       );
     } else {
       system.updateTreeNodeText('sending', system.lang.tree.sending);
@@ -1762,7 +1760,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'check',
         system.lang.tree.check +
-        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.check].length),
+          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.check].length),
       );
     } else {
       system.updateTreeNodeText('check', system.lang.tree.check);
@@ -1794,9 +1792,9 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'downloading',
         system.lang.tree.downloading +
-        this.showNodeMoreInfos(
-          transmission.torrents.status[transmission._status.download].length,
-        ),
+          this.showNodeMoreInfos(
+            transmission.torrents.status[transmission._status.download].length,
+          ),
       );
     } else {
       system.updateTreeNodeText('downloading', system.lang.tree.downloading);
@@ -1866,7 +1864,7 @@ export class System extends SystemBase {
     system.updateTreeNodeText(
       'torrent-all',
       system.lang.tree.all +
-      this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
+        this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
     );
   }
 
@@ -1984,42 +1982,42 @@ export class System extends SystemBase {
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-            ' ' +
-            formatSize(system.serverSessionStats['cumulative-stats'][item]),
+              ' ' +
+              formatSize(system.serverSessionStats['cumulative-stats'][item]),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-            ' ' +
-            formatSize(system.serverSessionStats['current-stats'][item]),
+              ' ' +
+              formatSize(system.serverSessionStats['current-stats'][item]),
           );
           break;
         case 'secondsActive':
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-            ' ' +
-            formatDuration(system.serverSessionStats['cumulative-stats'][item]),
+              ' ' +
+              formatDuration(system.serverSessionStats['cumulative-stats'][item]),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-            ' ' +
-            formatDuration(system.serverSessionStats['current-stats'][item]),
+              ' ' +
+              formatDuration(system.serverSessionStats['current-stats'][item]),
           );
           break;
         default:
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-            ' ' +
-            system.serverSessionStats['cumulative-stats'][item],
+              ' ' +
+              system.serverSessionStats['cumulative-stats'][item],
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-            ' ' +
-            system.serverSessionStats['current-stats'][item],
+              ' ' +
+              system.serverSessionStats['current-stats'][item],
           );
           break;
       }
@@ -3492,8 +3490,8 @@ export class System extends SystemBase {
             $('<span/>').html(' ').appendTo(toolbar);
             $(
               '<button onclick="javascript:system.addIgnoreVersion(\'' +
-              version +
-              '\');" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-cancel-checked\'"/>',
+                version +
+                '\');" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-cancel-checked\'"/>',
             )
               .html(system.lang.public['text-ignore-this-version'])
               .appendTo(toolbar)

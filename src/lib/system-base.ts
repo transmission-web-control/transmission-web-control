@@ -4,7 +4,6 @@ import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
 import { type Field } from './torrent-fields';
 
-
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 const easyUILocale: Record<`../twc/easyui/locale/easyui-lang-${string}.js`, string> =
   import.meta.glob('../twc/easyui/locale/easyui-lang-*.js', {
