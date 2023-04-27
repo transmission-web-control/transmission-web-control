@@ -188,13 +188,13 @@
       "alt-speed-time-enabled": "Abilita programmazione",
       "alt-speed-time": "Ora:",
       "weekday": {
+        "0": "Domenica",
         "1": "Lunedì",
         "2": "Martedì",
         "3": "Mercoledì",
         "4": "Giovedì",
         "5": "Venerdì",
-        "6": "Sabato",
-        "0": "Domenica"
+        "6": "Sabato"
       },
       "blocklist-enabled": "Usa lista di blocco",
       "blocklist-size": "La lista di blocco ha %n regole.",

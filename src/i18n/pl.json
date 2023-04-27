@@ -188,13 +188,13 @@
       "alt-speed-time-enabled": "Użyj harmonogramu",
       "alt-speed-time": "Godziny：",
       "weekday": {
+        "0": "Niedziela",
         "1": "Poniedziałek",
         "2": "Wtorek",
         "3": "Środa",
         "4": "Czwartek",
         "5": "Piątek",
-        "6": "Sobota",
-        "0": "Niedziela"
+        "6": "Sobota"
       },
       "blocklist-enabled": "Używaj blocklist'y (czarna lista z adresami IP organizacji antypirackich)",
       "blocklist-size": "Na czarnej liście jest %n reguł",

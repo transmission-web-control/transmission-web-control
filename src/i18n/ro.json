@@ -159,13 +159,13 @@
       "alt-speed-time-enabled": "Folosește programare",
       "alt-speed-time": "Timp：",
       "weekday": {
+        "0": "Duminică",
         "1": "Luni",
         "2": "Marți",
         "3": "Miercuri",
         "4": "Joi",
         "5": "Vineri",
-        "6": "Sâmbătă",
-        "0": "Duminică"
+        "6": "Sâmbătă"
       },
       "blocklist-enabled": "Folosește blocklist",
       "seedRatioLimited": "Rația implicită pentru încărcare:",
