@@ -1,0 +1,27 @@
+name: Sync Transifex
+
+on:
+  push:
+    branches:
+      - tx
+  schedule:
+    - cron: '5 4 3 * *' # monthly
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+
+      - run: tx --token pull -c .github/transifex.yaml --mode onlytranslated
+        env:
+          TX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: Update Private Openapi Specification from bangumi/server-private
+          push-to-fork: bangumi-bot/dev-docs
+          branch: 'update-sync'
