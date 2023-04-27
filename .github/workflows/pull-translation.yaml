@@ -43,6 +43,6 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.PAT }}
-          title: 'chore: update translation'
+          title: 'chore: sync transifex translation'
           branch: 'chore/i18n-pull'
           author: 'Trim21 <trim21.me@gmail.com>'
