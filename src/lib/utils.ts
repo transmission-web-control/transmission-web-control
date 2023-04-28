@@ -145,3 +145,13 @@ export function arrayObjectSort<T>(
     }
   };
 }
+
+// 根据小时获取分钟
+export function getMinutesFromHours(hours: string): number {
+  const [h, m] = hours.split(':');
+  if (m === undefined) {
+    return parseInt(h as string);
+  }
+
+  return parseInt(h as string) * 60 + parseInt(m);
+}

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 
-import { formatBytes } from './utils';
+import { formatBytes, getMinutesFromHours } from './utils';
 
 test('formatBytes', () => {
   expect(formatBytes(100)).toMatchInlineSnapshot('"100 B"');
@@ -21,4 +21,12 @@ test('formatBytes', () => {
   expect(
     formatBytes(1000 * 4.2002 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000),
   ).toMatchInlineSnapshot('"4200.20 YB"');
+});
+
+test('getMinutesFromHours', () => {
+  expect(getMinutesFromHours('10:20')).toMatchInlineSnapshot('620');
+  expect(getMinutesFromHours('12:20')).toMatchInlineSnapshot('740');
+  expect(getMinutesFromHours('00:20')).toMatchInlineSnapshot('20');
+  expect(getMinutesFromHours('122:20')).toMatchInlineSnapshot('7340');
+  expect(getMinutesFromHours('1:01')).toMatchInlineSnapshot('61');
 });

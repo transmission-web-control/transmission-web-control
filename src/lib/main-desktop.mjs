@@ -1,7 +1,6 @@
 import '../style/iconfont/iconfont.css';
 
 import ClipboardJS from 'clipboard';
-import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
 
 import { getHoursFromMinutes } from './formatter';
@@ -9,7 +8,7 @@ import { loadFileContent } from './loadFileContent.mjs';
 import { saveFileAs } from './saveFileAs.mjs';
 import { System } from './system.js';
 import { transmission } from './transmission';
-import { formatSize, getQueryString, getUserLang } from './utils';
+import { formatSize, getMinutesFromHours, getQueryString, getUserLang } from './utils';
 
 const system = new System();
 
@@ -20,6 +19,7 @@ globalThis.saveFileAs = saveFileAs;
 globalThis.loadFileContent = loadFileContent;
 globalThis.formatSize = formatSize;
 globalThis.getHoursFromMinutes = getHoursFromMinutes;
+globalThis.getMinutesFromHours = getMinutesFromHours;
 globalThis.ClipboardJS = ClipboardJS;
 
 // jQuery Extended
