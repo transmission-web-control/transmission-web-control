@@ -1610,6 +1610,9 @@ export class System extends SystemBase {
   connect() {
     this.showStatus(this.lang.system.status.connect, 0);
 
+    transmission.event.on('loaded', () => {
+      system.reloadTorrentBaseInfos();
+    });
     // When the total torrent number is changed, the torrent information is retrieved
     transmission.event.on('torrentCountChange', function () {
       system.reloadTorrentBaseInfos();
@@ -3566,11 +3569,7 @@ export class System extends SystemBase {
 
   // Debugging information
   debug(label, text) {
-    if (window.console) {
-      if (window.console.log) {
-        window.console.log(label, text);
-      }
-    }
+    console.debug(label, text);
   }
 
   /**

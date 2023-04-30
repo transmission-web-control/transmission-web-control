@@ -6,6 +6,7 @@ import { getHostName } from './utils';
 
 interface TransmissionEvents {
   error: (err: unknown) => void;
+  loaded: () => void;
   torrentCountChange: () => void;
 }
 
@@ -106,6 +107,8 @@ export const transmission = {
           if (callback) {
             callback(data.arguments);
           }
+
+          transmission.event.emit('loaded');
 
           if (
             transmission.torrents.count != data.arguments.torrentCount ||
