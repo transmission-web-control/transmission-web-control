@@ -1611,13 +1611,14 @@ export class System extends SystemBase {
     this.showStatus(this.lang.system.status.connect, 0);
 
     // When the total torrent number is changed, the torrent information is retrieved
-    transmission.on.torrentCountChange = function () {
+    transmission.event.on('torrentCountChange', function () {
       system.reloadTorrentBaseInfos();
-    };
+    });
     // When submitting an error
-    transmission.on.postError = function () {
-      // system.reloadTorrentBaseInfos();
-    };
+    transmission.event.on('error', (e) => {
+      console.error(`transmission error ${e}`);
+      system.reloadTorrentBaseInfos();
+    });
     // Initialize the connection
     transmission.init().then(() => {
       system.reloadSession();
@@ -2389,36 +2390,36 @@ export class System extends SystemBase {
 
       // data.leecherCount = torrents[index].leecher;
       /*
-			datas.push({
-				id:torrents[index].id
-				,name:torrents[index].name
-				,totalSize:torrents[index].totalSize
-				,percentDone:torrents[index].percentDone
-				,remainingTime:torrents[index].remainingTime
-				,status:status
-				,statusCode:torrents[index].status
-				,addedDate:torrents[index].addedDate
-				,completeSize:(torrents[index].totalSize-torrents[index].leftUntilDone)
-				,rateDownload:torrents[index].rateDownload
-				,rateUpload:torrents[index].rateUpload
-				,leecherCount:torrents[index].leecher
-				,seederCount:torrents[index].seeder
-				,uploadRatio:torrents[index].uploadRatio
-				,uploadedEver:torrents[index].uploadedEver
-			});
-			*/
+      datas.push({
+        id:torrents[index].id
+        ,name:torrents[index].name
+        ,totalSize:torrents[index].totalSize
+        ,percentDone:torrents[index].percentDone
+        ,remainingTime:torrents[index].remainingTime
+        ,status:status
+        ,statusCode:torrents[index].status
+        ,addedDate:torrents[index].addedDate
+        ,completeSize:(torrents[index].totalSize-torrents[index].leftUntilDone)
+        ,rateDownload:torrents[index].rateDownload
+        ,rateUpload:torrents[index].rateUpload
+        ,leecherCount:torrents[index].leecher
+        ,seederCount:torrents[index].seeder
+        ,uploadRatio:torrents[index].uploadRatio
+        ,uploadedEver:torrents[index].uploadedEver
+      });
+      */
 
       datas.push(data);
     }
     /*
-		this.panel.toolbar.find("#toolbar_start").linkbutton({disabled:true});
-		this.panel.toolbar.find("#toolbar_pause").linkbutton({disabled:true});
-		this.panel.toolbar.find("#toolbar_remove").linkbutton({disabled:true});
-		this.panel.toolbar.find("#toolbar_recheck").linkbutton({disabled:true});
-		this.panel.toolbar.find("#toolbar_changeDownloadDir").linkbutton({disabled:true});
-		this.panel.toolbar.find("#toolbar_morepeers").linkbutton({disabled:true});
-		this.panel.toolbar.find("#toolbar_queue").menubutton("disable");
-		*/
+    this.panel.toolbar.find("#toolbar_start").linkbutton({disabled:true});
+    this.panel.toolbar.find("#toolbar_pause").linkbutton({disabled:true});
+    this.panel.toolbar.find("#toolbar_remove").linkbutton({disabled:true});
+    this.panel.toolbar.find("#toolbar_recheck").linkbutton({disabled:true});
+    this.panel.toolbar.find("#toolbar_changeDownloadDir").linkbutton({disabled:true});
+    this.panel.toolbar.find("#toolbar_morepeers").linkbutton({disabled:true});
+    this.panel.toolbar.find("#toolbar_queue").menubutton("disable");
+    */
 
     this.updateTorrentCurrentPageDatas(datas);
     this.initShiftCheck();
@@ -3370,12 +3371,12 @@ export class System extends SystemBase {
       },
     );
     /*
-		for (var index in transmission.downloadDirs)
-		{
-			var parentkey = rootkey;
-			var fullkey = transmission.downloadDirs[index];
+    for (var index in transmission.downloadDirs)
+    {
+      var parentkey = rootkey;
+      var fullkey = transmission.downloadDirs[index];
 
-		} */
+    } */
   }
 
   appendFolder(fullkey) {

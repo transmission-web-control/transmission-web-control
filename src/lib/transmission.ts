@@ -1,16 +1,18 @@
-// import $ from 'jquery';
+import { EventEmitter } from 'eventemitter3';
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 
 import { getHostName } from './utils';
 
+interface TransmissionEvents {
+  error: (err: unknown) => void;
+  torrentCountChange: () => void;
+}
+
 export const transmission = {
   SessionId: null as null | string,
   fullpath: '../rpc',
-  on: {
-    torrentCountChange: null,
-    postError: null as null | ((req: unknown) => void),
-  },
+  event: new EventEmitter<TransmissionEvents>(),
   // 种子状态
   _status: {
     stopped: 0,
@@ -75,7 +77,10 @@ export const transmission = {
         }
         continue;
       } else if (res.status >= 400) {
-        transmission.on.postError?.(res);
+        transmission.event.emit(
+          'error',
+          new Error(`unexpected error code: ${res.status}\n${await res.text()}`),
+        );
       }
 
       return await res.json();
@@ -192,7 +197,7 @@ export const transmission = {
     const fileReader = new FileReader();
 
     fileReader.onload = function (e) {
-      const contents = e.target!.result as string;
+      const contents = e.target?.result as string;
       const key = 'base64,';
       const index = contents.indexOf(key);
       if (index == -1) {
@@ -243,10 +248,7 @@ export const transmission = {
   },
   _onTorrentCountChange() {
     this.torrents.loadSimpleInfo = false;
-    if (this.on.torrentCountChange) {
-      // @ts-expect-error
-      this.on.torrentCountChange();
-    }
+    this.event.emit('torrentCountChange');
   },
   // 删除种子
   removeTorrent(ids: string[], removeData: boolean, callback?: (data: any) => void) {
@@ -1061,3 +1063,8 @@ export interface Torrent {
 }
 
 export type Transmission = typeof transmission;
+
+transmission.event.on('error', (err: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+  console.error(`transmission error: ${err}`);
+});
