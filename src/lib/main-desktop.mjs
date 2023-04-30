@@ -1,6 +1,7 @@
 import '../style/iconfont/iconfont.css';
 
 import ClipboardJS from 'clipboard';
+import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
 
 import { getHoursFromMinutes } from './formatter';
@@ -13,6 +14,7 @@ import { formatSize, getMinutesFromHours, getQueryString, getUserLang } from './
 const system = new System();
 
 // used in templates
+globalThis.uniq = lo.uniq;
 globalThis.transmission = transmission;
 globalThis.system = system;
 globalThis.saveFileAs = saveFileAs;

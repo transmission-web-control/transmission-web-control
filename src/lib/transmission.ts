@@ -46,6 +46,7 @@ export const transmission = {
   },
 
   async init() {
+    console.debug('transmission.init');
     await this.getSessionId();
   },
 

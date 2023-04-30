@@ -1628,6 +1628,7 @@ export class System extends SystemBase {
 
   // Reload the server information
   reloadSession(isinit) {
+    console.debug('system.reloadSession');
     transmission.getSession(function (result) {
       system.serverConfig = result;
       // Version Information
@@ -2132,7 +2133,9 @@ export class System extends SystemBase {
 
   // Gets the current state of the server
   getServerStatus() {
+    console.debug('system.getServerStatus');
     if (this.reloading) {
+      console.debug('system.getServerStatus reloading');
       return;
     }
     clearTimeout(this.autoReloadTimer);
