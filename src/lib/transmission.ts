@@ -12,7 +12,7 @@ interface TransmissionEvents {
 export const transmission = {
   SessionId: null as null | string,
   fullpath: '../rpc',
-  event: new EventEmitter<TransmissionEvents>(),
+  event: new EventEmitter<TransmissionEvents, never>(),
   // 种子状态
   _status: {
     stopped: 0,

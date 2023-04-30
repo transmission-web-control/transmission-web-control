@@ -56,3 +56,7 @@ const nonpc = ['console', 'mobile', 'tablet', 'smarttv', 'wearable', 'embedded']
 if (nonpc.includes(device.type) && getQueryString('devicetype') !== 'computer') {
   location.href = 'index.mobile.html';
 }
+
+onunhandledrejection = (event) => {
+  console.error(`onunhandledrejection ${event}`);
+};
