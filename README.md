@@ -72,4 +72,3 @@ pnpm run start
 ![screenshots](https://user-images.githubusercontent.com/8065899/38598199-0d2e684c-3d8e-11e8-8b21-3cd1f3c7580a.png)
 
 ## 安装方法及更多内容，请参考：[中文帮助](https://github.com/transmission-web-control/transmission-web-control/wiki/zh-CN)
-
