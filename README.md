@@ -58,11 +58,6 @@ pnpm i
 pnpm run start
 ```
 
-<!--
-## 国内镜像源
-- https://gitee.com/culturist/transmission-web-control
--->
-
 ## 关于
 
 本项目主要目的是想加强[Transmission](https://www.transmissionbt.com/) Web
@@ -76,25 +71,5 @@ pnpm run start
 
 ![screenshots](https://user-images.githubusercontent.com/8065899/38598199-0d2e684c-3d8e-11e8-8b21-3cd1f3c7580a.png)
 
-## 安装方法及更多内容，请参考：[中文帮助](https://github.com/ronggang/transmission-web-control/wiki/Home-CN)
+## 安装方法及更多内容，请参考：[中文帮助](https://github.com/transmission-web-control/transmission-web-control/wiki/zh-CN)
 
-### DSM7.0
-
-在这个版本中，需要额外修改权限以实现自动更新的功能
-在 `root` 权限下执行以下命令，其中：
-
-- `YOUR_USERNAME` 替换为你登录和更新脚本时候选择的用户
-- `/var/packages/transmission/target/share/transmission/web/` 这串路径为 transmission 的安装路径（默认应该是这个）
-
-```shell
-sed -i '/sc-transmission/s/$/YOUR_USERNAME/' /etc/group
-chown sc-transmission:sc-transmission /var/packages/transmission/target/share/transmission/web/* -R
-chmod 774 /var/packages/transmission/target/share/transmission/web/* -R
-```
-
-## 更新日志 [查看](https://github.com/ronggang/transmission-web-control/blob/master/CHANGELOG.md)
-
-## 项目日常维护
-
-- 栽培者
-- DarkAlexWang
