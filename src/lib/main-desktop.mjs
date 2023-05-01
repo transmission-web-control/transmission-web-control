@@ -4,7 +4,7 @@ import ClipboardJS from 'clipboard';
 import * as lo from 'lodash-es';
 import { UAParser } from 'ua-parser-js';
 
-import { getHoursFromMinutes } from './formatter';
+import { getGrayLevel, getHoursFromMinutes } from './formatter';
 import { loadFileContent } from './loadFileContent.mjs';
 import { saveFileAs } from './saveFileAs.mjs';
 import { System } from './system.js';
@@ -23,6 +23,7 @@ globalThis.formatSize = formatSize;
 globalThis.getHoursFromMinutes = getHoursFromMinutes;
 globalThis.getMinutesFromHours = getMinutesFromHours;
 globalThis.ClipboardJS = ClipboardJS;
+globalThis.getGrayLevel = getGrayLevel;
 
 // jQuery Extended
 (function ($) {
