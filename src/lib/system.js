@@ -1653,8 +1653,10 @@ export class System extends SystemBase {
       system.downloadDir = result['download-dir'];
 
       // Always push default download dir to the Dirs array
-      if (transmission.downloadDirs.length == 0) {
-        transmission.downloadDirs.push(system.downloadDir);
+      if (transmission.downloadDirs.length === 0) {
+        if (system.downloadDir) {
+          transmission.downloadDirs.push(system.downloadDir);
+        }
       }
 
       // Rpc-version version 15, no longer provide download-dir-free-space parameters, to be obtained from the new method

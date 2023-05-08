@@ -11,6 +11,7 @@
     "noUncheckedIndexedAccess": true,
     "lib": ["DOM", "ES2022"],
     "resolveJsonModule": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "skipLibCheck": true
   }
 }

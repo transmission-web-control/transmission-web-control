@@ -948,7 +948,9 @@ export const transmission = {
 
         // Set the directory
         if (!transmission.downloadDirs.includes(item.downloadDir)) {
-          transmission.downloadDirs.push(item.downloadDir);
+          if (item.downloadDir) {
+            transmission.downloadDirs.push(item.downloadDir);
+          }
         }
 
         if (transmission.options.getFolders) {
