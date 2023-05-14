@@ -3,7 +3,7 @@ set -e
 usage() {
   echo "install.bash [-v v...] [-o ...]"
   echo "  -v optional, version to download, default latest"
-  echo "  -o optional, directory of transmission web home. will try to fallback to env ${TRANSMISSION_WEB_HOME} and transmission config"
+  echo "  -o optional, directory of transmission web home. will try to fallback to env 'TRANSMISSION_WEB_HOME' and transmission config"
 }
 
 echo_err() {
