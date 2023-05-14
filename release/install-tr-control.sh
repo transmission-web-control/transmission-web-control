@@ -1,3 +1,6 @@
+echo -e "\e[31mThis Script is deprecated, please use tools/install.bash\e[0m"
+echo -e "\e[31mhttps://github.com/transmission-web-control/transmission-web-control/wiki\e[0m"
+
 #!/bin/bash
 # 获取第一个参数
 ARG1="$1"
@@ -11,6 +14,7 @@ INDEX_FILE="index.html"
 TMP_FOLDER="/tmp/tr-web-control"
 PACK_NAME="dist.tar.gz"
 DOWNLOAD_URL="https://github.com/transmission-web-control/transmission-web-control/releases/latest/download/dist.tar.gz"
+
 # 安装类型
 # 1 安装至当前 Transmission Web 所在目录
 # 2 安装至 TRANSMISSION_WEB_HOME 环境变量指定的目录，参考：https://github.com/transmission/transmission/wiki/Environment-Variables#transmission-specific-variables
@@ -149,11 +153,14 @@ findWebFolder() {
 
   # 判断 TRANSMISSION_WEB_HOME 环境变量是否被定义，如果是，直接用这个变量的值
   if [ "$TRANSMISSION_WEB_HOME" ]; then
+    echo "TRANSMISSION_WEB_HOME=${TRANSMISSION_WEB_HOME}"
+
     showLog "$MSG_USE_WEB_HOME"
     # 判断目录是否存在，如果不存在则创建 https://github.com/ronggang/transmission-web-control/issues/167
     if [ ! -d "$TRANSMISSION_WEB_HOME" ]; then
       mkdir -p "$TRANSMISSION_WEB_HOME"
     fi
+    ROOT_FOLDER=$TRANSMISSION_WEB_HOME
     INSTALL_TYPE=2
   else
     if [ -d "$ROOT_FOLDER" -a -d "$ROOT_FOLDER/web" ]; then
