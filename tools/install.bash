@@ -96,7 +96,7 @@ echo "Using temp dir ${TMP_DIR}"
 if [[ -f ${TMP_DIR}/dist.tar.gz ]]; then
   echo "version already downloaded, skip"
 else
-  curl -sSL "$DOWNLOAD_URL" --output "${TMP_DIR}/dist.tar.gz"
+  curl -SL "$DOWNLOAD_URL" --output "${TMP_DIR}/dist.tar.gz"
 fi
 
 mkdir -p "${TMP_DIR}/dist/"
@@ -105,7 +105,13 @@ tar -xzf "${TMP_DIR}/dist.tar.gz" --directory "${TMP_DIR}/dist/"
 
 mkdir -p "$OUTPUT"
 
-cp -r $TMP_DIR/dist/dist/* "$OUTPUT"
+if [[ -f "$OUTPUT/index.html" ]]; then
+  if [[ ! -f "$OUTPUT/index.original.html" ]]; then
+    cp "$OUTPUT/index.html" "$OUTPUT/index.original.html"
+  fi
+fi
+
+cp -r "$TMP_DIR/dist/dist/./" "$OUTPUT/"
 
 find "$OUTPUT" -type d -exec chmod o+rx {} \;
 find "$OUTPUT" -type f -exec chmod o+r {} \;
