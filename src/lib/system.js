@@ -4,6 +4,8 @@ import semver from 'semver';
 
 import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
 import { timedChunk } from './public.ts';
+import { freeSpace } from './state';
+import * as state from './state';
 import { SystemBase } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
@@ -1659,12 +1661,16 @@ export class System extends SystemBase {
         }
       }
 
+      state.freeSpace.event.on('change', (v) => {
+        system.showFreeSpace(v);
+      });
+
       // Rpc-version version 15, no longer provide download-dir-free-space parameters, to be obtained from the new method
       if (parseInt(system.serverConfig['rpc-version']) >= 15) {
-        transmission.getFreeSpace(system.downloadDir, function (datas) {
-          system.serverConfig['download-dir-free-space'] = datas.arguments['size-bytes'];
-          system.showFreeSpace(datas.arguments['size-bytes']);
-        });
+        setTimeout(async () => {
+          const size = await transmission.getFreeSpace(system.downloadDir);
+          state.freeSpace.set(size);
+        }, 10 * 1000);
       } else {
         system.showFreeSpace(system.serverConfig['download-dir-free-space']);
       }

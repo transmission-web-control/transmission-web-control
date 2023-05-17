@@ -272,20 +272,15 @@ export const transmission = {
     );
   },
   // 獲取指定目錄的大小
-  getFreeSpace(path: string, callback?: (data: any) => void) {
-    this.exec(
-      {
-        method: 'free-space',
-        arguments: {
-          path,
-        },
+  async getFreeSpace(path: string, callback?: (data: any) => void): Promise<number> {
+    const data = await this.execAsync({
+      method: 'free-space',
+      arguments: {
+        path,
       },
-      function (result) {
-        if (callback != null) {
-          callback(result);
-        }
-      },
-    );
+    });
+
+    return data.arguments['size-bytes'];
   },
   // 更新黑名單
   updateBlocklist(callback?: (data: any) => void) {
