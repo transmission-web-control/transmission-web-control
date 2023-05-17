@@ -89,6 +89,7 @@ if [[ $VERSION == "" ]]; then
   #  TMP_DIR=/tmp/tr-web-ctl/latest
 else
   TMP_DIR=/tmp/tr-web-ctl/${VERSION}
+  mkdir -p "$TMP_DIR"
 fi
 
 echo "Using temp dir ${TMP_DIR}"
