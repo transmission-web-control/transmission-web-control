@@ -2710,10 +2710,11 @@ export class System extends SystemBase {
       return;
     }
     this.showStatus(this.lang.system.status.queue + (index + 1) + '/' + count + '<br/>' + url, 0);
+    const system = this;
     transmission.addTorrentFromUrl(url, savepath, autostart, function (data) {
-      this.addTorrentsToServer(urls, count, autostart, savepath, labels);
+      system.addTorrentsToServer(urls, count, autostart, savepath, labels);
       if (labels != null && data.hashString != null) {
-        this.saveLabelsConfig(data.hashString, labels);
+        system.saveLabelsConfig(data.hashString, labels);
       }
     });
   }
