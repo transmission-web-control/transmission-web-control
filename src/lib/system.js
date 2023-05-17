@@ -3499,7 +3499,7 @@ export class System extends SystemBase {
         if (result && result.tag_name) {
           const update = result.created_at.slice(0, 10).replace(/-/g, '');
           const version = result.tag_name;
-          if ($.inArray(version, system.config.ignoreVersion) != -1) {
+          if (system.config.ignoreVersion.includes(version)) {
             return;
           }
           if (semver.lt(APP_VERSION, result.tag_name)) {

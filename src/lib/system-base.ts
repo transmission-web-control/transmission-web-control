@@ -3,6 +3,7 @@ import * as lo from 'lodash-es';
 import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
 import { type Field } from './torrent-fields';
+import { APP_VERSION } from './version';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 const easyUILocale: Record<`../twc/easyui/locale/easyui-lang-${string}.js`, string> =
@@ -20,6 +21,7 @@ const templateFiles: Record<`../twc/template/${string}.html`, string> = import.m
 );
 
 export class SystemBase {
+  version = APP_VERSION;
   rootPath = 'tr-web-control/';
   configHead = 'transmission-web-control';
   defaultLang = enLocal;

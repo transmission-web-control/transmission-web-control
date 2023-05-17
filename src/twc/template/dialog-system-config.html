@@ -1423,7 +1423,6 @@
           for (var index = checkedRows.length - 1; index >= 0; index--) {
             var item = checkedRows[index];
             var rowIndex = page.userLabelsTable.datagrid('getRowIndex', item);
-            console.log(rowIndex);
             removed.push(rowIndex);
             page.userLabelsTable.datagrid('deleteRow', rowIndex);
             system.config.labels.splice(rowIndex, 1);

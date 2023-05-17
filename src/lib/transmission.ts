@@ -719,7 +719,6 @@ export const transmission = {
         },
         function (data) {
           if (data.result == 'success') {
-            console.log(transmission.torrents);
             transmission.torrents.newIds.length = 0;
             transmission.torrents.loadSimpleInfo = true;
             transmission.torrents.recently = data.arguments.torrents;
