@@ -719,6 +719,7 @@ export const transmission = {
         },
         function (data) {
           if (data.result == 'success') {
+            console.log(transmission.torrents);
             transmission.torrents.newIds.length = 0;
             transmission.torrents.loadSimpleInfo = true;
             transmission.torrents.recently = data.arguments.torrents;
@@ -956,7 +957,7 @@ export const transmission = {
         if (transmission.options.getFolders) {
           if (item.downloadDir) {
             // 统一使用 / 来分隔目录
-            const folder = item.downloadDir.replace(/\\/g, '/').split('/');
+            const folder = item.downloadDir.replace(/\\/g, '/').replaceAll(/\/*$/g, '').split('/');
             let folderkey = 'folders-';
             for (const text of folder) {
               const key = Base64.encode(text);
