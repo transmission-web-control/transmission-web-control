@@ -16,7 +16,7 @@ function pad(s: number, n = 2): string {
 }
 
 export function formatDate(date: Date): string {
-  return `${pad(date.getFullYear(), 4)}-${pad(date.getMonth())}-${pad(date.getDay())} ${pad(
+  return `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(
     date.getHours(),
   )}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
