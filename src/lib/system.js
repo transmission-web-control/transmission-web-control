@@ -2741,7 +2741,7 @@ export class System extends SystemBase {
           iconCls: 'icon-loading',
         });
       }
-
+      const system = this;
       transmission.exec(
         {
           method,
@@ -2755,8 +2755,8 @@ export class System extends SystemBase {
               iconCls: icon,
             });
           }
-          this.control.torrentlist.datagrid('uncheckAll');
-          this.reloadTorrentBaseInfos();
+          system.control.torrentlist.datagrid('uncheckAll');
+          system.reloadTorrentBaseInfos();
         },
       );
     }
