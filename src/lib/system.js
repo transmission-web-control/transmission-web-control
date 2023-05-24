@@ -4,7 +4,7 @@ import semver from 'semver';
 
 import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
 import { timedChunk } from './public.ts';
-import { SystemBase } from './system-base';
+import { SystemBase, templateFiles } from './system-base';
 import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
 import { arrayObjectSort, formatSize } from './utils';
@@ -137,6 +137,7 @@ export class System extends SystemBase {
     // 设置属性栏
     this.panel.attribute.panel({
       title: this.lang.title.attribute,
+      content: templateFiles[`../twc/template/torrent-attribute.html`],
       onExpand() {
         if (system.currentTorrentId != 0 && $(this).data('isload')) {
           system.getTorrentInfos(system.currentTorrentId);

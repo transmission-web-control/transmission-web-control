@@ -12,7 +12,7 @@ const easyUILocale: Record<`../twc/easyui/locale/easyui-lang-${string}.js`, stri
     as: 'raw',
   });
 
-const templateFiles: Record<`../twc/template/${string}.html`, string> = import.meta.glob(
+export const templateFiles: Record<`../twc/template/${string}.html`, string> = import.meta.glob(
   '../twc/template/*.html',
   {
     eager: true,
