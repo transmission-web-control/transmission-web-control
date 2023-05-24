@@ -1471,7 +1471,7 @@ export class System extends SystemBase {
         for (const i in rows) {
           ids.push(rows[i].id);
         }
-        if (ids.length == 0) {
+        if (ids.length === 0) {
           return;
         }
 

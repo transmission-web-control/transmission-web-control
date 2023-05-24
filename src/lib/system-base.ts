@@ -289,7 +289,7 @@ export class SystemBase {
     let dialog = $(`#${dialogId}`);
     if (dialog.length) {
       if (datas) {
-        lo.forEach(datas, function (key, value) {
+        lo.forOwn(datas, function (value, key) {
           dialog.data(key, value);
         });
       }
@@ -358,7 +358,7 @@ export class SystemBase {
     const dialogFileLoaded = (data: string) => {
       this.templates[dialogId] = data;
       if (datas) {
-        $.each(datas, function (key, value) {
+        lo.forOwn(datas, (value, key) => {
           $(`#${dialogId}`).data(key, value);
         });
       }
