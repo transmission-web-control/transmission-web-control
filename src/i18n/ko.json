@@ -266,7 +266,7 @@
       "uploadedEver": "업로드 한 크기",
       "uploadRatio": "비율"
     },
-    "status-text": {
+    "statusText": {
       "0": "정지",
       "1": "확인 대기",
       "2": "확인 중",

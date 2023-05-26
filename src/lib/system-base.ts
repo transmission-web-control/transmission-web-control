@@ -3,17 +3,24 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'ag-grid-enterprise';
 import './grid-style.css';
 
-import { Grid, type GridOptions } from 'ag-grid-community';
+import {
+  type GetContextMenuItemsParams,
+  Grid,
+  type GridOptions,
+  type LabelFormatterParams,
+  type MenuItemDef,
+  type ValueGetterFunc,
+} from 'ag-grid-community';
 import * as lo from 'lodash-es';
 
 import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
+import { formatDuration, formatLongTime } from './formatter';
 import torrentFields, { type Field } from './torrent-fields';
-import { APP_VERSION } from './version';
-import { formatSize } from './utils';
-import { formatDuration, formatLongTime, getGrayLevel } from './formatter';
-import { Torrent, transmission } from './transmission';
+import { type Torrent, TorrentStatus, transmission } from './transmission';
 import { userActions } from './user-actions';
+import { formatSize } from './utils';
+import { APP_VERSION } from './version';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 const easyUILocale: Record<`../twc/easyui/locale/easyui-lang-${string}.js`, string> =
@@ -257,14 +264,14 @@ export class SystemBase {
 
     const system = this;
 
-    $.each(items, function(key, item) {
+    $.each(items, function (key, item) {
       const name = $(item).attr('system-lang') as string;
       $(item).html(lo.get(system.lang, name) as string);
     });
 
     items = parent.find('*[system-tip-lang]');
 
-    $.each(items, function(key, item) {
+    $.each(items, function (key, item) {
       const name = $(item).attr('system-tip-lang') as string;
       $(item).attr('title', lo.get(system.lang, name) as string);
     });
@@ -301,7 +308,7 @@ export class SystemBase {
     let dialog = $(`#${dialogId}`);
     if (dialog.length) {
       if (datas) {
-        lo.forOwn(datas, function(value, key) {
+        lo.forOwn(datas, function (value, key) {
           dialog.data(key, value);
         });
       }
@@ -458,41 +465,79 @@ export class SystemBase {
     }
   }
 
-
   // Initialize the torrent list display table
   initTorrentTable() {
     $('<div id="myGrid" class="ag-theme-alpine torrent-list"></div>').appendTo(this.panel.list!);
     const eGridDiv = document.querySelector('#myGrid');
-    const userEnabledField = (this.userConfig.torrentList.fields.length === 0 ? torrentFields.fields : this.userConfig.torrentList.fields);
+    const userEnabledField =
+      this.userConfig.torrentList.fields.length === 0
+        ? torrentFields.fields
+        : this.userConfig.torrentList.fields;
     const fields = torrentFields.fields;
 
-    const enabledFieldNames = new Set(userEnabledField.map(x => x.field));
+    const enabledFieldNames = new Set(userEnabledField.map((x) => x.field));
 
     const stateRaw = this.getStorageData(this.gridState);
 
-    const saveGridState = (e: any) => {
-      this.setStorageData(this.gridState, JSON.stringify(this.control.grid.columnApi.getColumnState()));
-    };
-
     this.control.grid = {
-      rowHeight: 30,
+      rowHeight: 20,
       headerHeight: 30,
-      columnDefs: fields.filter(o => o.field !== 'ck').map(o => {
-        const formatter = this.getFieldFormat(o.formatter_type);
-        return {
-          headerName: this.lang.torrent.fields[o.field] as string,
-          field: o.field,
-          hide: !enabledFieldNames.has(o.field),
-          width: o.width,
-          valueFormatter: formatter ? ({ value }) => formatter(value) : undefined,
-          initialWidth: o.width,
-          suppressAutoSize: true,
-        };
-      }),
+      columnDefs: fields
+        .filter((o) => o.field.toString() !== 'ck')
+        .map((o) => {
+          const formatter: undefined | ((value: any) => string) = this.getFieldFormat(
+            o.formatter_type,
+          );
+          let valueGetter: undefined | ((params: { data: Torrent; value: number }) => any);
+          const opt: Record<string, any> = {};
+          if (o.formatter_type === 'progress') {
+            opt.cellRenderer = (params: { data: Torrent; value: number }) => {
+              const torrent = params.data;
+              return this.getTorrentProgressBar(params.value * 100, torrent);
+            };
+          }
+          if (o.formatter_type === 'html') {
+            opt.cellRenderer = (params: LabelFormatterParams) => {
+              return params.value;
+            };
+          }
+
+          if (o.field === 'status') {
+            valueGetter = (params) => {
+              const torrent: Torrent = params.data;
+              const status = this.lang.torrent.statusText[torrent.status];
+              if (torrent.error != 0) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                return `<span class='text-status-error' title='${torrent.errorString}'>${status}</span>`;
+              } else if (torrent.warning) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                return `<span class='text-status-warning' title='${torrent.warning}'>${status}</span>`;
+              }
+              return status;
+            };
+          }
+
+          if (o.field === 'completeSize') {
+            valueGetter = (params) => {
+              return params.data.totalSize - params.data.leftUntilDone;
+            };
+          }
+
+          return {
+            ...opt,
+            headerName: this.lang.torrent.fields[o.field],
+            field: o.field,
+            valueGetter: valueGetter as unknown as ValueGetterFunc<Torrent>,
+            hide: !enabledFieldNames.has(o.field),
+            width: o.width,
+            valueFormatter: formatter ? ({ value }: { value: any }) => formatter(value) : undefined,
+            initialWidth: o.width,
+          };
+        }),
       autoSizePadding: 0,
       allowContextMenuWithControlKey: true,
-      suppressContextMenu: true,
-      getContextMenuItems,
+      suppressContextMenu: false,
+      getContextMenuItems: this.torrentContextMenu.bind(this),
       defaultColDef: {
         sortable: true,
         resizable: true,
@@ -500,39 +545,26 @@ export class SystemBase {
       },
       rowSelection: 'multiple' as const,
       getRowId: (params: any) => params.data.hashString,
-      onColumnResized: saveGridState,
-      onColumnMoved: saveGridState,
-      onGridColumnsChanged: saveGridState,
-      onDisplayedColumnsChanged: saveGridState,
       onRowSelected: (e) => {
-        userActions.emit('selectTorrent', e.data.id);
-        this.currentTorrentId = e.data.id;
+        userActions.emit('selectTorrent', e.data!.id);
+        this.currentTorrentId = e.data!.id;
       },
     };
     this.control.torrentList = new Grid(eGridDiv as HTMLElement, this.control.grid);
     if (stateRaw) {
-      this.control.grid.columnApi.applyColumnState({ state: JSON.parse(stateRaw) });
+      this.control.grid.columnApi?.applyColumnState({ state: JSON.parse(stateRaw) });
     }
+
+    window.onbeforeunload = () => {
+      this.setStorageData(
+        this.gridState,
+        JSON.stringify(this.control.grid.columnApi?.getColumnState()),
+      );
+    };
 
     console.log(this.control.grid.columnDefs);
     // this.control.grid.api?.setHeaderHeight();
-
   } // end initTorrentTable
-
-  resetTorrentListFieldsUserConfig(columns) {
-    const fields = {};
-    $.each(this.userConfig.torrentList.fields, function(index, item) {
-      fields[item.field] = item;
-    });
-
-    this.userConfig.torrentList.fields = [];
-    $.each(columns, function(index, item) {
-      const field = $.extend({}, fields[item.field]);
-      field.width = item.width;
-      field.hidden = item.hidden;
-      system.userConfig.torrentList.fields.push(field);
-    });
-  }
 
   // Set the field display format
   getFieldFormat(type?: string) {
@@ -546,36 +578,21 @@ export class SystemBase {
           return formatSize(value);
         };
       case 'speed':
-        return function(value: number) {
+        return function (value: number) {
           return formatSize(value, true, 'speed');
         };
       case 'longtime':
-        return function(value: string) {
+        return function (value: string) {
           return formatLongTime(value);
         };
       case 'progress':
         return;
-        field.formatter = function(value, row, index) {
-          const percentDone = parseFloat(value * 100).toFixed(2);
-          return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
-        };
-        break;
-
-      case '_usename_':
-        return;
       case 'ratio':
-        return;
-        field.formatter = function(value, row, index) {
-          let className = '';
-          if (parseFloat(value) < 1 && value != -1) {
-            className = 'text-status-warning';
-          }
-          return '<span class="' + className + '">' + (value == -1 ? '∞' : value) + '</span>';
+        return function (value: number) {
+          return value.toFixed(2);
         };
-        break;
-
       case 'remainingTime':
-        return function(value: number) {
+        return function (value: number) {
           if (value >= 3153600000) {
             return '∞';
           }
@@ -583,91 +600,165 @@ export class SystemBase {
         };
     }
   }
-}
 
+  // Retrieve the torrent information again
+  async reloadTorrentBaseInfos(ids: Array<string | number>, moreFields?: string[]) {
+    throw new Error('BUG: SHOULD be override');
+  }
 
-function getContextMenuItems(params): any {
-  return [
-    {
-      // custom item
-      name: 'Always Disabled',
-      disabled: true,
-      tooltip:
-        'Very long tooltip, did I mention that I am very long, well I am! Long!  Very Long!',
-    },
-    {
-      name: 'Person',
-      subMenu: [
-        {
-          name: 'Niall',
-          action: () => {
-            console.log('Niall was pressed');
-          },
+  torrentContextMenu(params: GetContextMenuItemsParams<Torrent>): Array<string | MenuItemDef> {
+    const torrent = params.node!.data as Torrent;
+
+    const selected = this.control.grid.api?.getSelectedRows() ?? [];
+    if (!selected.length) {
+      selected.push(torrent);
+    }
+
+    const statusMenu = [];
+
+    if (torrent.status === TorrentStatus.stopped) {
+      statusMenu.push({
+        // TODO
+        name: this.lang.toolbar.tip.start,
+        action: () => {
+          const ids = selected.map((t) => t.hashString);
+          void transmission
+            .execAsync({
+              method: 'torrent-start',
+              arguments: {
+                ids,
+              },
+            })
+            .then(() => this.reloadTorrentBaseInfos(ids));
         },
-        {
-          name: 'Sean',
-          action: () => {
-            console.log('Sean was pressed');
-          },
+      });
+    } else if (
+      [
+        TorrentStatus.seedwait,
+        TorrentStatus.seed,
+        TorrentStatus.downloadwait,
+        TorrentStatus.download,
+      ].includes(torrent.status)
+    ) {
+      statusMenu.push({
+        name: this.lang.toolbar.tip.pause,
+        action: () => {
+          const ids = selected.map((t) => t.hashString);
+          void transmission
+            .execAsync({
+              method: 'torrent-stop',
+              arguments: {
+                ids,
+              },
+            })
+            .then(() => this.reloadTorrentBaseInfos(ids));
         },
-        {
-          name: 'John',
-          action: () => {
-            console.log('John was pressed');
-          },
-        },
-        {
-          name: 'Alberto',
-          action: () => {
-            console.log('Alberto was pressed');
-          },
-        },
-        {
-          name: 'Tony',
-          action: () => {
-            console.log('Tony was pressed');
-          },
-        },
-        {
-          name: 'Andrew',
-          action: () => {
-            console.log('Andrew was pressed');
-          },
-        },
-        {
-          name: 'Kev',
-          action: () => {
-            console.log('Kev was pressed');
-          },
-        },
-        {
-          name: 'Will',
-          action: () => {
-            console.log('Will was pressed');
-          },
-        },
-        {
-          name: 'Armaan',
-          action: () => {
-            console.log('Armaan was pressed');
-          },
-        },
-      ],
-    }, // built in separator
-    'separator',
-    'separator',
-    {
-      // custom item
-      name: 'Checked',
-      checked: true,
-      action: () => {
-        console.log('Checked Selected');
+      });
+    }
+
+    return [
+      ...statusMenu,
+      'separator',
+      {
+        name: this.lang.toolbar.tip.rename,
       },
-      icon:
-        '<img src="https://www.ag-grid.com/example-assets/skills/mac.png"/>',
-    }, // built in copy item
-    'copy',
-    'separator',
-    'chartRange',
-  ];
+      {
+        name: this.lang.toolbar.tip.remove,
+      },
+      {
+        name: this.lang.toolbar.tip.recheck,
+      },
+      'separator',
+      {
+        name: this.lang.toolbar.tip['more-peers'],
+        action: () => {},
+      },
+      {
+        name: this.lang.toolbar.tip['change-download-dir'],
+      },
+      {
+        name: this.lang.toolbar.tip['copy-path-to-clipboard'],
+        action: () => {
+          void navigator.clipboard.writeText(torrent.downloadDir);
+        },
+      },
+      'separator',
+      {
+        name: this.lang.menus.queue['move-top'],
+      },
+      {
+        name: this.lang.menus.queue['move-up'],
+      },
+      {
+        name: this.lang.menus.queue['move-down'],
+      },
+      {
+        name: this.lang.menus.queue['move-bottom'],
+      },
+      'separator',
+      {
+        name: this.lang.menus.copyMagnetLink,
+        action: () => {
+          void transmission.torrents.getMagnetLink(selected.map((t) => t.id)).then((magnet) => {
+            return navigator.clipboard.writeText(magnet);
+          });
+        },
+      },
+    ];
+  }
+
+  // Gets the progress bar for the specified torrent
+  getTorrentProgressBar(progress: number, torrent: Torrent): string {
+    let className = '';
+    let status = 0;
+    if (typeof torrent === 'object') {
+      status = torrent.status;
+    } else {
+      status = torrent;
+    }
+
+    switch (status) {
+      case transmission._status.stopped:
+        className = 'torrent-progress-stop';
+        break;
+
+      case transmission._status.checkwait:
+      case transmission._status.check:
+        className = 'torrent-progress-check';
+        break;
+
+      case transmission._status.downloadwait:
+      case transmission._status.download:
+        className = 'torrent-progress-download';
+        break;
+
+      case transmission._status.seedwait:
+      case transmission._status.seed:
+        className = 'torrent-progress-seed';
+        break;
+    }
+    if (typeof torrent === 'object') {
+      if (torrent.warning) {
+        className = 'torrent-progress-warning';
+      }
+      if (torrent.error != 0) {
+        className = 'torrent-progress-error';
+      }
+    }
+    if (status == transmission._status.check) {
+      // 目前只有status==_status.download时 torrent 不是对象
+      // 检查进度条长度保持在已完成的范围内
+      const percentCheckText = (torrent.recheckProgress * 100).toFixed(2);
+      const percentCheckView = (progress * torrent.recheckProgress).toFixed(2);
+      return `<div class="torrent-progress" title="${progress}%">
+          <div class="torrent-progress-text" style="z-index:2;">${percentCheckText}%</div>
+          <div class="torrent-progress-bar torrent-progress-seed" style="width:${percentCheckView}%;z-index:1;opacity:0.7;"></div>
+          <div class="torrent-progress-bar ${className}" style="width:${progress}%;"></div>
+        </div>`;
+    }
+    return `<div class="torrent-progress" title="${progress}%">
+         <div class="torrent-progress-text">${progress}%</div>
+         <div class="torrent-progress-bar ${className}" style="width:${progress}%;"></div>
+       </div>`;
+  }
 }

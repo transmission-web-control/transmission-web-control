@@ -357,7 +357,7 @@
       "labels": "User Labels",
       "doneDate": "Completed Date"
     },
-    "status-text": {
+    "statusText": {
       "0": "Paused",
       "1": "Wait check",
       "2": "Checking",

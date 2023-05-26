@@ -588,18 +588,13 @@ export const transmission = {
       );
     },
 
-    getMagnetLink(ids: string[], callback: any) {
-      let result = '';
-      // is single number
-      if (!Array.isArray(ids)) {
-        ids = [ids];
-      }
+    async getMagnetLink(ids: number[]): Promise<string> {
       if (ids.length == 0) {
-        if (callback) {
-          callback(result);
-        }
-        return;
+        return '';
       }
+
+      const result: string[] = [];
+
       // 跳过己获取的
       const reqList = [];
       for (const id of ids) {
@@ -610,39 +605,30 @@ export const transmission = {
         if (!t.magnetLink) {
           reqList.push(id);
         } else {
-          result += t.magnetLink + '\n';
+          result.push(t.magnetLink);
         }
       }
 
       if (reqList.length == 0) {
-        if (callback) {
-          callback(result.trim());
-        }
-        return;
+        return result.join('\n');
       }
 
-      transmission.exec(
-        {
-          method: 'torrent-get',
-          arguments: {
-            fields: ['id', 'magnetLink'],
-            ids: reqList,
-          },
+      const data = await transmission.execAsync({
+        method: 'torrent-get',
+        arguments: {
+          fields: ['id', 'magnetLink'],
+          ids: reqList,
         },
-        function (data) {
-          if (data.result == 'success') {
-            for (const item of data.arguments.torrents as Array<
-              Pick<Torrent, 'id' | 'magnetLink'>
-            >) {
-              transmission.torrents.all[item.id]!.magnetLink = item.magnetLink;
-              result += item.magnetLink + '\n';
-            }
-            if (callback) {
-              callback(result.trim());
-            }
-          }
-        },
-      );
+      });
+
+      if (data.result == 'success') {
+        for (const item of data.arguments.torrents as Array<Pick<Torrent, 'id' | 'magnetLink'>>) {
+          transmission.torrents.all[item.id]!.magnetLink = item.magnetLink;
+          result.push(item.magnetLink);
+        }
+      }
+
+      return result.join('\n');
     },
     // List of all the torrents that have been acquired
     getMoreInfos(
@@ -1037,7 +1023,7 @@ export interface Torrent {
   leecherCount: number;
   id: number;
   name: string;
-  status: number;
+  status: TorrentStatus;
   trackerStats: TrackerStat[];
   nextAnnounceTime: number;
   downloadDir: string;
@@ -1074,3 +1060,13 @@ transmission.event.on('error', (err: unknown) => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   console.error(`transmission error: ${err}`);
 });
+
+export enum TorrentStatus {
+  stopped = 0,
+  checkwait = 1,
+  check = 2,
+  downloadwait = 3,
+  download = 4,
+  seedwait = 5,
+  seed = 6,
+}

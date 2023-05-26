@@ -319,7 +319,7 @@
 			"trackers": "Trackers",
 			"labels": "User Labels"
 		},
-		"status-text": {
+		"statusText": {
 			"0": "정지",
 			"1": "확인 대기",
 			"2": "확인 중",

@@ -352,7 +352,7 @@
 			"labels": "Etikett",
 			"doneDate":"Abgeschlossen"
 		},
-		"status-text": {
+		"statusText": {
 			"0": "Angehalten",
 			"1": "Warte auf Prüfung",
 			"2": "Prüfe",

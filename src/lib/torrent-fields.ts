@@ -1,5 +1,7 @@
+import type enLocal from '../i18n/en.json';
+
 export interface Field {
-  field: string;
+  field: keyof (typeof enLocal)['torrent']['fields'];
   width?: number;
   align?: string;
   checkbox?: boolean;
@@ -39,7 +41,7 @@ export default {
       sortable: true,
       formatter_type: 'ratio',
     },
-    { field: 'status', width: 60, align: 'center', sortable: true },
+    { field: 'status', width: 60, align: 'center', sortable: true, formatter_type: 'html' },
     { field: 'seederCount', width: 60, align: 'left' },
     { field: 'leecherCount', width: 60, align: 'left' },
     {

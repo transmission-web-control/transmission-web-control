@@ -338,7 +338,7 @@
 			"labels": "User Labels",
 			"doneDate": "Completed Date"
 		},
-		"status-text": {
+		"statusText": {
 			"0": "Pausado",
 			"1": "Espera comprob.",
 			"2": "Comprobando",

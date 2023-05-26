@@ -11,6 +11,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    '@typescript-eslint/promise-function-async': 0,
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'prefer-const': 'error',
