@@ -19,27 +19,29 @@ getTransmissionPath() {
   if [ ! -d "$ROOT_FOLDER" ]; then
     if [ -f "/etc/fedora-release" ] || [ -f "/etc/debian_version" ] || [ -f "/etc/openwrt_release" ]; then
       echo "/usr/share/transmission"
+      return
     fi
 
     if [ -f "/bin/freebsd-version" ]; then
       echo "/usr/local/share/transmission"
+      return
     fi
 
     # 群晖
     if [ -f "/etc/synoinfo.conf" ]; then
       echo "/var/packages/transmission/target/share/transmission"
+      return
     fi
   fi
 
   if [ ! -d "$ROOT_FOLDER" ]; then
     infos=$(ps -Aww -o command= | sed -r -e '/[t]ransmission-da/!d' -e 's/ .+//')
     if [ "$infos" != "" ]; then
-      echo " √"
       search="bin/transmission-daemon"
       replace="share/transmission"
       path=${infos//$search/$replace}
       if [ -d "$path" ]; then
-        echo $path
+        echo "$path"
       fi
     else
       echo_err "Failed to find transmission web home, use '-o' or set env 'TRANSMISSION_WEB_HOME'"
@@ -81,6 +83,16 @@ if [[ "$OUTPUT" == "" ]]; then
   else
     OUTPUT=$(getTransmissionPath)
   fi
+fi
+
+echo "transmission-web-control will be installed to ${OUTPUT}, please confirm it's correct. otherwise use '-o' to set target directory"
+echo "press 'y' to continue"
+
+read -p "Are you sure? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  echo 'user abort'
+    # do dangerous stuff
 fi
 
 if [[ $VERSION == "" ]]; then
