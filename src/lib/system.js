@@ -5,7 +5,6 @@ import semver from 'semver';
 import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
 import { timedChunk } from './public.ts';
 import { SystemBase, templateFiles } from './system-base';
-import torrentFields from './torrent-fields.ts';
 import { transmission } from './transmission';
 import { arrayObjectSort, formatSize } from './utils';
 import { APP_VERSION } from './version';
@@ -139,7 +138,8 @@ export class System extends SystemBase {
       title: this.lang.title.attribute,
       content: templateFiles[`../twc/template/torrent-attribute.html`],
       onExpand() {
-        if (system.currentTorrentId != 0 && $(this).data('isload')) {
+        if (system.currentTorrentId !== 0 && $(this).data('isload')) {
+          console.log(getTorrentInfos);
           system.getTorrentInfos(system.currentTorrentId);
         } else {
           system.clearTorrentAttribute();
@@ -149,7 +149,7 @@ export class System extends SystemBase {
         if (!$(this).data('isload')) {
           $(this).data('isload', true);
           if (system.currentTorrentId != 0) {
-            setTimeout(function () {
+            setTimeout(function() {
               system.getTorrentInfos(system.currentTorrentId);
             }, 500);
           }
@@ -158,7 +158,7 @@ export class System extends SystemBase {
     });
 
     // Set the language
-    Object.entries(this.languages).forEach(function ([key, value]) {
+    Object.entries(this.languages).forEach(function([key, value]) {
       $('<option/>')
         .text(value)
         .val(key)
@@ -166,7 +166,7 @@ export class System extends SystemBase {
         .appendTo(system.panel.top.find('#lang'));
     });
 
-    this.panel.top.find('#lang').change(function () {
+    this.panel.top.find('#lang').change(function() {
       location.href = '?lang=' + this.value;
     });
 
@@ -186,14 +186,14 @@ export class System extends SystemBase {
    */
   initEvent() {
     // When the window size changes
-    $(window).resize(function () {
+    $(window).resize(function() {
       $('#main').layout('resize');
     });
 
     // Add file drag-and-drop event handling - Begin
     this.panel.droparea[0].addEventListener(
       'dragover',
-      function (e) {
+      function(e) {
         e.stopPropagation();
         e.preventDefault();
         system.debug('#dropArea.dragover');
@@ -203,7 +203,7 @@ export class System extends SystemBase {
 
     this.panel.list[0].addEventListener(
       'dragover',
-      function (e) {
+      function(e) {
         e.stopPropagation();
         e.preventDefault();
         system.panel.droparea.show();
@@ -214,7 +214,7 @@ export class System extends SystemBase {
 
     this.panel.droparea[0].addEventListener(
       'drop',
-      function (e) {
+      function(e) {
         e.stopPropagation();
         e.preventDefault();
         system.panel.droparea.hide();
@@ -226,7 +226,7 @@ export class System extends SystemBase {
 
     this.panel.droparea[0].addEventListener(
       'dragleave',
-      function (e) {
+      function(e) {
         e.stopPropagation();
         e.preventDefault();
         system.panel.droparea.hide();
@@ -239,8 +239,8 @@ export class System extends SystemBase {
     // End
 
     // 取消选择所有已选中的种子
-    $('#button-cancel-checked').on('click', function () {
-      system.control.torrentlist.datagrid('uncheckAll');
+    $('#button-cancel-checked').on('click', function() {
+      system.control.torrentList.datagrid('uncheckAll');
     });
 
     // 树型目录事件
@@ -638,204 +638,6 @@ export class System extends SystemBase {
     }
   }
 
-  // Initialize the torrent list display table
-  initTorrentTable() {
-    const system = this;
-    const torrentList = $('<table/>').attr('class', 'torrent-list').appendTo(this.panel.list);
-    this.control.torrentlist = torrentList;
-
-    let headContextMenu = null;
-    let selectedIndex = -1;
-
-    // Create a header right-click menu
-    function createHeadContextMenu() {
-      if (headContextMenu) {
-        $(headContextMenu).remove();
-      }
-      headContextMenu = $('<div/>').appendTo('body');
-      headContextMenu.menu({
-        onClick(item) {
-          if (item.iconCls == 'icon-ok') {
-            system.control.torrentlist.datagrid('hideColumn', item.name);
-            headContextMenu.menu('setIcon', {
-              target: item.target,
-              iconCls: 'icon-empty',
-            });
-          } else {
-            system.control.torrentlist.datagrid('showColumn', item.name);
-            headContextMenu.menu('setIcon', {
-              target: item.target,
-              iconCls: 'icon-ok',
-            });
-          }
-          system.resetTorrentListFieldsUserConfig(
-            system.control.torrentlist.datagrid('options').columns[0],
-          );
-          system.saveUserConfig();
-        },
-      });
-      const fields = system.control.torrentlist.datagrid('getColumnFields');
-      for (let i = 0; i < fields.length; i++) {
-        const field = fields[i];
-        const col = torrentList.datagrid('getColumnOption', field);
-
-        if (col.allowCustom?.toString() !== 'false') {
-          headContextMenu.menu('appendItem', {
-            text: col.title,
-            name: field,
-            iconCls: col.hidden ? 'icon-empty' : 'icon-ok',
-          });
-        }
-      }
-    }
-
-    let fields = torrentFields.fields;
-    const _fields = Object.fromEntries(fields.map((x) => [x.field, x]));
-
-    if (system.userConfig.torrentList.fields.length) {
-      fields = $.extend(fields, system.userConfig.torrentList.fields);
-    }
-
-    // User field settings
-    system.userConfig.torrentList.fields = fields;
-
-    for (const item of fields) {
-      const _field = _fields[item.field];
-      if (_field && _field.formatter_type) {
-        item.formatter_type = _field.formatter_type;
-      } else if (item.formatter_type) {
-        delete item.formatter_type;
-      }
-
-      item.align = _field.align;
-
-      if (_field && _field.sortable) {
-        item.sortable = _field.sortable;
-      } else if (item.sortable) {
-        delete item.sortable;
-      }
-
-      item.title = this.lang.torrent.fields[item.field] || item.field;
-      system.setFieldFormat(item);
-    }
-
-    // 初始化种子列表
-    torrentList.datagrid({
-      autoRowHeight: false,
-      pagination: system.config.pagination,
-      rownumbers: true,
-      remoteSort: false,
-      checkOnSelect: false,
-      pageSize: system.config.pageSize,
-      pageList: system.config.pageList,
-      idField: 'id',
-      fit: true,
-      striped: true,
-      sortName: system.userConfig.torrentList.sortName,
-      sortOrder: system.userConfig.torrentList.sortOrder,
-      drophead: true,
-      columns: [fields],
-      onCheck(rowIndex, rowData) {
-        system.checkTorrentRow(rowIndex, rowData);
-      },
-      onUncheck(rowIndex, rowData) {
-        system.checkTorrentRow(rowIndex, rowData);
-      },
-      onCheckAll(rows) {
-        system.checkTorrentRow('all', false);
-      },
-      onUncheckAll(rows) {
-        system.checkTorrentRow('all', true);
-      },
-      onSelect(rowIndex, rowData) {
-        if (selectedIndex != -1) {
-          system.control.torrentlist.datagrid('unselectRow', selectedIndex);
-        }
-        system.getTorrentInfos(rowData.id);
-        selectedIndex = rowIndex;
-      },
-      onUnselect(rowIndex, rowData) {
-        system.currentTorrentId = 0;
-        selectedIndex = -1;
-      },
-      // Before loading data
-      onBeforeLoad(param) {
-        system.currentTorrentId = 0;
-      },
-      // Header sorting
-      onSortColumn(field, order) {
-        const field_func = field;
-        const datas = system.control.torrentlist
-          .datagrid('getData')
-          .originalRows.sort(arrayObjectSort(field_func, order));
-        system.control.torrentlist.datagrid('loadData', datas);
-
-        system.resetTorrentListFieldsUserConfig(
-          system.control.torrentlist.datagrid('options').columns[0],
-        );
-        system.userConfig.torrentList.sortName = field;
-        system.userConfig.torrentList.sortOrder = order;
-        system.saveUserConfig();
-      },
-      onRowContextMenu(e, rowIndex, rowData) {
-        // console.log("onRowContextMenu");
-        if (system.config.simpleCheckMode) {
-          system.control.torrentlist.datagrid('uncheckAll');
-        }
-
-        // 当没有种子被选中时，选中当前行
-        if (system.checkedRows.length == 0) {
-          system.control.torrentlist.datagrid('checkRow', rowIndex);
-        }
-        e.preventDefault();
-        system.showContextMenu('torrent-list', e);
-      },
-      onHeadDrop(sourceField, targetField) {
-        // console.log("onHeadDrop");
-        system.resetTorrentListFieldsUserConfig(
-          system.control.torrentlist.datagrid('options').columns[0],
-        );
-        system.saveUserConfig();
-      },
-      onResizeColumn(field, width) {
-        system.resetTorrentListFieldsUserConfig(
-          system.control.torrentlist.datagrid('options').columns[0],
-        );
-        system.saveUserConfig();
-      },
-      onHeaderContextMenu(e, field) {
-        // console.log("onHeaderContextMenu");
-        e.preventDefault();
-        if (!headContextMenu) {
-          createHeadContextMenu();
-        }
-        headContextMenu.menu('show', {
-          left: e.pageX,
-          top: e.pageY,
-        });
-      },
-    });
-
-    // 刷新当前页数据
-    torrentList.refresh = function () {
-      system.control.torrentlist.datagrid('getPager').find('.pagination-load').click();
-    };
-  } // end initTorrentTable
-
-  resetTorrentListFieldsUserConfig(columns) {
-    const fields = {};
-    $.each(this.userConfig.torrentList.fields, function (index, item) {
-      fields[item.field] = item;
-    });
-
-    this.userConfig.torrentList.fields = [];
-    $.each(columns, function (index, item) {
-      const field = $.extend({}, fields[item.field]);
-      field.width = item.width;
-      field.hidden = item.hidden;
-      system.userConfig.torrentList.fields.push(field);
-    });
-  }
 
   // Show context menu
   showContextMenu(type, e) {
@@ -883,7 +685,7 @@ export class System extends SystemBase {
         var toolbar = this.panel.toolbar;
         for (const key of menus) {
           if (key === '-') {
-            $("<div class='menu-sep'></div>").appendTo(parent);
+            $('<div class=\'menu-sep\'></div>').appendTo(parent);
             continue;
           }
 
@@ -983,7 +785,7 @@ export class System extends SystemBase {
           iconCls: 'iconfont tr-icon-labels',
           disabled: this.checkedRows.length == 0,
           onclick() {
-            system.getTorrentMagnetLink(function (data) {
+            system.getTorrentMagnetLink(function(data) {
               system.copyToClipboard(data);
               parent.css('display', 'block'); // 防止第一次复制碰链失败
             });
@@ -999,7 +801,7 @@ export class System extends SystemBase {
    * @return 返回一组标签内容
    */
   formetTorrentLabels(ids, hashString) {
-    const box = $("<div style='position: relative;'/>");
+    const box = $('<div style=\'position: relative;\'/>');
     if (ids) {
       if (typeof ids === 'string') {
         ids = ids.split(',');
@@ -1009,7 +811,7 @@ export class System extends SystemBase {
         const index = ids[i];
         const item = this.config.labels[index];
         if (item) {
-          $("<span class='user-label'/>")
+          $('<span class=\'user-label\'/>')
             .html(item.name)
             .css({
               'background-color': item.color,
@@ -1057,11 +859,11 @@ export class System extends SystemBase {
    */
   checkTorrentRow(rowIndex, rowData) {
     // 获取当前已选中的行
-    this.checkedRows = this.control.torrentlist.datagrid('getChecked');
+    this.checkedRows = this.control.torrentList.datagrid('getChecked');
     this.showCheckedInStatus();
     // 是否全选或反选
     if (rowIndex == 'all') {
-      if (this.control.torrentlist.datagrid('getRows').length == 0) {
+      if (this.control.torrentList.datagrid('getRows').length == 0) {
         return;
       }
       $(
@@ -1159,7 +961,7 @@ export class System extends SystemBase {
       const items = [];
       const text = this.lang.system.status.checked.replace('%n', this.checkedRows.length);
       const paths = [];
-      $("<div style='padding: 5px;'/>").html(text).appendTo(this.panel.status_text);
+      $('<div style=\'padding: 5px;\'/>').html(text).appendTo(this.panel.status_text);
       for (let index = 0; index < this.checkedRows.length; index++) {
         const item = this.checkedRows[index];
         items.push({ value: index, text: index + 1 + '. ' + item.name });
@@ -1241,7 +1043,7 @@ export class System extends SystemBase {
           ? this.lang.toolbar.tip['autoreload-disabled']
           : this.lang.toolbar.tip['autoreload-enabled'],
       )
-      .click(function () {
+      .click(function() {
         if (system.config.autoReload) {
           system.config.autoReload = false;
           clearTimeout(system.autoReloadTimer);
@@ -1276,7 +1078,7 @@ export class System extends SystemBase {
         disabled: false,
       })
       .attr('title', this.lang.toolbar.tip['add-torrent'])
-      .click(function () {
+      .click(function() {
         system.openDialogFromTemplate({
           id: 'dialog-torrent-add',
           options: {
@@ -1296,7 +1098,7 @@ export class System extends SystemBase {
         disabled: false,
       })
       .attr('title', this.lang.toolbar.tip['start-all'])
-      .click(function () {
+      .click(function() {
         let button = $(this);
         const icon = button.linkbutton('options').iconCls;
         button.linkbutton({
@@ -1307,7 +1109,7 @@ export class System extends SystemBase {
           {
             method: 'torrent-start',
           },
-          function (data) {
+          function(data) {
             button.linkbutton({
               iconCls: icon,
               disabled: false,
@@ -1325,7 +1127,7 @@ export class System extends SystemBase {
         disabled: false,
       })
       .attr('title', this.lang.toolbar.tip['pause-all'])
-      .click(function () {
+      .click(function() {
         let button = $(this);
         const icon = button.linkbutton('options').iconCls;
         button.linkbutton({
@@ -1336,7 +1138,7 @@ export class System extends SystemBase {
           {
             method: 'torrent-stop',
           },
-          function (data) {
+          function(data) {
             button.linkbutton({
               iconCls: icon,
               disabled: false,
@@ -1353,7 +1155,7 @@ export class System extends SystemBase {
         disabled: true,
       })
       .attr('title', this.lang.toolbar.tip.start)
-      .click(function () {
+      .click(function() {
         system.changeSelectedTorrentStatus('start', $(this));
       });
 
@@ -1364,7 +1166,7 @@ export class System extends SystemBase {
         disabled: true,
       })
       .attr('title', this.lang.toolbar.tip.pause)
-      .click(function () {
+      .click(function() {
         system.changeSelectedTorrentStatus('stop', $(this));
       });
 
@@ -1375,8 +1177,8 @@ export class System extends SystemBase {
         disabled: true,
       })
       .attr('title', this.lang.toolbar.tip.recheck)
-      .click(function () {
-        const rows = system.control.torrentlist.datagrid('getChecked');
+      .click(function() {
+        const rows = system.control.torrentList.datagrid('getChecked');
         if (rows.length > 0) {
           if (rows.length == 1) {
             const torrent = transmission.torrents.all[rows[0].id];
@@ -1399,7 +1201,7 @@ export class System extends SystemBase {
       .linkbutton({
         disabled: true,
       })
-      .click(function () {
+      .click(function() {
         system.changeSelectedTorrentStatus('reannounce', $(this));
       });
 
@@ -1410,8 +1212,8 @@ export class System extends SystemBase {
         disabled: true,
       })
       .attr('title', this.lang.toolbar.tip.remove)
-      .click(function () {
-        const rows = system.control.torrentlist.datagrid('getChecked');
+      .click(function() {
+        const rows = system.control.torrentList.datagrid('getChecked');
         const ids = [];
         for (const i in rows) {
           ids.push(rows[i].id);
@@ -1439,8 +1241,8 @@ export class System extends SystemBase {
       .linkbutton({
         disabled: true,
       })
-      .click(function () {
-        const rows = system.control.torrentlist.datagrid('getChecked');
+      .click(function() {
+        const rows = system.control.torrentList.datagrid('getChecked');
         if (rows.length == 0) {
           return;
         }
@@ -1466,8 +1268,8 @@ export class System extends SystemBase {
         disabled: true,
       })
       .attr('title', this.lang.toolbar.tip['change-download-dir'])
-      .click(function () {
-        const rows = system.control.torrentlist.datagrid('getChecked');
+      .click(function() {
+        const rows = system.control.torrentList.datagrid('getChecked');
         const ids = [];
         for (const i in rows) {
           ids.push(rows[i].id);
@@ -1495,8 +1297,8 @@ export class System extends SystemBase {
         disabled: true,
       })
       .attr('title', this.lang.toolbar.tip['change-speedlimit'])
-      .click(function () {
-        const rows = system.control.torrentlist.datagrid('getChecked');
+      .click(function() {
+        const rows = system.control.torrentList.datagrid('getChecked');
         const ids = [];
         for (const i in rows) {
           ids.push(rows[i].id);
@@ -1525,7 +1327,7 @@ export class System extends SystemBase {
       .find('#toolbar_alt_speed')
       .linkbutton()
       .attr('title', this.lang.toolbar.tip['alt-speed'])
-      .click(function () {
+      .click(function() {
         const button = $(this);
         const options = button.linkbutton('options');
         let enabled = false;
@@ -1539,7 +1341,7 @@ export class System extends SystemBase {
               'alt-speed-enabled': enabled,
             },
           },
-          function (data) {
+          function(data) {
             if (data.result == 'success') {
               system.serverConfig['alt-speed-enabled'] = enabled;
               button.linkbutton({
@@ -1564,7 +1366,7 @@ export class System extends SystemBase {
       .find('#toolbar_config')
       .linkbutton()
       .attr('title', this.lang.toolbar.tip['system-config'])
-      .click(function () {
+      .click(function() {
         system.openDialogFromTemplate({
           id: 'dialog-system-config',
           options: {
@@ -1581,7 +1383,7 @@ export class System extends SystemBase {
       .find('#toolbar_reload')
       .linkbutton()
       .attr('title', this.lang.toolbar.tip['system-reload'])
-      .click(function () {
+      .click(function() {
         system.reloadData();
       });
 
@@ -1615,7 +1417,7 @@ export class System extends SystemBase {
       system.reloadTorrentBaseInfos();
     });
     // When the total torrent number is changed, the torrent information is retrieved
-    transmission.event.on('torrentCountChange', function () {
+    transmission.event.on('torrentCountChange', function() {
       system.reloadTorrentBaseInfos();
     });
     // When submitting an error
@@ -1633,7 +1435,7 @@ export class System extends SystemBase {
   // Reload the server information
   reloadSession(isinit) {
     console.debug('system.reloadSession');
-    transmission.getSession(function (result) {
+    transmission.getSession(function(result) {
       system.serverConfig = result;
       // Version Information
       $('#status_version').html(
@@ -1662,7 +1464,7 @@ export class System extends SystemBase {
 
       // Rpc-version version 15, no longer provide download-dir-free-space parameters, to be obtained from the new method
       if (parseInt(system.serverConfig['rpc-version']) >= 15) {
-        transmission.getFreeSpace(system.downloadDir, function (datas) {
+        transmission.getFreeSpace(system.downloadDir, function(datas) {
           system.serverConfig['download-dir-free-space'] = datas.arguments['size-bytes'];
           system.showFreeSpace(datas.arguments['size-bytes']);
         });
@@ -1702,7 +1504,7 @@ export class System extends SystemBase {
 
     // Gets all the torrent id information
     transmission.torrents.getAllIDs(
-      function (resultTorrents) {
+      function(resultTorrents) {
         const ignore = [];
         for (const index in resultTorrents) {
           const item = resultTorrents[index];
@@ -1713,7 +1515,7 @@ export class System extends SystemBase {
         const errorIds = transmission.torrents.getErrorIds(ignore, true);
 
         if (errorIds.length > 0) {
-          transmission.torrents.getAllIDs(function () {
+          transmission.torrents.getAllIDs(function() {
             system.resetTorrentInfos(oldInfos);
           }, errorIds);
         } else {
@@ -1744,7 +1546,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'paused',
         system.lang.tree.paused +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.stopped].length),
+        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.stopped].length),
       );
     } else {
       system.updateTreeNodeText('paused', system.lang.tree.paused);
@@ -1755,7 +1557,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'sending',
         system.lang.tree.sending +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seed].length),
+        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seed].length),
       );
     } else {
       system.updateTreeNodeText('sending', system.lang.tree.sending);
@@ -1787,7 +1589,7 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'check',
         system.lang.tree.check +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.check].length),
+        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.check].length),
       );
     } else {
       system.updateTreeNodeText('check', system.lang.tree.check);
@@ -1819,9 +1621,9 @@ export class System extends SystemBase {
       system.updateTreeNodeText(
         'downloading',
         system.lang.tree.downloading +
-          this.showNodeMoreInfos(
-            transmission.torrents.status[transmission._status.download].length,
-          ),
+        this.showNodeMoreInfos(
+          transmission.torrents.status[transmission._status.download].length,
+        ),
       );
     } else {
       system.updateTreeNodeText('downloading', system.lang.tree.downloading);
@@ -1868,21 +1670,13 @@ export class System extends SystemBase {
 
     var node = system.panel.left.tree('getSelected');
     if (node != null) {
-      const p = system.control.torrentlist.datagrid('options').pageNumber;
-      system.loadTorrentToList({
-        node,
-        page: p,
-      });
-    }
-
-    if (currentTorrentId != 0) {
-      system.control.torrentlist.datagrid('selectRecord', currentTorrentId);
+      system.loadTorrentToList({ node });
     }
 
     system.reloading = false;
 
     if (system.config.autoReload) {
-      system.autoReloadTimer = setTimeout(function () {
+      system.autoReloadTimer = setTimeout(function() {
         system.reloadData();
       }, system.config.reloadStep);
     }
@@ -1891,7 +1685,7 @@ export class System extends SystemBase {
     system.updateTreeNodeText(
       'torrent-all',
       system.lang.tree.all +
-        this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
+      this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
     );
   }
 
@@ -2002,49 +1796,49 @@ export class System extends SystemBase {
     }
     // Statistics
     const items = 'uploadedBytes,downloadedBytes,filesAdded,sessionCount,secondsActive'.split(',');
-    $.each(items, function (key, item) {
+    $.each(items, function(key, item) {
       switch (item) {
         case 'uploadedBytes':
         case 'downloadedBytes':
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              formatSize(system.serverSessionStats['cumulative-stats'][item]),
+            ' ' +
+            formatSize(system.serverSessionStats['cumulative-stats'][item]),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              formatSize(system.serverSessionStats['current-stats'][item]),
+            ' ' +
+            formatSize(system.serverSessionStats['current-stats'][item]),
           );
           break;
         case 'secondsActive':
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              formatDuration(system.serverSessionStats['cumulative-stats'][item]),
+            ' ' +
+            formatDuration(system.serverSessionStats['cumulative-stats'][item]),
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              formatDuration(system.serverSessionStats['current-stats'][item]),
+            ' ' +
+            formatDuration(system.serverSessionStats['current-stats'][item]),
           );
           break;
         default:
           system.updateTreeNodeText(
             item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              system.serverSessionStats['cumulative-stats'][item],
+            ' ' +
+            system.serverSessionStats['cumulative-stats'][item],
           );
           system.updateTreeNodeText(
             'current-' + item,
             system.lang.tree.statistics[item] +
-              ' ' +
-              system.serverSessionStats['current-stats'][item],
+            ' ' +
+            system.serverSessionStats['current-stats'][item],
           );
           break;
       }
@@ -2128,10 +1922,10 @@ export class System extends SystemBase {
   showNodeMoreInfos(count, size) {
     let result = '';
     if (count > 0) {
-      result = " <span class='nav-torrents-number'>(" + count + ')</span>';
+      result = ' <span class=\'nav-torrents-number\'>(' + count + ')</span>';
     }
     if (size > 0) {
-      result += "<span class='nav-total-size'>[" + formatSize(size) + ']</span>';
+      result += '<span class=\'nav-total-size\'>[' + formatSize(size) + ']</span>';
     }
 
     return result;
@@ -2147,7 +1941,7 @@ export class System extends SystemBase {
     clearTimeout(this.autoReloadTimer);
 
     this.reloading = true;
-    transmission.getStatus(function (data) {
+    transmission.getStatus(function(data) {
       system.reloading = false;
       // system.updateTreeNodeText("torrent-all",system.lang.tree.all+" ("+data["torrentCount"]+")");
       // system.updateTreeNodeText("paused",system.lang.tree.paused+(data["pausedTorrentCount"]==0?"":" ("+data["pausedTorrentCount"]+")"));
@@ -2180,7 +1974,7 @@ export class System extends SystemBase {
     if (outtime == undefined) {
       outtime = 3000;
     }
-    this.panel.status_text.fadeOut(outtime, function () {
+    this.panel.status_text.fadeOut(outtime, function() {
       $('#layout_left').layout('collapse', 'south');
     });
   }
@@ -2256,10 +2050,7 @@ export class System extends SystemBase {
 
     if (currentNodeId != config.node.id) {
       // 当切换了导航菜单时，取消选择所有内容
-      this.control.torrentlist.datagrid('uncheckAll');
-      this.control.torrentlist.datagrid({
-        pageNumber: 1,
-      });
+      this.control.grid.api.deselectAll();
       currentNodeId = config.node.id;
     }
     this.panel.left.data('currentNodeId', currentNodeId);
@@ -2326,28 +2117,28 @@ export class System extends SystemBase {
 
           default:
             // Categories
-            if (config.node.id.indexOf('folders-') != -1) {
+            if (config.node.id.indexOf('folders-') !== -1) {
               const folder = transmission.torrents.folders[config.node.id];
               if (folder) {
                 if (!this.config.hideSubfolders) {
                   torrents = folder.torrents;
                 } else {
                   torrents = [];
-                  for (var index = 0; index < folder.torrents.length; index++) {
+                  for (let index = 0; index < folder.torrents.length; index++) {
                     const element = folder.torrents[index];
-                    if (element.downloadDir.replace(/[\\|\/]/g, '') == config.node.path) {
+                    if (element.downloadDir.replace(/[\\|\/]/g, '') === config.node.path) {
                       torrents.push(element);
                     }
                   }
                 }
               }
-            } else if (config.node.id.indexOf('label-') != -1) {
+            } else if (config.node.id.indexOf('label-') !== -1) {
               const labelIndex = parseInt(config.node.labelIndex);
               torrents = [];
               for (const key in transmission.torrents.all) {
                 const item = transmission.torrents.all[key];
                 var labels = this.config.labelMaps[item.hashString];
-                if (labels && $.inArray(labelIndex, labels) != -1) {
+                if (labels && $.inArray(labelIndex, labels) !== -1) {
                   torrents.push(item);
                 }
               }
@@ -2358,7 +2149,8 @@ export class System extends SystemBase {
     }
 
     if (this.config.defaultSelectNode != config.node.id) {
-      this.control.torrentlist.datagrid('loadData', []);
+      // this.control.torrentList.datagrid('loadData', []);
+      this.control.grid.api.setRowData([]);
       this.config.defaultSelectNode = config.node.id;
       this.saveConfig();
     }
@@ -2376,12 +2168,12 @@ export class System extends SystemBase {
       // }
 
       if (torrents[index].error != 0) {
-        status = "<span class='text-status-error'>" + status + '</span>';
+        status = '<span class=\'text-status-error\'>' + status + '</span>';
       } else if (torrents[index].warning) {
         status =
-          "<span class='text-status-warning' title='" +
+          '<span class=\'text-status-warning\' title=\'' +
           torrents[index].warning +
-          "'>" +
+          '\'>' +
           status +
           '</span>';
       }
@@ -2442,8 +2234,8 @@ export class System extends SystemBase {
     const eventName = 'click.Shift';
     items.off(eventName);
     let lastChecked = null;
-    const torrentlist = this.control.torrentlist;
-    items.on(eventName, function (e) {
+    const torrentlist = this.control.torrentList;
+    items.on(eventName, function(e) {
       if (!lastChecked) {
         lastChecked = this;
         return;
@@ -2470,15 +2262,17 @@ export class System extends SystemBase {
 
   // Update torrent list current page data
   updateTorrentCurrentPageDatas(currentTypeDatas) {
+    this.control.grid.api.setRowData(currentTypeDatas);
+    return;
     // Get the current page data
-    let rows = this.control.torrentlist.datagrid('getRows');
+    let rows = this.control.torrentList.datagrid('getRows');
 
-    if (currentTypeDatas.length == 0 && rows.length > 0) {
-      this.control.torrentlist.datagrid('loadData', []);
+    if (currentTypeDatas.length === 0 && rows.length > 0) {
+      this.control.torrentList.datagrid('loadData', []);
       return;
     }
 
-    const _options = this.control.torrentlist.datagrid('options');
+    const _options = this.control.torrentList.datagrid('options');
     let orderField = null;
     if (_options.sortName) {
       orderField = _options.sortName;
@@ -2489,11 +2283,10 @@ export class System extends SystemBase {
     }
 
     if (
-      rows.length == 0 ||
-      (currentTypeDatas.length != this.control.torrentlist.datagrid('getData').total &&
-        currentTypeDatas.length > _options.pageSize)
+      rows.length === 0 ||
+      (currentTypeDatas.length !== this.control.torrentList.datagrid('getData').total && currentTypeDatas.length > _options.pageSize)
     ) {
-      this.control.torrentlist
+      this.control.torrentList
         .datagrid({
           loadFilter: pagerFilter,
           pageNumber: _options.pageNumber,
@@ -2505,7 +2298,7 @@ export class System extends SystemBase {
     }
 
     // Setting data
-    this.control.torrentlist.datagrid('getData').originalRows = currentTypeDatas;
+    this.control.torrentList.datagrid('getData').originalRows = currentTypeDatas;
     const start = (_options.pageNumber - 1) * parseInt(_options.pageSize);
     const end = start + parseInt(_options.pageSize);
     currentTypeDatas = currentTypeDatas.slice(start, end);
@@ -2541,9 +2334,9 @@ export class System extends SystemBase {
       var item = rows[index];
       let data = datas[item.id];
       if (!data) {
-        this.control.torrentlist.datagrid('deleteRow', index);
+        this.control.torrentList.datagrid('deleteRow', index);
       } else if (recently[item.id]) {
-        this.control.torrentlist.datagrid('updateRow', {
+        this.control.torrentList.datagrid('updateRow', {
           index,
           row: data,
         });
@@ -2555,7 +2348,7 @@ export class System extends SystemBase {
           transmission.torrents.removed.length > 0 &&
           $.inArray(item.id, transmission.torrents.removed) != -1
         ) {
-          this.control.torrentlist.datagrid('deleteRow', index);
+          this.control.torrentList.datagrid('deleteRow', index);
         } else {
           addedDatas[item.id] = item;
         }
@@ -2570,7 +2363,7 @@ export class System extends SystemBase {
     for (var index in currentTypeDatas) {
       var item = currentTypeDatas[index];
       if (!addedDatas[item.id]) {
-        this.control.torrentlist.datagrid('appendRow', item);
+        this.control.torrentList.datagrid('appendRow', item);
       }
     }
 
@@ -2712,7 +2505,7 @@ export class System extends SystemBase {
     }
     this.showStatus(this.lang.system.status.queue + (index + 1) + '/' + count + '<br/>' + url, 0);
     const system = this;
-    transmission.addTorrentFromUrl(url, savepath, autostart, function (data) {
+    transmission.addTorrentFromUrl(url, savepath, autostart, function(data) {
       system.addTorrentsToServer(urls, count, autostart, savepath, labels);
       if (labels != null && data.hashString != null) {
         system.saveLabelsConfig(data.hashString, labels);
@@ -2722,7 +2515,7 @@ export class System extends SystemBase {
 
   // Starts / pauses the selected torrent
   changeSelectedTorrentStatus(status, button, method) {
-    const rows = this.control.torrentlist.datagrid('getChecked');
+    const rows = this.control.torrentList.datagrid('getChecked');
     const ids = [];
     if (!status) {
       status = 'start';
@@ -2750,13 +2543,13 @@ export class System extends SystemBase {
             ids,
           },
         },
-        function (data) {
+        function(data) {
           if (button) {
             button.linkbutton({
               iconCls: icon,
             });
           }
-          system.control.torrentlist.datagrid('uncheckAll');
+          system.control.torrentList.datagrid('uncheckAll');
           system.reloadTorrentBaseInfos();
         },
       );
@@ -2765,7 +2558,7 @@ export class System extends SystemBase {
 
   // get the magnetlink of torrent
   getTorrentMagnetLink(callback) {
-    const rows = this.control.torrentlist.datagrid('getChecked');
+    const rows = this.control.torrentList.datagrid('getChecked');
     const ids = [];
     for (const i in rows) {
       ids.push(rows[i].id);
@@ -2863,7 +2656,7 @@ export class System extends SystemBase {
     this.panel.attribute.find('#torrent-files-table').datagrid('loadData', []);
     this.panel.attribute.find('#torrent-servers-table').datagrid('loadData', []);
     this.panel.attribute.find('#torrent-peers-table').datagrid('loadData', []);
-    this.panel.attribute.find("span[id*='torrent-attribute-value']").html('');
+    this.panel.attribute.find('span[id*=\'torrent-attribute-value\']').html('');
   }
 
   // Updates the specified current page count
@@ -2933,7 +2726,7 @@ export class System extends SystemBase {
 
   // Fill the seed with basic information
   fillTorrentBaseInfos(torrent) {
-    $.each(torrent, function (key, value) {
+    $.each(torrent, function(key, value) {
       switch (key) {
         // Speed
         case 'rateDownload':
@@ -3206,7 +2999,7 @@ export class System extends SystemBase {
     if (system.panel.attribute.find('#torrent-attribute-tabs').data('selectedIndex') != 4) {
       return;
     }
-    transmission.torrents.getConfig(torrent.id, function (result) {
+    transmission.torrents.getConfig(torrent.id, function(result) {
       if (result == null) {
         return;
       }
@@ -3217,7 +3010,7 @@ export class System extends SystemBase {
       if (system.currentTorrentId == 0) {
         return;
       }
-      $.each(result[0], function (key, value) {
+      $.each(result[0], function(key, value) {
         let indeterminate = false;
         let checked = false;
         let useTag = false;
@@ -3237,7 +3030,7 @@ export class System extends SystemBase {
             }
 
             system.panel.attribute
-              .find("input[enabledof='" + key + "']")
+              .find('input[enabledof=\'' + key + '\']')
               .prop('disabled', !checked);
             if (useTag) {
               system.panel.attribute
@@ -3267,24 +3060,24 @@ export class System extends SystemBase {
 
     switch (field.formatter_type) {
       case 'size':
-        field.formatter = function (value, row, index) {
+        field.formatter = function(value, row, index) {
           return formatSize(value);
         };
         break;
       case 'speed':
-        field.formatter = function (value, row, index) {
+        field.formatter = function(value, row, index) {
           return formatSize(value, true, 'speed');
         };
         break;
 
       case 'longtime':
-        field.formatter = function (value, row, index) {
+        field.formatter = function(value, row, index) {
           return formatLongTime(value);
         };
         break;
 
       case 'progress':
-        field.formatter = function (value, row, index) {
+        field.formatter = function(value, row, index) {
           const percentDone = parseFloat(value * 100).toFixed(2);
           return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
         };
@@ -3293,14 +3086,14 @@ export class System extends SystemBase {
       case '_usename_':
         switch (field.field) {
           case 'name':
-            field.formatter = function (value, row, index) {
+            field.formatter = function(value, row, index) {
               return system.getTorrentNameBar(transmission.torrents.all[row.id]);
             };
             break;
         }
         break;
       case 'ratio':
-        field.formatter = function (value, row, index) {
+        field.formatter = function(value, row, index) {
           let className = '';
           if (parseFloat(value) < 1 && value != -1) {
             className = 'text-status-warning';
@@ -3310,7 +3103,7 @@ export class System extends SystemBase {
         break;
 
       case 'remainingTime':
-        field.formatter = function (value, row, index) {
+        field.formatter = function(value, row, index) {
           if (value >= 3153600000) {
             return '∞';
           }
@@ -3319,14 +3112,14 @@ export class System extends SystemBase {
         break;
 
       case 'labels':
-        field.formatter = function (value, row, index) {
+        field.formatter = function(value, row, index) {
           return system.formetTorrentLabels(value, row.hashString);
         };
         break;
 
       case 'color':
-        field.formatter = function (value, row, index) {
-          const box = $("<span class='user-label'/>")
+        field.formatter = function(value, row, index) {
+          const box = $('<span class=\'user-label\'/>')
             .html(value)
             .css({
               'background-color': value,
@@ -3341,7 +3134,7 @@ export class System extends SystemBase {
   // Reload the data
   reloadData() {
     if (this.popoverCount > 0) {
-      setTimeout(function () {
+      setTimeout(function() {
         system.reloadData();
       }, 2000);
       return;
@@ -3441,7 +3234,7 @@ export class System extends SystemBase {
 
   replaceURI(text) {
     const reg = /(http|https|ftp):\/\/([^/:]+)(:\d*)?([^# ]*)/gi;
-    return text.replace(reg, function (url) {
+    return text.replace(reg, function(url) {
       return '<a href="' + url + '" target="_blank">' + url + '</a>';
     });
   }
@@ -3483,8 +3276,8 @@ export class System extends SystemBase {
   uploadTorrentFile(fileInputId, savePath, paused, callback) {
     // Determines whether the FileReader interface is supported
     if (window.FileReader) {
-      const files = $("input[id='" + fileInputId + "']")[0].files;
-      $.each(files, function (index, file) {
+      const files = $('input[id=\'' + fileInputId + '\']')[0].files;
+      $.each(files, function(index, file) {
         transmission.addTorrentFromFile(file, savePath, paused, callback, files.length);
       });
     } else {
@@ -3509,7 +3302,7 @@ export class System extends SystemBase {
             const content = $('<div/>');
             const html = result.body.replace(/\r\n/g, '<br/>');
 
-            const toolbar = $("<div style='text-align:right;'/>").appendTo(content);
+            const toolbar = $('<div style=\'text-align:right;\'/>').appendTo(content);
             $(
               '<a href="https://github.com/transmission-web-control/transmission-web-control/releases/latest" target="_blank" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-github\'"/>',
             )
@@ -3526,8 +3319,8 @@ export class System extends SystemBase {
             $('<span/>').html(' ').appendTo(toolbar);
             $(
               '<button onclick="javascript:system.addIgnoreVersion(\'' +
-                version +
-                '\');" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-cancel-checked\'"/>',
+              version +
+              '\');" class="easyui-linkbutton" data-options="iconCls:\'iconfont tr-icon-cancel-checked\'"/>',
             )
               .html(system.lang.public['text-ignore-this-version'])
               .appendTo(toolbar)
@@ -3548,7 +3341,7 @@ export class System extends SystemBase {
   }
 
   addIgnoreVersion(version) {
-    if ($.inArray(version, system.config.ignoreVersion) == -1) {
+    if (!system.config.ignoreVersion.includes(version)) {
       this.config.ignoreVersion.push(version);
       this.saveConfig();
     }
@@ -3558,17 +3351,13 @@ export class System extends SystemBase {
 
   // Set the language to reload the page
   changeLanguages(lang) {
-    if (lang == this.lang.name || !lang) {
+    if (lang === this.lang.name || !lang) {
       return;
     }
 
     this.config.defaultLang = lang;
     this.saveConfig();
     location.href = '?lang=' + lang;
-  }
-
-  getStorageData(key, defaultValue) {
-    return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
   }
 
   // Debugging information

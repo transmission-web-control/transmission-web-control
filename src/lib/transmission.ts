@@ -646,7 +646,7 @@ export const transmission = {
     },
     // List of all the torrents that have been acquired
     getMoreInfos(
-      fields: string | string[],
+      fields: string | readonly string[],
       ids: any,
       callback: (torrents: Torrent[] | null) => void,
     ) {

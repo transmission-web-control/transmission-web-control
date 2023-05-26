@@ -335,7 +335,7 @@
   },
   "torrent": {
     "fields": {
-      "id": "#",
+      "id": "id",
       "name": "Name",
       "hashString": "HASH",
       "downloadDir": "Download Dir",

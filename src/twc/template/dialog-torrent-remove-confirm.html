@@ -54,7 +54,7 @@
             if (status == 'success') {
               thisDialog.dialog('close');
               system.reloadTorrentBaseInfos();
-              system.control.torrentlist.datagrid('uncheckAll');
+              system.control.grid.api.deselectAll();
             } else {
               $.messager.alert('', system.lang.dialog['torrent-remove']['remove-error'], 'error');
             }

@@ -1,9 +1,19 @@
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import 'ag-grid-enterprise';
+import './grid-style.css';
+
+import { Grid, type GridOptions } from 'ag-grid-community';
 import * as lo from 'lodash-es';
 
 import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
-import { type Field } from './torrent-fields';
+import torrentFields, { type Field } from './torrent-fields';
 import { APP_VERSION } from './version';
+import { formatSize } from './utils';
+import { formatDuration, formatLongTime, getGrayLevel } from './formatter';
+import { Torrent, transmission } from './transmission';
+import { userActions } from './user-actions';
 
 const i18n = import.meta.glob('../i18n/*.json', { eager: true });
 const easyUILocale: Record<`../twc/easyui/locale/easyui-lang-${string}.js`, string> =
@@ -24,6 +34,7 @@ export class SystemBase {
   version = APP_VERSION;
   rootPath = 'tr-web-control/';
   configHead = 'transmission-web-control';
+  gridState = 'transmission-web-control/grid-state';
   defaultLang = enLocal;
   languages = i18nManifest;
   // default config, can be customized in config.js
@@ -88,7 +99,7 @@ export class SystemBase {
     'https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest';
 
   contextMenus = {};
-  panel = null;
+  panel: Record<string, JQuery<HTMLElement>> = {};
   lang = enLocal;
   langInit = false;
   reloading = false;
@@ -100,7 +111,8 @@ export class SystemBase {
   ipdetail = [];
   control = {
     tree: null,
-    torrentlist: null as any,
+    torrentList: null as any as Grid,
+    grid: null as any as GridOptions<Torrent>,
   };
 
   userConfig = {
@@ -245,14 +257,14 @@ export class SystemBase {
 
     const system = this;
 
-    $.each(items, function (key, item) {
+    $.each(items, function(key, item) {
       const name = $(item).attr('system-lang') as string;
       $(item).html(lo.get(system.lang, name) as string);
     });
 
     items = parent.find('*[system-tip-lang]');
 
-    $.each(items, function (key, item) {
+    $.each(items, function(key, item) {
       const name = $(item).attr('system-tip-lang') as string;
       $(item).attr('title', lo.get(system.lang, name) as string);
     });
@@ -289,7 +301,7 @@ export class SystemBase {
     let dialog = $(`#${dialogId}`);
     if (dialog.length) {
       if (datas) {
-        lo.forOwn(datas, function (value, key) {
+        lo.forOwn(datas, function(value, key) {
           dialog.data(key, value);
         });
       }
@@ -391,30 +403,16 @@ export class SystemBase {
           height: 220,
         },
       });
-    } else if (key === 'auto-match-data-folder') {
-      const rows = this.control.torrentlist.datagrid('getChecked');
-      const ids = [];
-      for (const i in rows) {
-        ids.push(rows[i].id);
-      }
-      if (ids.length === 0) {
-        return;
-      }
-
-      this.openDialogFromTemplate({
-        id: 'dialog-auto-match-data-folder',
-        options: {
-          title: this.lang.dialog['auto-match-data-folder'].title,
-          width: 530,
-          height: 280,
-        },
-        datas: { ids },
-      });
     }
   }
 
   saveUserConfig() {
+    console.log('save config');
     this.setStorageData(this.configHead, JSON.stringify(this.userConfig));
+  }
+
+  getStorageData(key: string, defaultValue?: any): any {
+    return window.localStorage[key] == null ? defaultValue : window.localStorage[key];
   }
 
   setStorageData(key: string, value: string) {
@@ -459,4 +457,217 @@ export class SystemBase {
       });
     }
   }
+
+
+  // Initialize the torrent list display table
+  initTorrentTable() {
+    $('<div id="myGrid" class="ag-theme-alpine torrent-list"></div>').appendTo(this.panel.list!);
+    const eGridDiv = document.querySelector('#myGrid');
+    const userEnabledField = (this.userConfig.torrentList.fields.length === 0 ? torrentFields.fields : this.userConfig.torrentList.fields);
+    const fields = torrentFields.fields;
+
+    const enabledFieldNames = new Set(userEnabledField.map(x => x.field));
+
+    const stateRaw = this.getStorageData(this.gridState);
+
+    const saveGridState = (e: any) => {
+      this.setStorageData(this.gridState, JSON.stringify(this.control.grid.columnApi.getColumnState()));
+    };
+
+    this.control.grid = {
+      rowHeight: 30,
+      headerHeight: 30,
+      columnDefs: fields.filter(o => o.field !== 'ck').map(o => {
+        const formatter = this.getFieldFormat(o.formatter_type);
+        return {
+          headerName: this.lang.torrent.fields[o.field] as string,
+          field: o.field,
+          hide: !enabledFieldNames.has(o.field),
+          width: o.width,
+          valueFormatter: formatter ? ({ value }) => formatter(value) : undefined,
+          initialWidth: o.width,
+          suppressAutoSize: true,
+        };
+      }),
+      autoSizePadding: 0,
+      allowContextMenuWithControlKey: true,
+      suppressContextMenu: true,
+      getContextMenuItems,
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        menuTabs: ['columnsMenuTab'],
+      },
+      rowSelection: 'multiple' as const,
+      getRowId: (params: any) => params.data.hashString,
+      onColumnResized: saveGridState,
+      onColumnMoved: saveGridState,
+      onGridColumnsChanged: saveGridState,
+      onDisplayedColumnsChanged: saveGridState,
+      onRowSelected: (e) => {
+        userActions.emit('selectTorrent', e.data.id);
+        this.currentTorrentId = e.data.id;
+      },
+    };
+    this.control.torrentList = new Grid(eGridDiv as HTMLElement, this.control.grid);
+    if (stateRaw) {
+      this.control.grid.columnApi.applyColumnState({ state: JSON.parse(stateRaw) });
+    }
+
+    console.log(this.control.grid.columnDefs);
+    // this.control.grid.api?.setHeaderHeight();
+
+  } // end initTorrentTable
+
+  resetTorrentListFieldsUserConfig(columns) {
+    const fields = {};
+    $.each(this.userConfig.torrentList.fields, function(index, item) {
+      fields[item.field] = item;
+    });
+
+    this.userConfig.torrentList.fields = [];
+    $.each(columns, function(index, item) {
+      const field = $.extend({}, fields[item.field]);
+      field.width = item.width;
+      field.hidden = item.hidden;
+      system.userConfig.torrentList.fields.push(field);
+    });
+  }
+
+  // Set the field display format
+  getFieldFormat(type?: string) {
+    if (!type) {
+      return;
+    }
+
+    switch (type) {
+      case 'size':
+        return (value: number) => {
+          return formatSize(value);
+        };
+      case 'speed':
+        return function(value: number) {
+          return formatSize(value, true, 'speed');
+        };
+      case 'longtime':
+        return function(value: string) {
+          return formatLongTime(value);
+        };
+      case 'progress':
+        return;
+        field.formatter = function(value, row, index) {
+          const percentDone = parseFloat(value * 100).toFixed(2);
+          return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
+        };
+        break;
+
+      case '_usename_':
+        return;
+      case 'ratio':
+        return;
+        field.formatter = function(value, row, index) {
+          let className = '';
+          if (parseFloat(value) < 1 && value != -1) {
+            className = 'text-status-warning';
+          }
+          return '<span class="' + className + '">' + (value == -1 ? '∞' : value) + '</span>';
+        };
+        break;
+
+      case 'remainingTime':
+        return function(value: number) {
+          if (value >= 3153600000) {
+            return '∞';
+          }
+          return formatDuration(value);
+        };
+    }
+  }
+}
+
+
+function getContextMenuItems(params): any {
+  return [
+    {
+      // custom item
+      name: 'Always Disabled',
+      disabled: true,
+      tooltip:
+        'Very long tooltip, did I mention that I am very long, well I am! Long!  Very Long!',
+    },
+    {
+      name: 'Person',
+      subMenu: [
+        {
+          name: 'Niall',
+          action: () => {
+            console.log('Niall was pressed');
+          },
+        },
+        {
+          name: 'Sean',
+          action: () => {
+            console.log('Sean was pressed');
+          },
+        },
+        {
+          name: 'John',
+          action: () => {
+            console.log('John was pressed');
+          },
+        },
+        {
+          name: 'Alberto',
+          action: () => {
+            console.log('Alberto was pressed');
+          },
+        },
+        {
+          name: 'Tony',
+          action: () => {
+            console.log('Tony was pressed');
+          },
+        },
+        {
+          name: 'Andrew',
+          action: () => {
+            console.log('Andrew was pressed');
+          },
+        },
+        {
+          name: 'Kev',
+          action: () => {
+            console.log('Kev was pressed');
+          },
+        },
+        {
+          name: 'Will',
+          action: () => {
+            console.log('Will was pressed');
+          },
+        },
+        {
+          name: 'Armaan',
+          action: () => {
+            console.log('Armaan was pressed');
+          },
+        },
+      ],
+    }, // built in separator
+    'separator',
+    'separator',
+    {
+      // custom item
+      name: 'Checked',
+      checked: true,
+      action: () => {
+        console.log('Checked Selected');
+      },
+      icon:
+        '<img src="https://www.ag-grid.com/example-assets/skills/mac.png"/>',
+    }, // built in copy item
+    'copy',
+    'separator',
+    'chartRange',
+  ];
 }

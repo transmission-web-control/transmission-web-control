@@ -17,7 +17,7 @@ module.exports = {
     'unicorn/prefer-string-slice': 'error',
     '@typescript-eslint/prefer-nullish-coalescing': 0,
     '@typescript-eslint/explicit-function-return-type': 0,
-    '@typescript-eslint/no-non-null-assertion': 1,
+    '@typescript-eslint/no-non-null-assertion': 0,
     '@typescript-eslint/consistent-type-assertions': 0,
     '@typescript-eslint/strict-boolean-expressions': 0,
     'object-shorthand': ['error', 'always'],

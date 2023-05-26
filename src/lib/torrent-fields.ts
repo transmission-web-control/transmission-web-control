@@ -2,7 +2,6 @@ export interface Field {
   field: string;
   width?: number;
   align?: string;
-  hidden?: boolean;
   checkbox?: boolean;
   sortable?: boolean;
   allowCustom?: boolean;
@@ -11,7 +10,6 @@ export interface Field {
 
 export default {
   fields: [
-    { field: 'ck', checkbox: true, allowCustom: false },
     { field: 'name', width: 300, sortable: true, formatter_type: '_usename_' },
     {
       field: 'totalSize',
@@ -42,7 +40,6 @@ export default {
       formatter_type: 'ratio',
     },
     { field: 'status', width: 60, align: 'center', sortable: true },
-    { field: 'statusCode', hidden: true, allowCustom: false },
     { field: 'seederCount', width: 60, align: 'left' },
     { field: 'leecherCount', width: 60, align: 'left' },
     {
