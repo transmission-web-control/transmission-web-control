@@ -521,7 +521,9 @@ export const transmission = {
       }
     >,
     getConfig(id: string, callback: (torrents: Torrent[] | null) => void) {
-      this.getMoreInfos(this.fields.config, id, callback);
+      this.getMoreInfos(this.fields.config, id).then(callback, () => {
+        callback(null);
+      });
     },
     getErrorIds(ignore: any, needUpdateOnly: boolean) {
       const result = [];
@@ -631,30 +633,19 @@ export const transmission = {
       return result.join('\n');
     },
     // List of all the torrents that have been acquired
-    getMoreInfos(
-      fields: string | readonly string[],
-      ids: any,
-      callback: (torrents: Torrent[] | null) => void,
-    ) {
-      transmission.exec(
-        {
-          method: 'torrent-get',
-          arguments: {
-            fields: typeof fields === 'string' ? fields.split(',') : fields,
-            ids,
-          },
+    async getMoreInfos(fields: string | readonly string[], ids: any) {
+      const data = await transmission.execAsync({
+        method: 'torrent-get',
+        arguments: {
+          fields: typeof fields === 'string' ? fields.split(',') : fields,
+          ids,
         },
-        function (data) {
-          if (data.result == 'success') {
-            if (callback) {
-              callback(data.arguments.torrents);
-            }
-          } else if (callback) {
-            callback(null);
-          }
-        },
-      );
+      });
+      if (data.result == 'success') {
+        return data.arguments.torrents;
+      }
     },
+
     // The list of recently acquired torrents
     getPeers(ids: string[]) {
       transmission.exec(
@@ -670,10 +661,9 @@ export const transmission = {
         },
       );
     },
-    // The recently removed seed
-    getAllIDs(
-      callback: null | ((data: Torrent[] | null) => void),
-      ids: string[] | undefined,
+
+    async getAllIDsAsync(
+      ids: Array<string | number> | undefined,
       moreFields?: Array<keyof Torrent>,
     ) {
       let tmp = this.fields.base;
@@ -698,30 +688,23 @@ export const transmission = {
         args.ids = ids;
       }
 
-      transmission.exec(
-        {
-          method: 'torrent-get',
-          arguments: args,
-        },
-        function (data) {
-          if (data.result == 'success') {
-            transmission.torrents.newIds.length = 0;
-            transmission.torrents.loadSimpleInfo = true;
-            transmission.torrents.recently = data.arguments.torrents;
-            transmission.torrents.removed = data.arguments.removed;
-            transmission.torrents.splitID();
-            if (callback) {
-              callback(data.arguments.torrents);
-            }
-          } else {
-            transmission.torrents.datas = null;
-            if (callback) {
-              callback(null);
-            }
-          }
-        },
-      );
+      const data = await transmission.execAsync({
+        method: 'torrent-get',
+        arguments: args,
+      });
+
+      if (data.result == 'success') {
+        transmission.torrents.newIds.length = 0;
+        transmission.torrents.loadSimpleInfo = true;
+        transmission.torrents.recently = data.arguments.torrents;
+        transmission.torrents.removed = data.arguments.removed;
+        transmission.torrents.splitID();
+        return data.arguments.torrents;
+      } else {
+        transmission.torrents.datas = null;
+      }
     },
+
     // Whether the torrents are being changed
     isRecentlyActive: false,
     // New torrents
@@ -971,7 +954,7 @@ export const transmission = {
 
       // If there a need to acquire new seeds
       if (this.newIds.length > 0) {
-        this.getAllIDs(null, this.newIds);
+        void this.getAllIDsAsync(this.newIds);
       }
     },
     // 获取错误/警告的ID列表

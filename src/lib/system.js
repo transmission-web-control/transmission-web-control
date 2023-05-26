@@ -1,16 +1,20 @@
 import ClipboardJS from 'clipboard';
 import { Base64 } from 'js-base64';
+import * as lo from 'lodash-es';
 import semver from 'semver';
 
 import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
 import { timedChunk } from './public.ts';
 import { SystemBase, templateFiles } from './system-base';
 import { transmission } from './transmission';
-import { arrayObjectSort, formatSize } from './utils';
+import { userActions } from './user-actions';
+import { formatSize } from './utils';
 import { APP_VERSION } from './version';
 
 // Current system global object
 export class System extends SystemBase {
+  loadingTorrent = new Set();
+
   /**
    * 程序初始化
    */
@@ -42,7 +46,6 @@ export class System extends SystemBase {
     }
 
     this.initData();
-    this.initThemes();
     // 剪切板组件
     this.clipboard = new ClipboardJS('#toolbar_copyPath');
   }
@@ -136,25 +139,22 @@ export class System extends SystemBase {
     // 设置属性栏
     this.panel.attribute.panel({
       title: this.lang.title.attribute,
-      content: templateFiles[`../twc/template/torrent-attribute.html`],
+      content: templateFiles[`../twc/template/dialog-torrent-attribute.html`],
       onExpand() {
         if (system.currentTorrentId !== 0 && $(this).data('isload')) {
-          console.log(getTorrentInfos);
           system.getTorrentInfos(system.currentTorrentId);
         } else {
           system.clearTorrentAttribute();
         }
-      },
-      onLoad() {
+
         if (!$(this).data('isload')) {
           $(this).data('isload', true);
-          if (system.currentTorrentId != 0) {
-            setTimeout(function () {
-              system.getTorrentInfos(system.currentTorrentId);
-            }, 500);
-          }
         }
       },
+    });
+
+    userActions.on('selectTorrent', (_, t) => {
+      system.getTorrentInfos(t.id);
     });
 
     // Set the language
@@ -177,6 +177,7 @@ export class System extends SystemBase {
     this.initTorrentTable();
     this.connect();
     this.initEvent();
+    this.initThemes();
     // Check for updates
     this.checkUpdate();
   }
@@ -290,6 +291,9 @@ export class System extends SystemBase {
     });
   }
 
+  /**
+   * used in html
+   */
   layoutResize(target, size) {
     if (!system.uiIsInitialized) {
       return;
@@ -322,7 +326,7 @@ export class System extends SystemBase {
       case 'torrent-head-buttons-autoExpandAttribute':
         treenode = {};
         treenode.target = null;
-        if (status == 1) {
+        if (status === 1) {
           this.config.autoExpandAttribute = false;
         } else {
           this.config.autoExpandAttribute = true;
@@ -676,182 +680,6 @@ export class System extends SystemBase {
     return box.get(0).outerHTML;
   }
 
-  /**
-   * 快速设置当前种子标签
-   */
-  setTorrentLabels(button, hashString) {
-    system.openDialogFromTemplate({
-      id: 'dialog-torrent-setLabels',
-      options: {
-        title: system.lang.dialog['torrent-setLabels'].title,
-        width: 520,
-        height: 200,
-      },
-      datas: {
-        hashs: [hashString],
-      },
-      type: 1,
-      source: $(button),
-    });
-  }
-
-  /**
-   * 选中或反选种子时，改变菜单的可操作状态
-   * @param rowIndex  当前行索引，当全选/反选时为 'all'
-   * @param rowData    当前行数据，当全选/反选时为 true 或 false，全选为false, 全反选为 true
-   * @return void
-   */
-  checkTorrentRow(rowIndex, rowData) {
-    // 获取当前已选中的行
-    this.checkedRows = this.control.torrentList.datagrid('getChecked');
-    this.showCheckedInStatus();
-    // 是否全选或反选
-    if (rowIndex == 'all') {
-      if (this.control.torrentList.datagrid('getRows').length == 0) {
-        return;
-      }
-      $(
-        '#toolbar_start, #toolbar_pause, #toolbar_remove, #toolbar_recheck, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_morepeers,#toolbar_copyPath',
-        this.panel.toolbar,
-      ).linkbutton({
-        disabled: rowData,
-      });
-
-      $('#toolbar_rename, #toolbar_morepeers', this.panel.toolbar).linkbutton({
-        disabled: true,
-      });
-      this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
-      return;
-    }
-
-    // 如果没有被选中的数据时
-    if (this.checkedRows.length == 0) {
-      // 禁用所有菜单
-      $(
-        '#toolbar_start, #toolbar_pause, #toolbar_rename, #toolbar_remove, #toolbar_recheck, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_morepeers,#toolbar_copyPath',
-        this.panel.toolbar,
-      ).linkbutton({
-        disabled: true,
-      });
-      this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
-
-      // 当仅有一条数据被选中时
-    } else if (this.checkedRows.length == 1) {
-      // 设置 删除、改名、变更保存目录、移动队列功能可用
-      $(
-        '#toolbar_remove, #toolbar_rename, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_copyPath',
-        this.panel.toolbar,
-      ).linkbutton({
-        disabled: false,
-      });
-      this.panel.toolbar.find('#toolbar_queue').menubutton('enable');
-
-      const torrent = transmission.torrents.all[rowData.id];
-      // 确认当前种子状态
-      switch (torrent.status) {
-        // 已停止
-        case transmission._status.stopped:
-          this.panel.toolbar.find('#toolbar_start, #toolbar_recheck').linkbutton({
-            disabled: false,
-          });
-          this.panel.toolbar.find('#toolbar_pause, #toolbar_morepeers').linkbutton({
-            disabled: true,
-          });
-          break;
-
-        // 校验
-        case transmission._status.check:
-        case transmission._status.checkwait:
-          this.panel.toolbar
-            .find('#toolbar_start, #toolbar_pause, #toolbar_recheck, #toolbar_morepeers')
-            .linkbutton({
-              disabled: true,
-            });
-          break;
-
-        // 其他
-        default:
-          this.panel.toolbar.find('#toolbar_start, #toolbar_recheck').linkbutton({
-            disabled: true,
-          });
-          this.panel.toolbar.find('#toolbar_pause, #toolbar_morepeers').linkbutton({
-            disabled: false,
-          });
-          break;
-      }
-
-      // 多条数据被选中时
-    } else {
-      $(
-        '#toolbar_start, #toolbar_pause, #toolbar_remove, #toolbar_recheck, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_copyPath',
-        this.panel.toolbar,
-      ).linkbutton({
-        disabled: false,
-      });
-      $('#toolbar_rename, #toolbar_morepeers', this.panel.toolbar).linkbutton({
-        disabled: true,
-      });
-      this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
-    }
-  }
-
-  /**
-   * 显示已选中的内容
-   */
-  showCheckedInStatus() {
-    if (this.checkedRows.length > 0) {
-      this.panel.status_text.empty();
-      this.showStatus(undefined, 0);
-      const items = [];
-      const text = this.lang.system.status.checked.replace('%n', this.checkedRows.length);
-      const paths = [];
-      $("<div style='padding: 5px;'/>").html(text).appendTo(this.panel.status_text);
-      for (let index = 0; index < this.checkedRows.length; index++) {
-        const item = this.checkedRows[index];
-        items.push({ value: index, text: index + 1 + '. ' + item.name });
-        if ($.inArray(item.downloadDir, paths) === -1) {
-          paths.push(item.downloadDir);
-        }
-      }
-      $('<div/>').appendTo(this.panel.status_text).datalist({
-        data: items,
-      });
-
-      $('.datalist>.panel-body', this.panel.status_text).css({
-        border: 0,
-      });
-      $('#button-cancel-checked').show();
-      $('#clipboard-source').val(paths.join('\n'));
-    } else {
-      // this.showStatus("无", 100);
-      $('#button-cancel-checked').hide();
-      this.panel.status_text.empty();
-      $('#clipboard-source').val('');
-    }
-  }
-
-  // by https://stackoverflow.com/questions/22581345/click-button-copy-to-clipboard-using-jquery?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-  copyToClipboard(text) {
-    // Create a "hidden" input
-    const id = 'copy_to_clipboard_textarea';
-    let aux = document.getElementById(id);
-    if (!aux) {
-      aux = document.createElement('textarea');
-    } // <input/> 不接受换行
-    aux.id = id;
-    aux.style.display = 'block';
-    // Assign it the value of the specified element
-    aux.value = text; // <textarea/> 不能使用 setAttribute
-    // Append it to the body
-    document.body.appendChild(aux);
-    // Highlight its content
-    aux.select();
-    // Copy the highlighted text
-    document.execCommand('copy');
-    // Remove it from the body
-    aux.style.display = 'none';
-  }
-
   // Initialize the System Toolbar
   initToolbar() {
     // refresh time
@@ -1022,7 +850,7 @@ export class System extends SystemBase {
       })
       .attr('title', this.lang.toolbar.tip.recheck)
       .click(function () {
-        const rows = system.control.torrentList.datagrid('getChecked');
+        const rows = system.control.torrentlist.datagrid('getChecked');
         if (rows.length > 0) {
           if (rows.length == 1) {
             const torrent = transmission.torrents.all[rows[0].id];
@@ -1057,7 +885,7 @@ export class System extends SystemBase {
       })
       .attr('title', this.lang.toolbar.tip.remove)
       .click(function () {
-        const rows = system.control.torrentList.datagrid('getChecked');
+        const rows = system.control.torrentlist.datagrid('getChecked');
         const ids = [];
         for (const i in rows) {
           ids.push(rows[i].id);
@@ -1086,7 +914,7 @@ export class System extends SystemBase {
         disabled: true,
       })
       .click(function () {
-        const rows = system.control.torrentList.datagrid('getChecked');
+        const rows = system.control.torrentlist.datagrid('getChecked');
         if (rows.length == 0) {
           return;
         }
@@ -1113,7 +941,7 @@ export class System extends SystemBase {
       })
       .attr('title', this.lang.toolbar.tip['change-download-dir'])
       .click(function () {
-        const rows = system.control.torrentList.datagrid('getChecked');
+        const rows = system.control.torrentlist.datagrid('getChecked');
         const ids = [];
         for (const i in rows) {
           ids.push(rows[i].id);
@@ -1142,7 +970,7 @@ export class System extends SystemBase {
       })
       .attr('title', this.lang.toolbar.tip['change-speedlimit'])
       .click(function () {
-        const rows = system.control.torrentList.datagrid('getChecked');
+        const rows = system.control.torrentlist.datagrid('getChecked');
         const ids = [];
         for (const i in rows) {
           ids.push(rows[i].id);
@@ -1243,7 +1071,7 @@ export class System extends SystemBase {
       .find('#toolbar_copyPath')
       .linkbutton()
       .attr('title', this.lang.toolbar.tip['copy-path-to-clipboard']);
-  }
+  } // end initToolbar
 
   // Initialize the status bar
   initStatusBar() {
@@ -1331,43 +1159,6 @@ export class System extends SystemBase {
     }
     $('#status_freespace').text(
       system.lang.dialog['system-config']['download-dir-free-space'] + ' ' + tmp,
-    );
-  }
-
-  // Retrieve the torrent information again
-  reloadTorrentBaseInfos(ids, moreFields) {
-    if (this.reloading) {
-      return;
-    }
-    clearTimeout(this.autoReloadTimer);
-    this.reloading = true;
-    const oldInfos = {
-      trackers: transmission.trackers,
-      folders: transmission.torrents.folders,
-    };
-
-    // Gets all the torrent id information
-    transmission.torrents.getAllIDs(
-      function (resultTorrents) {
-        const ignore = [];
-        for (const index in resultTorrents) {
-          const item = resultTorrents[index];
-          ignore.push(item.id);
-        }
-
-        // Error numbered list
-        const errorIds = transmission.torrents.getErrorIds(ignore, true);
-
-        if (errorIds.length > 0) {
-          transmission.torrents.getAllIDs(function () {
-            system.resetTorrentInfos(oldInfos);
-          }, errorIds);
-        } else {
-          system.resetTorrentInfos(oldInfos);
-        }
-      },
-      ids,
-      moreFields,
     );
   }
 
@@ -1912,7 +1703,7 @@ export class System extends SystemBase {
         switch (config.node.id) {
           case 'torrent-all':
           case 'servers':
-            torrents = transmission.torrents.all;
+            torrents = Array.from(Object.values(transmission.torrents.all));
             break;
           case 'paused':
             torrents = transmission.torrents.status[transmission._status.stopped];
@@ -1992,7 +1783,7 @@ export class System extends SystemBase {
         break;
     }
 
-    if (this.config.defaultSelectNode != config.node.id) {
+    if (this.config.defaultSelectNode !== config.node.id) {
       // this.control.torrentList.datagrid('loadData', []);
       this.control.grid.api.setRowData([]);
       this.config.defaultSelectNode = config.node.id;
@@ -2071,7 +1862,7 @@ export class System extends SystemBase {
 
   // Starts / pauses the selected torrent
   changeSelectedTorrentStatus(status, button, method) {
-    const rows = this.control.torrentList.datagrid('getChecked');
+    const rows = this.checkedRows;
     const ids = [];
     if (!status) {
       status = 'start';
@@ -2105,7 +1896,7 @@ export class System extends SystemBase {
               iconCls: icon,
             });
           }
-          system.control.torrentList.datagrid('uncheckAll');
+          system.control.grid.api.deselectAll();
           system.reloadTorrentBaseInfos();
         },
       );
@@ -2148,37 +1939,46 @@ export class System extends SystemBase {
     if (!transmission.torrents.all[id]) {
       return;
     }
-    if (transmission.torrents.all[id].infoIsLoading) {
+    if (this.loadingTorrent.has(id)) {
       return;
     }
-    if (this.currentTorrentId > 0 && transmission.torrents.all[this.currentTorrentId]) {
-      if (transmission.torrents.all[this.currentTorrentId].infoIsLoading) {
-        return;
-      }
-    }
+
     this.currentTorrentId = id;
     // Loads only when expanded
-    if (!this.panel.attribute.panel('options').collapsed) {
-      // this.panel.attribute.panel({iconCls:"icon-loading"});
-      const torrent = transmission.torrents.all[id];
-      torrent.infoIsLoading = true;
-      let fields =
-        'fileStats,trackerStats,peers,leftUntilDone,status,rateDownload,rateUpload,uploadedEver,uploadRatio,error,errorString,pieces,pieceCount,pieceSize';
-      // If this is the first time to load this torrent information, load more information
-      if (!torrent.moreInfosTag) {
-        fields += ',files,trackers,comment,dateCreated,creator,downloadDir';
-      }
+    if (this.panel.attribute.panel('options').collapsed) {
+      return;
+    }
 
-      // Gets the list of files
-      transmission.torrents.getMoreInfos(fields, id, (result) => {
-        torrent.infoIsLoading = false;
+    const torrent = transmission.torrents.all[id];
+    this.loadingTorrent.add(id);
+    const fields = [
+      'fileStats',
+      'trackerStats',
+      'peers',
+      'leftUntilDone',
+      'status',
+      'rateDownload',
+      'rateUpload',
+      'uploadedEver',
+      'uploadRatio',
+      'error',
+      'errorString',
+      'pieces',
+      'pieceCount',
+      'pieceSize',
+    ];
+    if (!torrent.moreInfosTag) {
+      fields.push('files', 'trackers', 'comment', 'dateCreated', 'creator', 'downloadDir');
+    }
+    transmission.torrents
+      .getMoreInfos(fields, id)
+      .then((result) => {
         // system.panel.attribute.panel({iconCls:""});
-        if (result == null) {
-          return;
-        }
+
         // Merge the currently returned value to the current torrent
         jQuery.extend(torrent, result[0]);
         if (system.currentTorrentId === 0 || this.currentTorrentId !== id) {
+          console.log('return here');
           this.clearTorrentAttribute();
           return;
         }
@@ -2194,8 +1994,10 @@ export class System extends SystemBase {
         this.fillTorrentConfig(torrent);
         transmission.torrents.all[id] = torrent;
         transmission.torrents.datas[id] = torrent;
+      })
+      .finally(() => {
+        this.loadingTorrent.delete(id);
       });
-    }
   }
 
   clearTorrentAttribute() {
@@ -2203,71 +2005,6 @@ export class System extends SystemBase {
     this.panel.attribute.find('#torrent-servers-table').datagrid('loadData', []);
     this.panel.attribute.find('#torrent-peers-table').datagrid('loadData', []);
     this.panel.attribute.find("span[id*='torrent-attribute-value']").html('');
-  }
-
-  // Updates the specified current page count
-  updateCurrentPageDatas(keyField, datas, sourceTable) {
-    // Get the current page data
-    const rows = sourceTable.datagrid('getRows');
-    const _options = sourceTable.datagrid('options');
-    let orderField = null;
-    if (_options.sortName) {
-      orderField = _options.sortName;
-      datas = datas.sort(arrayObjectSort(orderField, _options.sortOrder));
-    }
-
-    const isFileTable = sourceTable.selector.indexOf('#torrent-files-table') != -1;
-    const tableData = sourceTable.datagrid('getData');
-    const isFileFilterMode =
-      isFileTable && !!tableData.filterString && tableData.torrentId == system.currentTorrentId;
-    if (isFileFilterMode) {
-      datas = fileFilter(datas, tableData.filterString);
-    }
-
-    if (isFileFilterMode == false && (rows.length == 0 || datas.length != tableData.total)) {
-      sourceTable
-        .datagrid({
-          loadFilter: pagerFilter,
-          pageNumber: 1,
-          sortName: orderField,
-          sortOrder: _options.sortOrder,
-        })
-        .datagrid('loadData', datas);
-      return;
-    }
-
-    // Setting data
-    sourceTable.datagrid('getData').originalRows = datas;
-    const start = (_options.pageNumber - 1) * parseInt(_options.pageSize);
-    const end = start + parseInt(_options.pageSize);
-    datas = datas.slice(start, end);
-
-    const newDatas = {};
-    // Initializes the data under the current type
-    for (var index in datas) {
-      var item = datas[index];
-      newDatas[item[keyField]] = item;
-      item = null;
-    }
-
-    // Update the changed data
-    for (var index = rows.length - 1; index >= 0; index--) {
-      var item = rows[index];
-
-      let data = newDatas[item[keyField]];
-
-      if (data) {
-        sourceTable.datagrid('updateRow', {
-          index,
-          row: data,
-        });
-      } else {
-        sourceTable.datagrid('deleteRow', index);
-      }
-      data = null;
-
-      item = null;
-    }
   }
 
   // Fill the seed with basic information
@@ -2297,7 +2034,7 @@ export class System extends SystemBase {
 
         // status
         case 'status':
-          value = system.lang.torrent['status-text'][value];
+          value = system.lang.torrent.statusText[value];
           break;
         // error
         case 'error':
@@ -2387,12 +2124,6 @@ export class System extends SystemBase {
           '</span>',
       });
     }
-
-    this.updateCurrentPageDatas(
-      'index',
-      datas,
-      system.panel.attribute.find('#torrent-files-table'),
-    );
   }
 
   // Fill in the torrent server list
@@ -2437,10 +2168,6 @@ export class System extends SystemBase {
     }
     // Replace the tracker information
     transmission.torrents.addTracker(torrent);
-
-    this.updateCurrentPageDatas('id', datas, system.panel.attribute.find('#torrent-servers-table'));
-    // console.log("datas:",datas);
-    // system.panel.attribute.find("#torrent-servers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
   }
 
   // Fill the torrent user list
@@ -2530,19 +2257,14 @@ export class System extends SystemBase {
       rowdata.progress = system.getTorrentProgressBar(percentDone, transmission._status.download);
       datas.push(rowdata);
     }
-
-    this.updateCurrentPageDatas(
-      'address',
-      datas,
-      system.panel.attribute.find('#torrent-peers-table'),
-    );
-    // console.log("datas:",datas);
-    // system.panel.attribute.find("#torrent-peers-table").datagrid({loadFilter:pagerFilter,pageNumber:1}).datagrid("loadData",datas);
   }
 
   // Fill torrent parameters
   fillTorrentConfig(torrent) {
-    if (system.panel.attribute.find('#torrent-attribute-tabs').data('selectedIndex') != 4) {
+    if (
+      system.panel.attribute.find('#torrent-attribute-tabs').data('selectedIndex')?.toString() !==
+      '4'
+    ) {
       return;
     }
     transmission.torrents.getConfig(torrent.id, function (result) {
@@ -2550,13 +2272,12 @@ export class System extends SystemBase {
         return;
       }
 
-      const torrent = transmission.torrents.all[system.currentTorrentId];
+      const torrent = lo.merge(transmission.torrents.all[system.currentTorrentId], result[0]);
       // Merge the currently returned value to the current torrent
-      jQuery.extend(torrent, result[0]);
-      if (system.currentTorrentId == 0) {
+      if (system.currentTorrentId === 0) {
         return;
       }
-      $.each(result[0], function (key, value) {
+      $.each(torrent, function (key, value) {
         let indeterminate = false;
         let checked = false;
         let useTag = false;
@@ -2575,9 +2296,7 @@ export class System extends SystemBase {
               checked = true;
             }
 
-            system.panel.attribute
-              .find("input[enabledof='" + key + "']")
-              .prop('disabled', !checked);
+            system.panel.attribute.find(`input[enabledof='${key}']`).prop('disabled', !checked);
             if (useTag) {
               system.panel.attribute
                 .find('#' + key)
@@ -2589,8 +2308,8 @@ export class System extends SystemBase {
             break;
 
           default:
-            system.panel.attribute.find('#' + key).val(value);
-            system.panel.attribute.find('#' + key).numberspinner('setValue', value);
+            system.panel.attribute.find(`#${key}`).val(value);
+            system.panel.attribute.find(`#${key}`).numberspinner('setValue', value);
             break;
         }
       });
@@ -2691,7 +2410,99 @@ export class System extends SystemBase {
     this.reloading = false;
     this.reloadTorrentBaseInfos();
     // enable all icons
-    // this.checkTorrentRow("all", false);
+    this.checkTorrentRow('all', false);
+  }
+
+  /**
+   * 选中或反选种子时，改变菜单的可操作状态
+   * @param rowIndex  当前行索引，当全选/反选时为 'all'
+   * @param rowData    当前行数据，当全选/反选时为 true 或 false，全选为false, 全反选为 true
+   * @return void
+   */
+  checkTorrentRow(rowIndex, rowData) {
+    // 获取当前已选中的行
+    // 是否全选或反选
+    if (rowIndex === 'all') {
+      if (this.checkedRows.length === 0) {
+        return;
+      }
+      $(
+        '#toolbar_start, #toolbar_pause, #toolbar_remove, #toolbar_recheck, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_morepeers,#toolbar_copyPath',
+        this.panel.toolbar,
+      ).linkbutton({
+        disabled: rowData,
+      });
+      $('#toolbar_rename, #toolbar_morepeers', this.panel.toolbar).linkbutton({
+        disabled: true,
+      });
+      this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
+      return;
+    }
+
+    // 如果没有被选中的数据时
+    if (this.checkedRows.length === 0) {
+      // 禁用所有菜单
+      $(
+        '#toolbar_start, #toolbar_pause, #toolbar_rename, #toolbar_remove, #toolbar_recheck, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_morepeers,#toolbar_copyPath',
+        this.panel.toolbar,
+      ).linkbutton({
+        disabled: true,
+      });
+      this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
+      // 当仅有一条数据被选中时
+    } else if (this.checkedRows.length === 1) {
+      // 设置 删除、改名、变更保存目录、移动队列功能可用
+      $(
+        '#toolbar_remove, #toolbar_rename, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_copyPath',
+        this.panel.toolbar,
+      ).linkbutton({
+        disabled: false,
+      });
+      this.panel.toolbar.find('#toolbar_queue').menubutton('enable');
+      const torrent = transmission.torrents.all[rowData.id];
+      // 确认当前种子状态
+      switch (torrent.status) {
+        // 已停止
+        case transmission._status.stopped:
+          this.panel.toolbar.find('#toolbar_start, #toolbar_recheck').linkbutton({
+            disabled: false,
+          });
+          this.panel.toolbar.find('#toolbar_pause, #toolbar_morepeers').linkbutton({
+            disabled: true,
+          });
+          break;
+        // 校验
+        case transmission._status.check:
+        case transmission._status.checkwait:
+          this.panel.toolbar
+            .find('#toolbar_start, #toolbar_pause, #toolbar_recheck, #toolbar_morepeers')
+            .linkbutton({
+              disabled: true,
+            });
+          break;
+        // 其他
+        default:
+          this.panel.toolbar.find('#toolbar_start, #toolbar_recheck').linkbutton({
+            disabled: true,
+          });
+          this.panel.toolbar.find('#toolbar_pause, #toolbar_morepeers').linkbutton({
+            disabled: false,
+          });
+          break;
+      }
+      // 多条数据被选中时
+    } else {
+      $(
+        '#toolbar_start, #toolbar_pause, #toolbar_remove, #toolbar_recheck, #toolbar_changeDownloadDir,#toolbar_changeSpeedLimit,#toolbar_copyPath',
+        this.panel.toolbar,
+      ).linkbutton({
+        disabled: false,
+      });
+      $('#toolbar_rename, #toolbar_morepeers', this.panel.toolbar).linkbutton({
+        disabled: true,
+      });
+      this.panel.toolbar.find('#toolbar_queue').menubutton('disable');
+    }
   }
 
   // Loads the directory listing

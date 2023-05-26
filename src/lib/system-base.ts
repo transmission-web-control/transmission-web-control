@@ -4,6 +4,7 @@ import 'ag-grid-enterprise';
 import './grid-style.css';
 
 import {
+  type ColDef,
   type GetContextMenuItemsParams,
   Grid,
   type GridOptions,
@@ -56,7 +57,7 @@ export class SystemBase {
     defaultLang: 'en',
     foldersShow: false,
     // theme
-    theme: 'default',
+    theme: 'gray',
     // 是否显示BT服务器
     showBTServers: false,
     // ipinfo.io token
@@ -92,6 +93,7 @@ export class SystemBase {
   };
 
   storageKeys = {
+    fieldOrder: 'dataGrid.fields.order',
     dictionary: {
       folders: 'dictionary.folders',
     },
@@ -110,7 +112,7 @@ export class SystemBase {
   lang = enLocal;
   langInit = false;
   reloading = false;
-  autoReloadTimer = null;
+  autoReloadTimer: number | null = null;
   downloadDir = '';
   // The currently selected torrent number
   public currentTorrentId = 0;
@@ -133,90 +135,12 @@ export class SystemBase {
   serverConfig = null;
   serverSessionStats = null;
   // 当前已选中的行
-  checkedRows = [];
+  checkedRows: Torrent[] = [];
   uiIsInitialized = false;
   popoverCount = 0;
 
   // 当前数据目录，用于添加任务的快速保存路径选择
   currentListDir = '';
-
-  themes = [
-    {
-      value: 'default',
-      text: 'Default',
-      group: 'Base',
-    },
-    {
-      value: 'gray',
-      text: 'Gray',
-      group: 'Base',
-    },
-    {
-      value: 'metro',
-      text: 'Metro',
-      group: 'Base',
-    },
-    {
-      value: 'material',
-      text: 'Material',
-      group: 'Base',
-    },
-    {
-      value: 'bootstrap',
-      text: 'Bootstrap',
-      group: 'Base',
-    },
-    {
-      value: 'black;logo-white.png',
-      text: 'Black',
-      group: 'Base',
-    },
-    {
-      value: 'metro-blue',
-      text: 'Metro Blue',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-gray',
-      text: 'Metro Gray',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-green',
-      text: 'Metro Green',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-orange',
-      text: 'Metro Orange',
-      group: 'Metro',
-    },
-    {
-      value: 'metro-red',
-      text: 'Metro Red',
-      group: 'Metro',
-    },
-    {
-      value: 'ui-cupertino',
-      text: 'Cupertino',
-      group: 'UI',
-    },
-    {
-      value: 'ui-dark-hive;logo-white.png',
-      text: 'Dark Hive',
-      group: 'UI',
-    },
-    {
-      value: 'ui-pepper-grinder',
-      text: 'Pepper Grinder',
-      group: 'UI',
-    },
-    {
-      value: 'ui-sunny',
-      text: 'Sunny',
-      group: 'UI',
-    },
-  ];
 
   // Dialog Templates Temporary list
   public readonly templates: Record<string, string> = {};
@@ -285,7 +209,7 @@ export class SystemBase {
   openDialogFromTemplate<T = unknown>(config: {
     onClose?: (source?: T) => void;
     id: string;
-    options: Record<string, string | number>;
+    options: Record<string, string | number | boolean>;
     datas?: Record<string, any>;
     // 0 窗口，1 tooltip
     type?: number;
@@ -440,50 +364,31 @@ export class SystemBase {
    * 初始化主题
    */
   initThemes() {
-    if (this.themes) {
-      const system = this;
-      // @ts-expect-error
-      $('#select-themes').combobox({
-        groupField: 'group',
-        data: this.themes,
-        editable: false,
-        panelHeight: 'auto',
-        onChange(value: string) {
-          const values = (value + ';').split(';');
-          const theme = values[0] as string;
-          const logo = values[1] || 'logo.png';
-          $('#styleEasyui').attr('href', `tr-web-control/script/easyui/themes/${theme}/easyui.css`);
-          $('#logo').attr('src', 'tr-web-control/' + logo);
-          system.config.theme = value;
-          system.saveConfig();
-        },
-        onLoadSuccess() {
-          // @ts-expect-error
-          $(this).combobox('setValue', system.config.theme || 'default');
-        },
-      });
-    }
+    $('#styleEasyui').attr('href', `tr-web-control/script/easyui/themes/gray/easyui.css`);
+    this.config.theme = 'gray';
   }
 
   // Initialize the torrent list display table
   initTorrentTable() {
     $('<div id="myGrid" class="ag-theme-alpine torrent-list"></div>').appendTo(this.panel.list!);
     const eGridDiv = document.querySelector('#myGrid');
-    const userEnabledField =
-      this.userConfig.torrentList.fields.length === 0
-        ? torrentFields.fields
-        : this.userConfig.torrentList.fields;
+
     const fields = torrentFields.fields;
 
-    const enabledFieldNames = new Set(userEnabledField.map((x) => x.field));
-
     const stateRaw = this.getStorageData(this.gridState);
+
+    const fieldOrderRaw = this.getStorageData(this.storageKeys.fieldOrder);
+
+    const fieldOrder: string[] = fieldOrderRaw
+      ? JSON.parse(fieldOrderRaw)
+      : torrentFields.fields.map((x) => x.field);
 
     this.control.grid = {
       rowHeight: 20,
       headerHeight: 30,
       columnDefs: fields
         .filter((o) => o.field.toString() !== 'ck')
+        .sort((a, b) => fieldOrder.indexOf(a.field) - fieldOrder.indexOf(b.field))
         .map((o) => {
           const formatter: undefined | ((value: any) => string) = this.getFieldFormat(
             o.formatter_type,
@@ -528,7 +433,6 @@ export class SystemBase {
             headerName: this.lang.torrent.fields[o.field],
             field: o.field,
             valueGetter: valueGetter as unknown as ValueGetterFunc<Torrent>,
-            hide: !enabledFieldNames.has(o.field),
             width: o.width,
             valueFormatter: formatter ? ({ value }: { value: any }) => formatter(value) : undefined,
             initialWidth: o.width,
@@ -545,12 +449,23 @@ export class SystemBase {
       },
       rowSelection: 'multiple' as const,
       getRowId: (params: any) => params.data.hashString,
-      onRowSelected: (e) => {
-        userActions.emit('selectTorrent', e.data!.id);
+      onColumnMoved: (e) => {
+        const newFieldOrder = e.api.getColumnDefs()?.map((c: ColDef) => c.field) as string[];
+        this.setStorageData(this.storageKeys.fieldOrder, JSON.stringify(newFieldOrder));
+      },
+      suppressCellFocus: true,
+      onRowClicked: (e) => {
+        this.checkedRows = this.control.grid.api?.getSelectedRows() ?? [];
         this.currentTorrentId = e.data!.id;
+        userActions.emit('selectTorrent', e.rowIndex!, e.data!);
+        userActions.emit('onSelected');
       },
     };
+
+    console.groupCollapsed('hide');
     this.control.torrentList = new Grid(eGridDiv as HTMLElement, this.control.grid);
+    console.groupEnd();
+
     if (stateRaw) {
       this.control.grid.columnApi?.applyColumnState({ state: JSON.parse(stateRaw) });
     }
@@ -563,6 +478,11 @@ export class SystemBase {
     };
 
     console.log(this.control.grid.columnDefs);
+
+    userActions.on('selectTorrent', (i, t) => {
+      // @ts-expect-error
+      this.checkTorrentRow(i, t);
+    });
     // this.control.grid.api?.setHeaderHeight();
   } // end initTorrentTable
 
@@ -602,8 +522,39 @@ export class SystemBase {
   }
 
   // Retrieve the torrent information again
-  async reloadTorrentBaseInfos(ids: Array<string | number>, moreFields?: string[]) {
-    throw new Error('BUG: SHOULD be override');
+  async reloadTorrentBaseInfos(ids?: Array<string | number>, moreFields?: Array<keyof Torrent>) {
+    if (this.autoReloadTimer) {
+      clearTimeout(this.autoReloadTimer);
+    }
+    this.reloading = true;
+    const oldInfos = {
+      trackers: transmission.trackers,
+      folders: transmission.torrents.folders,
+    };
+
+    const system = this;
+
+    // Gets all the torrent id information
+    const resultTorrents = await transmission.torrents.getAllIDsAsync(ids, moreFields);
+
+    const ignore = [];
+    for (const index in resultTorrents) {
+      const item = resultTorrents[index];
+      ignore.push(item.id);
+    }
+
+    // Error numbered list
+    const errorIds = transmission.torrents.getErrorIds(ignore, true);
+    if (errorIds.length > 0) {
+      await transmission.torrents.getAllIDsAsync(errorIds);
+      system.resetTorrentInfos(oldInfos);
+    } else {
+      system.resetTorrentInfos(oldInfos);
+    }
+  }
+
+  resetTorrentInfos(oldInfos: { trackers: unknown; folders: unknown }) {
+    throw new Error('BUG: NEED OVERRIDE');
   }
 
   torrentContextMenu(params: GetContextMenuItemsParams<Torrent>): Array<string | MenuItemDef> {
@@ -661,17 +612,65 @@ export class SystemBase {
       'separator',
       {
         name: this.lang.toolbar.tip.rename,
+        action: () => {
+          system.openDialogFromTemplate({
+            id: 'dialog-torrent-rename',
+            options: {
+              title: this.lang.dialog['torrent-rename'].title,
+              width: 520,
+              height: 200,
+              resizable: true,
+            },
+            datas: {
+              id: torrent.id,
+            },
+          });
+        },
       },
       {
         name: this.lang.toolbar.tip.remove,
+        action: () => {
+          system.openDialogFromTemplate({
+            id: 'dialog-torrent-remove-confirm',
+            options: {
+              title: this.lang.dialog['torrent-remove'].title,
+              width: 350,
+              height: 150,
+            },
+            datas: {
+              ids: selected.map((x) => x.id),
+            },
+          });
+        },
       },
       {
         name: this.lang.toolbar.tip.recheck,
+        action: () => {
+          const ids = selected.map((t) => t.hashString);
+          void transmission
+            .execAsync({
+              method: 'torrent-verify',
+              arguments: {
+                ids,
+              },
+            })
+            .then(() => this.reloadTorrentBaseInfos(ids));
+        },
       },
       'separator',
       {
         name: this.lang.toolbar.tip['more-peers'],
-        action: () => {},
+        action: () => {
+          const ids = selected.map((t) => t.hashString);
+          void transmission
+            .execAsync({
+              method: 'torrent-reannounce',
+              arguments: {
+                ids,
+              },
+            })
+            .then(() => this.reloadTorrentBaseInfos(ids));
+        },
       },
       {
         name: this.lang.toolbar.tip['change-download-dir'],
@@ -682,19 +681,20 @@ export class SystemBase {
           void navigator.clipboard.writeText(torrent.downloadDir);
         },
       },
-      'separator',
-      {
-        name: this.lang.menus.queue['move-top'],
-      },
-      {
-        name: this.lang.menus.queue['move-up'],
-      },
-      {
-        name: this.lang.menus.queue['move-down'],
-      },
-      {
-        name: this.lang.menus.queue['move-bottom'],
-      },
+      // TODO:
+      // 'separator',
+      // {
+      //   name: this.lang.menus.queue['move-top'],
+      // },
+      // {
+      //   name: this.lang.menus.queue['move-up'],
+      // },
+      // {
+      //   name: this.lang.menus.queue['move-down'],
+      // },
+      // {
+      //   name: this.lang.menus.queue['move-bottom'],
+      // },
       'separator',
       {
         name: this.lang.menus.copyMagnetLink,
