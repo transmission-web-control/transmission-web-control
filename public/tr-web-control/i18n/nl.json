@@ -319,7 +319,7 @@
 			"trackers": "Trackers",
 			"labels": "User Labels"
 		},
-		"statusText": {
+		"status-text": {
 			"0": "Gepauzeerd",
 			"1": "Wacht op check",
 			"2": "Verifi&euml;ren",

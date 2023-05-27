@@ -66,7 +66,7 @@ var system = {
 			if (result) {
 				system.lang = $.extend(true, system.defaultLang, result);
 			}
-
+			
 			system.resetLangText();
 			if (callback)
 				callback();
@@ -413,7 +413,7 @@ var system = {
 				continue;
 			}
 			var percentDone = parseFloat(torrents[index].percentDone * 100).toFixed(2);
-			var status = this.lang.torrent["statusText"][torrents[index].status];
+			var status = this.lang.torrent["status-text"][torrents[index].status];
 			if (torrents[index].error != 0) {
 				status = "<span class='text-status-error'>" + status + "</span>";
 			} else if (torrents[index].warning) {

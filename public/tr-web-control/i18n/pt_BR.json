@@ -334,7 +334,7 @@
 			"trackers":"Trackers",
 			"labels":"Rótulos"
 		},
-		"statusText":{
+		"status-text":{
 			"0":"Pausado",
 			"1":"Aguardando verificação",
 			"2":"Verificando",

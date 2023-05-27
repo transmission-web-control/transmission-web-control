@@ -319,7 +319,7 @@
 			"trackers": "Trackers",
 			"labels": "User Labels"
 		},
-		"statusText": {
+		"status-text": {
 			"0": "Szünetel",
 			"1": "Ellenőrzésre vár",
 			"2": "Ellenőrzés",

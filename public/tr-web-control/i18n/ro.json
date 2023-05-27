@@ -319,7 +319,7 @@
 			"trackers": "Trackers",
 			"labels": "User Labels"
 		},
-		"statusText": {
+		"status-text": {
 			"0": "Pauză",
 			"1": "Așteaptă pentru verificare",
 			"2": "Verificare",

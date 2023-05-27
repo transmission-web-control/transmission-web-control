@@ -319,7 +319,7 @@
 			"trackers": "Trackers",
 			"labels": "Etiquettes"
 		},
-		"statusText": {
+		"status-text": {
 			"0": "En pause",
 			"1": "En attente de vérification",
 			"2": "Vérification",

@@ -330,7 +330,7 @@
 			"trackers": "Tracker",
 			"labels": "Etichette Utente"
 		},
-		"statusText": {
+		"status-text": {
 			"0": "In Pausa",
 			"1": "In attesa del controllo",
 			"2": "In controllo",

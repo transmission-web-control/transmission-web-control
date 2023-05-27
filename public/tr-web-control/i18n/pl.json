@@ -352,7 +352,7 @@
 			"labels": "Własne etykiety",
 			"doneDate": "Pobieranie ukończono"
 		},
-		"statusText": {
+		"status-text": {
 			"0": "Wstrzymano",
 			"1": "Oczekiwanie na sprawdzenie",
 			"2": "Sprawdzanie",

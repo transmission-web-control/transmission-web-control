@@ -319,7 +319,7 @@
 			"trackers": "Trackers",
 			"labels": "User Labels"
 		},
-		"statusText": {
+		"status-text": {
 			"0": "Pausado",
 			"1": "Aguardando verificação",
 			"2": "Comprovando",
