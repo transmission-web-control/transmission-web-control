@@ -1,8 +1,10 @@
 import { EventEmitter } from 'eventemitter3';
-import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
+import PQueue from 'p-queue';
 
-import { getHostName } from './utils';
+import { getHostName, normalizePath } from './utils';
+
+const queue = new PQueue({ concurrency: 1, autoStart: true });
 
 interface TransmissionEvents {
   error: (err: unknown) => void;
@@ -52,6 +54,10 @@ export const transmission = {
   },
 
   async execAsync(config?: { method: string; arguments?: any }) {
+    return await queue.add(() => this._execAsync(config));
+  },
+
+  async _execAsync(config?: { method: string; arguments?: any }) {
     const data = lo.merge(
       {
         method: '',
@@ -97,13 +103,22 @@ export const transmission = {
     });
   },
 
+  async exec2(config: { method: string; arguments?: any }) {
+    const data = await this.execAsync(config);
+    if (data.result !== 'success') {
+      throw new Error(`Failed to exec command ${config.method}: ${JSON.stringify(data)}`);
+    }
+
+    return data.arguments;
+  },
+
   getStatus(callback: (data: unknown) => void) {
     this.exec(
       {
         method: 'session-stats',
       },
       function (data) {
-        if (data.result == 'success') {
+        if (data.result === 'success') {
           if (callback) {
             callback(data.arguments);
           }
@@ -331,23 +346,11 @@ export const transmission = {
       },
     );
   },
-  // 关闭连接？
-  closeSession(callback?: (data: unknown) => void) {
-    this.exec(
-      {
-        method: 'session-close',
-      },
-      function (result) {
-        if (callback != null) {
-          callback(result);
-        }
-      },
-    );
-  },
+
   torrents: {
     activeTorrentCount: 0,
-    actively: null as null | Torrent[],
-    addTracker(item: Torrent) {
+    actively: null as null | ProcessedTorrent[],
+    addTracker(item: ProcessedTorrent) {
       var trackerStats = item.trackerStats;
       var trackers: string[] = [];
 
@@ -360,7 +363,7 @@ export const transmission = {
           const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
           const hostName = getHostName(trackerInfo.host);
           const trackerUrl = hostName.split('.');
-          if ($.inArray(trackerUrl[0], 'www,tracker,announce'.split(',')) != -1) {
+          if (['www', 'tracker', 'announce'].includes(trackerUrl[0] as string)) {
             trackerUrl.shift();
           }
 
@@ -433,16 +436,16 @@ export const transmission = {
 
         item.leecher = `${item.leecherCount} (${item.peersGettingFromUs})`;
         item.seeder = `${item.seederCount} (${item.peersSendingToUs})`;
-        item.trackers = trackers.join(';');
+        // item.trackers = trackers.join(';');
       }
     },
 
-    all: {} as Record<string, Torrent>,
-    btItems: [] as Torrent[],
+    all: {} as Record<string, ProcessedTorrent>,
+    btItems: [] as ProcessedTorrent[],
     count: 0,
-    datas: {} as Record<string, Torrent> | null,
-    downloading: null as Torrent[] | null,
-    error: null as Torrent[] | null,
+    datas: {} as Record<string, ProcessedTorrent> | null,
+    downloading: null as ProcessedTorrent[] | null,
+    error: null as ProcessedTorrent[] | null,
     fields: {
       base: [
         'id',
@@ -470,6 +473,7 @@ export const transmission = {
         'doneDate',
         'queuePosition',
         'activityDate',
+        'labels',
         'isPrivate',
       ] satisfies Array<keyof Torrent> as Array<keyof Torrent>,
       status: [
@@ -484,7 +488,6 @@ export const transmission = {
         'peersGettingFromUs',
         'peersSendingToUs',
         'uploadRatio',
-
         'rateUpload',
         'percentDone',
         'recheckProgress',
@@ -515,58 +518,15 @@ export const transmission = {
       string,
       {
         count: number;
-        torrents: Torrent[];
+        torrents: ProcessedTorrent[];
         size: number;
         nodeid: string;
       }
     >,
-    getConfig(id: string, callback: (torrents: Torrent[] | null) => void) {
+    getConfig(id: string, callback: (torrents: ProcessedTorrent[] | null) => void) {
       this.getMoreInfos(this.fields.config, id).then(callback, () => {
         callback(null);
       });
-    },
-    getErrorIds(ignore: any, needUpdateOnly: boolean) {
-      const result = [];
-      const nowDate = new Date();
-      let now = 0;
-      if (needUpdateOnly) {
-        now = nowDate.getTime() / 1000;
-      }
-
-      for (const item of this.error ?? []) {
-        if ($.inArray(item.id, ignore) != -1 && ignore.length > 0) {
-          continue;
-        }
-        if (needUpdateOnly) {
-          // 当前时间没有超过“下次更新时间”时，不需要更新
-          if (now < item.nextAnnounceTime) {
-            continue;
-          }
-        }
-
-        // 已停止的種子不計算在內
-        if (item.status == transmission._status.stopped) {
-          continue;
-        }
-
-        result.push(item.id);
-      }
-
-      for (const item of this.warning ?? []) {
-        if ($.inArray(item.id, ignore) != -1 && ignore.length > 0) {
-          continue;
-        }
-
-        if (needUpdateOnly) {
-          // 当前时间没有超过“下次更新时间”时，不需要更新
-          if (now < item.nextAnnounceTime) {
-            continue;
-          }
-        }
-        result.push(item.id);
-      }
-
-      return result;
     },
 
     getFiles(id: any, callback: any) {
@@ -624,7 +584,9 @@ export const transmission = {
       });
 
       if (data.result == 'success') {
-        for (const item of data.arguments.torrents as Array<Pick<Torrent, 'id' | 'magnetLink'>>) {
+        for (const item of data.arguments.torrents as Array<
+          Pick<ProcessedTorrent, 'id' | 'magnetLink'>
+        >) {
           transmission.torrents.all[item.id]!.magnetLink = item.magnetLink;
           result.push(item.magnetLink);
         }
@@ -662,49 +624,6 @@ export const transmission = {
       );
     },
 
-    async getAllIDsAsync(
-      ids: Array<string | number> | undefined,
-      moreFields?: Array<keyof Torrent>,
-    ) {
-      let tmp = this.fields.base;
-      if (this.loadSimpleInfo && this.all) {
-        tmp = this.fields.status;
-      }
-
-      let fields = tmp;
-      if (Array.isArray(moreFields)) {
-        fields = Array.from(new Set([...fields, ...moreFields]));
-      }
-      const args: Record<string, any> = {
-        fields,
-      };
-
-      this.isRecentlyActive = false;
-      // If it has been acquired
-      if (this.all.length && ids == undefined) {
-        args.ids = 'recently-active';
-        this.isRecentlyActive = true;
-      } else if (ids) {
-        args.ids = ids;
-      }
-
-      const data = await transmission.execAsync({
-        method: 'torrent-get',
-        arguments: args,
-      });
-
-      if (data.result == 'success') {
-        transmission.torrents.newIds.length = 0;
-        transmission.torrents.loadSimpleInfo = true;
-        transmission.torrents.recently = data.arguments.torrents;
-        transmission.torrents.removed = data.arguments.removed;
-        transmission.torrents.splitID();
-        return data.arguments.torrents;
-      } else {
-        transmission.torrents.datas = null;
-      }
-    },
-
     // Whether the torrents are being changed
     isRecentlyActive: false,
     // New torrents
@@ -712,7 +631,7 @@ export const transmission = {
     newIds: [] as string[],
     pausedTorrentCount: 0,
     // The IDs are sorted according to the torrent status
-    puased: null as Torrent[] | null,
+    puased: null as ProcessedTorrent[] | null,
     recently: null,
     // 获取下载者和做种者数量测试
 
@@ -802,172 +721,57 @@ export const transmission = {
     searchResult: null,
     // 获取指定种子的设置信息
 
-    splitID() {
-      // Downloading
-      this.downloading = [];
-      // Paused
-      this.puased = [];
-      // Active lately
-      this.actively = [];
-      // With Errors
-      this.error = [];
-      // With Warnings
-      this.warning = [];
-      this.btItems = [];
-      // All download directories used by current torrents
-      if (transmission.downloadDirs == undefined) {
-        transmission.downloadDirs = [];
-      }
-
-      const _Status = transmission._status;
-      this.status = {};
-      transmission.trackers = {};
-      this.totalSize = 0;
-      this.folders = {};
-      this.count = 0;
-
-      // Merge two numbers
-      for (const item of this.recently ?? []) {
-        // @ts-expect-error
-        this.datas[item.id] = item;
-      }
-
-      const removed: number[] = [];
-
-      for (const item of this.removed ?? []) {
-        removed.push(item);
-      }
-
-      // Torrents are classified
-      for (var index in this.datas) {
-        var item = this.datas?.[index];
-        if (!item) {
-          return;
-        }
-        if ($.inArray(item.id, removed) != -1 && removed.length > 0) {
-          if (this.all[item.id]) {
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete this.all[item.id];
-          }
-          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-          delete this.datas[index];
-
-          continue;
-        }
-        // If the current torrent is being acquired and there is no such torrent in the previous torrent list, that is, the new torrent needs to be reloaded with the basic information
-        if (this.isRecentlyActive && !this.all[item.id]) {
-          // @ts-expect-error
-          this.newIds.push(item.id);
-        }
-        item = $.extend(this.all[item.id], item);
-        // 没有活动数据时，将分享率标记为 -1
-        if (item.uploadedEver == 0 && item.downloadedEver == 0) {
-          item.uploadRatio = -1;
-        }
-        // 转为数值
-        // @ts-expect-error
-        item.uploadRatio = parseFloat(item.uploadRatio);
-        // @ts-expect-error
-        item.infoIsLoading = false;
-        // @ts-expect-error
-        let type = this.status[item.status];
-        this.addTracker(item);
-        if (!type) {
-          // @ts-expect-error
-          this.status[item.status] = [];
-          // @ts-expect-error
-          type = this.status[item.status];
-        }
-
-        // Total size
-        this.totalSize += item.totalSize;
-
-        // Time left
-        if (item.rateDownload > 0 && item.leftUntilDone > 0) {
-          item.remainingTime = Math.floor(item.leftUntilDone / item.rateDownload);
-        } else if (item.rateDownload == 0 && item.leftUntilDone == 0 && item.totalSize != 0) {
-          item.remainingTime = 0;
-        } else {
-          // ~100 years
-          item.remainingTime = 3153600000;
-        }
-
-        type.push(item);
-        // The seed for which the error occurred
-        if (item.error != 0) {
-          this.error.push(item);
-        }
-
-        // There is currently a number of seeds
-        if (item.rateUpload > 0 || item.rateDownload > 0) {
-          this.actively.push(item);
-        }
-
-        switch (item.status) {
-          case _Status.stopped:
-            this.puased.push(item);
-            break;
-
-          case _Status.download:
-            this.downloading.push(item);
-            break;
-        }
-
-        this.all[item.id] = item;
-
-        // Set the directory
-        if (!transmission.downloadDirs.includes(item.downloadDir)) {
-          if (item.downloadDir) {
-            transmission.downloadDirs.push(item.downloadDir);
-          }
-        }
-
-        if (transmission.options.getFolders) {
-          if (item.downloadDir) {
-            // 统一使用 / 来分隔目录
-            const folder = item.downloadDir.replace(/\\/g, '/').replaceAll(/\/*$/g, '').split('/');
-            let folderkey = 'folders-';
-            for (const text of folder) {
-              const key = Base64.encode(text);
-              // 去除特殊字符
-              folderkey += key.replace(/[+|\/|=]/g, '0');
-              let node = this.folders[folderkey];
-              if (!node) {
-                node = {
-                  count: 0,
-                  torrents: [],
-                  size: 0,
-                  nodeid: folderkey,
-                };
-              }
-              node.torrents.push(item);
-              node.count++;
-              node.size += item.totalSize;
-              this.folders[folderkey] = node;
-            }
-          }
-        }
-
-        this.count++;
-      }
-      transmission.downloadDirs = transmission.downloadDirs.sort();
-
-      // If there a need to acquire new seeds
-      if (this.newIds.length > 0) {
-        void this.getAllIDsAsync(this.newIds);
-      }
-    },
-    // 获取错误/警告的ID列表
-
     status: {},
-    // 查找并替換 Tracker
 
     totalSize: 0,
 
-    // 获取磁力链接
-    warning: null as Torrent[] | null,
+    warning: null as ProcessedTorrent[] | null,
+  },
+
+  async fetchALl(): Promise<{ torrents: ProcessedTorrent[] }> {
+    const { torrents } = (await this.exec2({
+      method: 'torrent-get',
+      arguments: {
+        fields: this.torrents.fields.base,
+      },
+    })) as { torrents: Torrent[] };
+
+    return {
+      torrents: torrents.map((t) => processTorrent(t)),
+    };
+  },
+
+  async fetchDelta(): Promise<{ torrents: ProcessedTorrent[]; removed: number[] }> {
+    const { removed, torrents } = (await this.exec2({
+      method: 'torrent-get',
+      arguments: {
+        ids: 'recently-active',
+        fields: this.torrents.fields.base,
+      },
+    })) as { torrents: Torrent[]; removed: number[] };
+
+    return {
+      removed,
+      torrents: torrents.map((t) => processTorrent(t)),
+    };
   },
 };
+
+function processTorrent(t: Torrent): ProcessedTorrent {
+  let warning;
+  if (t.isPrivate) {
+    const tr = t.trackerStats.find((x) => !x.lastAnnounceSucceeded);
+    if (tr) {
+      warning = `${tr.host}: ${tr.lastAnnounceResult}`;
+    }
+  }
+
+  return {
+    ...t,
+    warning,
+    normalizedPath: normalizePath(t.downloadDir),
+  };
+}
 
 export interface Tracker {
   announce: string;
@@ -975,7 +779,7 @@ export interface Tracker {
   nodeid: string;
   name: string;
   count: number;
-  torrents: Torrent[];
+  torrents: ProcessedTorrent[];
   size: number;
   connected: boolean;
   isBT: boolean;
@@ -989,10 +793,12 @@ export interface TrackerStat {
   announceState: number;
   lastAnnounceSucceeded: boolean;
   host: string;
+  sitename?: string;
   lastAnnounceResult: string;
 }
 
 export interface Torrent {
+  labels: string[];
   hashString: string;
   isPrivate: boolean;
   addedDate: number;
@@ -1000,8 +806,6 @@ export interface Torrent {
   peersSendingToUs: string;
   leecher: string;
   seeder: string;
-  trackers: string;
-  warning: string;
   seederCount: number;
   leecherCount: number;
   id: number;
@@ -1030,7 +834,54 @@ export interface Torrent {
   rateUpload: number;
   uploadedEver: number;
   downloadedEver: number;
-  error: unknown;
+  error: number;
+  errorString: string;
+  doneDate: number;
+  queuePosition: number;
+  activityDate: number;
+}
+
+export interface ProcessedTorrent {
+  normalizedPath: string;
+  warning?: string;
+
+  labels: string[];
+  hashString: string;
+  isPrivate: boolean;
+  addedDate: number;
+  peersGettingFromUs: string;
+  peersSendingToUs: string;
+  leecher: string;
+  seeder: string;
+  seederCount: number;
+  leecherCount: number;
+  id: number;
+  name: string;
+  status: TorrentStatus;
+  trackerStats: TrackerStat[];
+  nextAnnounceTime: number;
+  downloadDir: string;
+  remainingTime: number;
+  magnetLink: string;
+  rateDownload: number;
+  leftUntilDone: number;
+  totalSize: number;
+  uploadRatio: number;
+  downloadLimit: number;
+  downloadLimited: number;
+  'peer-limit': number;
+  seedIdleLimit: number;
+  seedIdleMode: number;
+  seedRatioLimit: number;
+  seedRatioMode: number;
+  uploadLimit: number;
+  uploadLimited: boolean;
+  percentDone: number;
+  recheckProgress: number;
+  rateUpload: number;
+  uploadedEver: number;
+  downloadedEver: number;
+  error: number;
   errorString: string;
   doneDate: number;
   queuePosition: number;

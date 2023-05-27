@@ -155,3 +155,7 @@ export function getMinutesFromHours(hours: string): number {
 
   return parseInt(h as string) * 60 + parseInt(m);
 }
+
+export function normalizePath(p: string): string {
+  return p.replaceAll(/\\/g, '/').replaceAll(/\/*$/g, '');
+}

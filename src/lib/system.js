@@ -1,54 +1,19 @@
-import ClipboardJS from 'clipboard';
 import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 import semver from 'semver';
 
+import { events, userActions } from './events';
 import { formatDuration, formatLongTime, getGrayLevel } from './formatter.ts';
-import { timedChunk } from './public.ts';
-import { SystemBase, templateFiles } from './system-base';
-import { transmission } from './transmission';
-import { userActions } from './user-actions';
+import { getTorrentProgressBar, SystemBase, templateFiles } from './system-base';
+import { TorrentStatus, transmission } from './transmission';
 import { formatSize } from './utils';
 import { APP_VERSION } from './version';
 
 // Current system global object
 export class System extends SystemBase {
   loadingTorrent = new Set();
-
-  /**
-   * 程序初始化
-   */
-  init(lang) {
-    this.readConfig();
-    this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
-    this.panel = {
-      main: $('#main'),
-      top: $('#m_top'),
-      toolbar: $('#m_toolbar'),
-      left_layout: $('#m_left_layout'),
-      left: $('#m_left'),
-      body: $('#m_body'),
-      layout_body: $('#layout_body'),
-      layout_left: $('#layout_left'),
-      list: $('#m_list'),
-      attribute: $('#m_attribute'),
-      bottom: $('#m_bottom'),
-      title: $('#m_title'),
-      status: $('#m_status'),
-      statusbar: $('#m_statusbar'),
-      status_text: $('#status_text'),
-      droparea: $('#dropArea'),
-    };
-
-    if (!system.langInit) {
-      this.setLang(lang);
-      system.langInit = true;
-    }
-
-    this.initData();
-    // 剪切板组件
-    this.clipboard = new ClipboardJS('#toolbar_copyPath');
-  }
+  lastTrackersTree = {};
+  searchKey = '';
 
   initData() {
     $(document).attr('title', this.lang.system.title + ' ' + this.version);
@@ -175,11 +140,10 @@ export class System extends SystemBase {
     this.initToolbar();
     this.initStatusBar();
     this.initTorrentTable();
-    this.connect();
     this.initEvent();
-    this.initThemes();
     // Check for updates
     this.checkUpdate();
+    void this.connect();
   }
 
   /**
@@ -240,17 +204,19 @@ export class System extends SystemBase {
     // End
 
     // 取消选择所有已选中的种子
-    $('#button-cancel-checked').on('click', function () {
-      system.control.torrentList.datagrid('uncheckAll');
-    });
+    // $('#button-cancel-checked').on('click', function() {
+    //   system.control.torrentList.datagrid('uncheckAll');
+    // });
 
     // 树型目录事件
     this.panel.left.tree({
       onExpand(node) {
+        console.log({ node });
         system.config.ui.status.tree[node.id] = node.state;
         system.saveConfig();
       },
       onCollapse(node) {
+        console.log({ node });
         system.config.ui.status.tree[node.id] = node.state;
         system.saveConfig();
       },
@@ -567,12 +533,12 @@ export class System extends SystemBase {
     if (this.uiIsInitialized) {
       return;
     }
-    system.uiIsInitialized = true;
+    this.uiIsInitialized = true;
     let status = this.lastUIStatus.tree;
-    for (var key in status) {
+    for (const [key, value] of Object.entries(status)) {
       const node1 = this.panel.left.tree('find', key);
       if (node1 && node1.target) {
-        if (status[key] == 'open') {
+        if (value === 'open') {
           this.panel.left.tree('expand', node1.target);
         } else {
           this.panel.left.tree('collapse', node1.target);
@@ -718,7 +684,6 @@ export class System extends SystemBase {
       .click(function () {
         if (system.config.autoReload) {
           system.config.autoReload = false;
-          clearTimeout(system.autoReloadTimer);
           system.panel.toolbar.find('#toolbar_reload_time').numberspinner('disable');
         } else {
           system.config.autoReload = true;
@@ -787,6 +752,8 @@ export class System extends SystemBase {
               disabled: false,
             });
             button = null;
+            console.log(data);
+            events.emit('userChangeTorrent', []);
           },
         );
       });
@@ -816,6 +783,7 @@ export class System extends SystemBase {
               disabled: false,
             });
             button = null;
+            events.emit('userChangeTorrent', []);
           },
         );
       });
@@ -975,7 +943,7 @@ export class System extends SystemBase {
         for (const i in rows) {
           ids.push(rows[i].id);
         }
-        if (ids.length == 0) {
+        if (ids.length === 0) {
           return;
         }
 
@@ -1081,29 +1049,6 @@ export class System extends SystemBase {
     this.panel.statusbar.find('#status_title_uploadspeed').html(this.lang.statusbar.uploadspeed);
   }
 
-  // connect to the server
-  connect() {
-    this.showStatus(this.lang.system.status.connect, 0);
-
-    transmission.event.on('loaded', () => {
-      system.reloadTorrentBaseInfos();
-    });
-    // When the total torrent number is changed, the torrent information is retrieved
-    transmission.event.on('torrentCountChange', function () {
-      system.reloadTorrentBaseInfos();
-    });
-    // When submitting an error
-    transmission.event.on('error', (e) => {
-      console.error(`transmission error ${e}`);
-      system.reloadTorrentBaseInfos();
-    });
-    // Initialize the connection
-    transmission.init().then(() => {
-      system.reloadSession();
-      system.getServerStatus();
-    });
-  }
-
   // Reload the server information
   reloadSession(isinit) {
     console.debug('system.reloadSession');
@@ -1163,47 +1108,47 @@ export class System extends SystemBase {
   }
 
   // refresh the tree
-  resetTorrentInfos(oldInfos) {
-    this.resetNavTorrentStatus();
-    this.resetNavServers(oldInfos);
-    this.resetNavStatistics();
-    this.resetNavFolders(oldInfos);
-    this.resetNavLabels();
+  updateTreeNodesUI() {
+    this.rebuildNavTorrentStatus();
+    this.rebuildNavServers();
+    this.rebuildNavStatistics();
+    this.rebuildNavFolders();
+    // this.resetNavLabels();
   }
 
   /**
    * 重置导航栏种子状态信息
    */
-  resetNavTorrentStatus() {
-    const currentTorrentId = this.currentTorrentId;
+  rebuildNavTorrentStatus() {
     // Paused
-    if (transmission.torrents.status[transmission._status.stopped]) {
+    if (this.torrentStatusTree[TorrentStatus.stopped].length) {
       system.updateTreeNodeText(
         'paused',
         system.lang.tree.paused +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.stopped].length),
+          this.showNodeMoreInfos(this.torrentStatusTree[TorrentStatus.stopped].length),
       );
     } else {
       system.updateTreeNodeText('paused', system.lang.tree.paused);
     }
 
     // Seeding
-    if (transmission.torrents.status[transmission._status.seed]) {
+    if (this.torrentStatusTree[TorrentStatus.seed].length) {
       system.updateTreeNodeText(
         'sending',
         system.lang.tree.sending +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seed].length),
+          this.showNodeMoreInfos(this.torrentStatusTree[TorrentStatus.seed].length),
       );
     } else {
       system.updateTreeNodeText('sending', system.lang.tree.sending);
     }
+
     // Waiting for seed
-    if (transmission.torrents.status[transmission._status.seedwait]) {
-      var node = system.panel.left.tree('find', 'sending');
-      var childs = system.panel.left.tree('getChildren', node.target);
-      var text =
+    if (this.torrentStatusTree[TorrentStatus.seedwait].length) {
+      const node = system.panel.left.tree('find', 'sending');
+      const childs = system.panel.left.tree('getChildren', node.target);
+      const text =
         system.lang.tree.wait +
-        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.seedwait].length);
+        this.showNodeMoreInfos(this.torrentStatusTree[TorrentStatus.seedwait].length);
       if (childs.length > 0) {
         system.updateTreeNodeText(childs[0].id, text);
       } else {
@@ -1220,22 +1165,22 @@ export class System extends SystemBase {
     }
 
     // check
-    if (transmission.torrents.status[transmission._status.check]) {
+    if (this.torrentStatusTree[TorrentStatus.check].length) {
       system.updateTreeNodeText(
         'check',
         system.lang.tree.check +
-          this.showNodeMoreInfos(transmission.torrents.status[transmission._status.check].length),
+          this.showNodeMoreInfos(this.torrentStatusTree[TorrentStatus.check].length),
       );
     } else {
       system.updateTreeNodeText('check', system.lang.tree.check);
     }
     // Waiting for check
-    if (transmission.torrents.status[transmission._status.checkwait]) {
-      var node = system.panel.left.tree('find', 'check');
-      var childs = system.panel.left.tree('getChildren', node.target);
-      var text =
+    if (this.torrentStatusTree[TorrentStatus.checkwait].length) {
+      const node = system.panel.left.tree('find', 'check');
+      const childs = system.panel.left.tree('getChildren', node.target);
+      const text =
         system.lang.tree.wait +
-        this.showNodeMoreInfos(transmission.torrents.status[transmission._status.checkwait].length);
+        this.showNodeMoreInfos(this.torrentStatusTree[TorrentStatus.checkwait].length);
       if (childs.length > 0) {
         system.updateTreeNodeText(childs[0].id, text);
       } else {
@@ -1252,26 +1197,22 @@ export class System extends SystemBase {
     }
 
     // downloading
-    if (transmission.torrents.status[transmission._status.download]) {
+    if (this.torrentStatusTree[TorrentStatus.download].length) {
       system.updateTreeNodeText(
         'downloading',
         system.lang.tree.downloading +
-          this.showNodeMoreInfos(
-            transmission.torrents.status[transmission._status.download].length,
-          ),
+          this.showNodeMoreInfos(this.torrentStatusTree[TorrentStatus.download].length),
       );
     } else {
       system.updateTreeNodeText('downloading', system.lang.tree.downloading);
     }
     // Waiting for download
-    if (transmission.torrents.status[transmission._status.downloadwait]) {
+    if (this.torrentStatusTree[TorrentStatus.downloadwait].length) {
       var node = system.panel.left.tree('find', 'downloading');
       var childs = system.panel.left.tree('getChildren', node.target);
       var text =
         system.lang.tree.wait +
-        this.showNodeMoreInfos(
-          transmission.torrents.status[transmission._status.downloadwait].length,
-        );
+        this.showNodeMoreInfos(this.torrentStatusTree[TorrentStatus.downloadwait].length);
       if (childs.length > 0) {
         system.updateTreeNodeText(childs[0].id, text);
       } else {
@@ -1290,17 +1231,17 @@ export class System extends SystemBase {
     // Active
     system.updateTreeNodeText(
       'actively',
-      system.lang.tree.actively + this.showNodeMoreInfos(transmission.torrents.actively.length),
+      system.lang.tree.actively + this.showNodeMoreInfos(this.torrentStatusExtra.active.length),
     );
     // With error
     system.updateTreeNodeText(
       'error',
-      system.lang.tree.error + this.showNodeMoreInfos(transmission.torrents.error.length),
+      system.lang.tree.error + this.showNodeMoreInfos(this.torrentStatusExtra.error.length),
     );
     // With warning
     system.updateTreeNodeText(
       'warning',
-      system.lang.tree.warning + this.showNodeMoreInfos(transmission.torrents.warning.length),
+      system.lang.tree.warning + this.showNodeMoreInfos(this.torrentStatusExtra.warning.length),
     );
 
     var node = system.panel.left.tree('getSelected');
@@ -1308,34 +1249,23 @@ export class System extends SystemBase {
       system.loadTorrentToList({ node });
     }
 
-    system.reloading = false;
-
-    if (system.config.autoReload) {
-      system.autoReloadTimer = setTimeout(function () {
-        system.reloadData();
-      }, system.config.reloadStep);
-    }
-
     // Total count
     system.updateTreeNodeText(
       'torrent-all',
       system.lang.tree.all +
-        this.showNodeMoreInfos(transmission.torrents.count, transmission.torrents.totalSize),
+        this.showNodeMoreInfos(
+          this.allTorrents.size,
+          Array.from(this.allTorrents.values()).reduce((pre, cur) => pre + cur.totalSize, 0),
+        ),
     );
   }
 
   /**
    * 重置导航栏服务器信息
    */
-  resetNavServers(oldInfos) {
+  rebuildNavServers() {
     // 获取服务器分布主节点
     let serversNode = this.panel.left.tree('find', 'servers');
-    if (!this.config.nav.servers) {
-      if (serversNode) {
-        this.panel.left.tree('remove', serversNode.target);
-      }
-      return;
-    }
 
     if (serversNode) {
       var serversNode_collapsed = serversNode.state;
@@ -1352,7 +1282,6 @@ export class System extends SystemBase {
       serversNode = this.panel.left.tree('find', 'servers');
     }
 
-    const datas = [];
     let BTServersNode = this.panel.left.tree('find', 'btservers');
     const BTServersNodeState = BTServersNode ? BTServersNode.state : 'close';
 
@@ -1370,58 +1299,43 @@ export class System extends SystemBase {
     }
 
     // 加载服务器列表
-    for (var index in transmission.trackers) {
-      var tracker = transmission.trackers[index];
-      if (tracker.isBT) {
-        // 是否显示BT服务器
-        if (!system.config.showBTServers) {
-          continue;
-        }
+    for (const [tracker, stat] of Object.entries(this.trackersTree)) {
+      if (!stat.pt && !system.config.showBTServers) {
+        continue;
       }
-      const node = system.panel.left.tree('find', tracker.nodeid);
-      const text = tracker.name + this.showNodeMoreInfos(tracker.count, tracker.size);
+      const node = system.panel.left.tree('find', tracker);
+      const text = tracker + this.showNodeMoreInfos(stat.torrents.length, stat.size);
       if (node) {
         system.updateTreeNodeText(
-          tracker.nodeid,
+          tracker,
           text,
           tracker.connected ? 'iconfont tr-icon-server' : 'iconfont tr-icon-server-error',
         );
       } else {
-        system.appendTreeNode(tracker.isBT ? BTServersNode : serversNode, [
+        system.appendTreeNode(stat.pt ? serversNode : BTServersNode, [
           {
-            id: tracker.nodeid,
+            id: tracker,
             text,
-            iconCls: tracker.connected
-              ? 'iconfont tr-icon-server'
-              : 'iconfont tr-icon-server-error',
+            iconCls: stat.connected ? 'iconfont tr-icon-server' : 'iconfont tr-icon-server-error',
           },
         ]);
       }
-
-      oldInfos.trackers[tracker.nodeid] = null;
     }
     // Collapse the node if it was before
-    if (serversNode_collapsed == 'closed') {
+    if (serversNode_collapsed === 'closed') {
       this.panel.left.tree('collapse', serversNode.target);
     }
 
-    if (system.config.showBTServers && BTServersNode && BTServersNodeState == 'closed') {
+    if (system.config.showBTServers && BTServersNode && BTServersNodeState === 'closed') {
       this.panel.left.tree('collapse', BTServersNode.target);
     }
-
-    // Delete the server that no longer exists
-    for (var index in oldInfos.trackers) {
-      var tracker = oldInfos.trackers[index];
-      if (tracker) {
-        system.removeTreeNode(tracker.nodeid);
-      }
-    }
+    this.lastTrackersTree = this.trackersTree;
   }
 
   /**
    * 重置导航栏数据统计信息
    */
-  resetNavStatistics() {
+  rebuildNavStatistics() {
     if (!this.config.nav.statistics) {
       const node = this.panel.left.tree('find', 'statistics');
       if (node) {
@@ -1481,27 +1395,6 @@ export class System extends SystemBase {
   }
 
   /**
-   * 重置导航栏数据目录信息
-   */
-  resetNavFolders(oldInfos) {
-    if (!this.config.nav.folders) {
-      this.initUIStatus();
-      const node = this.panel.left.tree('find', 'folders');
-      if (node) {
-        this.panel.left.tree('remove', node.target);
-      }
-      return;
-    }
-    for (const index in transmission.torrents.folders) {
-      const item = transmission.torrents.folders[index];
-      oldInfos.folders[item.nodeid] = null;
-    }
-
-    // Loads the directory listing
-    this.loadFolderList(oldInfos.folders);
-  }
-
-  /**
    * 重置导航栏用户标签信息
    */
   resetNavLabels(clear) {
@@ -1553,31 +1446,9 @@ export class System extends SystemBase {
     }
   }
 
-  // Displays the current torrent count and size
-  showNodeMoreInfos(count, size) {
-    let result = '';
-    if (count > 0) {
-      result = " <span class='nav-torrents-number'>(" + count + ')</span>';
-    }
-    if (size > 0) {
-      result += "<span class='nav-total-size'>[" + formatSize(size) + ']</span>';
-    }
-
-    return result;
-  }
-
   // Gets the current state of the server
   getServerStatus() {
-    console.debug('system.getServerStatus');
-    if (this.reloading) {
-      console.debug('system.getServerStatus reloading');
-      return;
-    }
-    clearTimeout(this.autoReloadTimer);
-
-    this.reloading = true;
     transmission.getStatus(function (data) {
-      system.reloading = false;
       // system.updateTreeNodeText("torrent-all",system.lang.tree.all+" ("+data["torrentCount"]+")");
       // system.updateTreeNodeText("paused",system.lang.tree.paused+(data["pausedTorrentCount"]==0?"":" ("+data["pausedTorrentCount"]+")"));
       // system.updateTreeNodeText("sending",system.lang.tree.sending+(data["activeTorrentCount"]==0?"":" ("+data["activeTorrentCount"]+")"));
@@ -1591,26 +1462,6 @@ export class System extends SystemBase {
         }
         system.updateTreeNodeText('torrent-all', system.lang.tree.all);
       }
-    });
-  }
-
-  // Displays status information
-  showStatus(msg, outtime) {
-    if ($('#m_status').panel('options').collapsed) {
-      $('#layout_left').layout('expand', 'south');
-    }
-    this.panel.status_text.show();
-    if (msg) {
-      this.panel.status_text.html(msg);
-    }
-    if (outtime == 0) {
-      return;
-    }
-    if (outtime == undefined) {
-      outtime = 3000;
-    }
-    this.panel.status_text.fadeOut(outtime, function () {
-      $('#layout_left').layout('collapse', 'south');
     });
   }
 
@@ -1663,112 +1514,105 @@ export class System extends SystemBase {
   }
 
   // Load the torrent list
-  loadTorrentToList(config) {
-    if (!transmission.torrents.all) {
+  loadTorrentToList({ node }) {
+    if (!this.allTorrents.size) {
       return;
     }
-    const def = {
-      node: null,
-      page: 1,
-    };
 
-    jQuery.extend(def, config);
-    if (!config.node) {
+    if (!node) {
       return;
     }
 
     let torrents = null;
-    const parent = this.panel.left.tree('getParent', config.node.target) || {
+    const parent = this.panel.left.tree('getParent', node.target) || {
       id: '',
     };
     let currentNodeId = this.panel.left.data('currentNodeId');
 
-    if (currentNodeId != config.node.id) {
+    if (currentNodeId !== node.id) {
       // 当切换了导航菜单时，取消选择所有内容
       this.control.grid.api.deselectAll();
-      currentNodeId = config.node.id;
+      currentNodeId = node.id;
     }
     this.panel.left.data('currentNodeId', currentNodeId);
+
+    if (parent.id === this.parentID && node.id === this.selectedNodeID) {
+      return;
+    }
+    this.selectedNodeID = node.id;
+    this.parentID = parent.id;
 
     switch (parent.id) {
       case 'servers':
       case 'btservers':
-        if (config.node.id == 'btservers') {
-          torrents = transmission.torrents.btItems;
+        if (node.id === 'btservers') {
+          this.torrentFilter = (t) => !t.isPrivate;
         } else {
-          torrents = transmission.trackers[config.node.id].torrents;
+          this.torrentFilter = (t) =>
+            t.trackerStats.some((v) => v.sitename === node.id || v.host === node.id);
         }
         break;
       default:
-        switch (config.node.id) {
+        switch (node.id) {
           case 'torrent-all':
           case 'servers':
-            torrents = Array.from(Object.values(transmission.torrents.all));
+            this.torrentFilter = () => true;
             break;
           case 'paused':
-            torrents = transmission.torrents.status[transmission._status.stopped];
+            this.torrentFilter = (t) => t.status === TorrentStatus.stopped;
             break;
           case 'sending':
-            torrents = transmission.torrents.status[transmission._status.seed];
+            this.torrentFilter = (t) => TorrentStatus.seed === t.status;
             break;
 
           case 'seedwait':
-            torrents = transmission.torrents.status[transmission._status.seedwait];
+            this.torrentFilter = (t) => TorrentStatus.seedwait === t.status;
             break;
 
           case 'check':
-            torrents = transmission.torrents.status[transmission._status.check];
+            this.torrentFilter = (t) => TorrentStatus.check === t.status;
             break;
           case 'checkwait':
-            torrents = transmission.torrents.status[transmission._status.checkwait];
+            this.torrentFilter = (t) => TorrentStatus.checkwait === t.status;
             break;
 
           case 'downloading':
-            torrents = transmission.torrents.status[transmission._status.download];
+            this.torrentFilter = (t) => TorrentStatus.download === t.status;
             break;
           case 'downloadwait':
-            torrents = transmission.torrents.status[transmission._status.downloadwait];
+            this.torrentFilter = (t) => TorrentStatus.downloadwait === t.status;
             break;
 
           case 'actively':
-            torrents = transmission.torrents.actively;
+            this.torrentFilter = (t) => t.rateUpload + t.rateDownload !== 0;
             break;
 
           case 'error':
-            torrents = transmission.torrents.error;
+            this.torrentFilter = (t) => t.error !== 0;
             break;
 
           case 'warning':
-            torrents = transmission.torrents.warning;
+            this.torrentFilter = (t) => Boolean(t.warning);
             break;
 
           case 'search-result':
-            torrents = transmission.torrents.searchResult;
+            this.torrentFilter = (t) => t.name.includes(system.searchKey);
             break;
 
           case 'btservers':
-            torrents = transmission.torrents.btItems;
+            this.torrentFilter = (t) => !t.isPrivate;
             break;
 
           default:
             // Categories
-            if (config.node.id.indexOf('folders-') !== -1) {
-              const folder = transmission.torrents.folders[config.node.id];
-              if (folder) {
-                if (!this.config.hideSubfolders) {
-                  torrents = folder.torrents;
-                } else {
-                  torrents = [];
-                  for (let index = 0; index < folder.torrents.length; index++) {
-                    const element = folder.torrents[index];
-                    if (element.downloadDir.replace(/[\\|\/]/g, '') === config.node.path) {
-                      torrents.push(element);
-                    }
-                  }
-                }
-              }
-            } else if (config.node.id.indexOf('label-') !== -1) {
-              const labelIndex = parseInt(config.node.labelIndex);
+            if (node.id.indexOf('folders-') !== -1) {
+              const fullPath = node.fullPath;
+              console.log(fullPath);
+              // avoid partial prefix match
+              this.torrentFilter = (t) =>
+                t.normalizedPath === fullPath || t.normalizedPath.startsWith(fullPath + '/');
+            } else if (node.id.indexOf('label-') !== -1) {
+              const labelIndex = parseInt(node.labelIndex);
               torrents = [];
               for (const key in transmission.torrents.all) {
                 const item = transmission.torrents.all[key];
@@ -1783,14 +1627,14 @@ export class System extends SystemBase {
         break;
     }
 
-    if (this.config.defaultSelectNode !== config.node.id) {
-      // this.control.torrentList.datagrid('loadData', []);
-      this.control.grid.api.setRowData([]);
-      this.config.defaultSelectNode = config.node.id;
-      this.saveConfig();
-    }
+    // if (this.config.defaultSelectNode !== node.id) {
+    // this.control.torrentList.datagrid('loadData', []);
+    // this.torrentFilter = () => false;
+    // this.config.defaultSelectNode = node.id;
+    // this.saveConfig();
+    // }
 
-    this.control.grid.api.setRowData(torrents);
+    this.refreshDataGrid();
   }
 
   // Gets the contents of the torrent name display area
@@ -1897,7 +1741,7 @@ export class System extends SystemBase {
             });
           }
           system.control.grid.api.deselectAll();
-          system.reloadTorrentBaseInfos();
+          events.emit('userChangeTorrent', ids);
         },
       );
     }
@@ -1905,11 +1749,11 @@ export class System extends SystemBase {
 
   // Looks for the specified torrent from the torrent list
   searchTorrents(key) {
-    if (key == '') {
+    if (key === '') {
       return;
     }
     const result = transmission.torrents.search(key);
-    if (result == null || result.length == 0) {
+    if (result == null || result.length === 0) {
       this.removeTreeNode('search-result');
       return;
     }
@@ -1929,17 +1773,15 @@ export class System extends SystemBase {
       this.panel.left.tree('update', {
         target: node.target,
         text,
+        iconCls: node.iconCls,
       });
     }
     this.panel.left.tree('select', node.target);
   }
 
   // Get the torrent details
-  getTorrentInfos(id) {
-    if (!transmission.torrents.all[id]) {
-      return;
-    }
-    if (this.loadingTorrent.has(id)) {
+  async getTorrentInfos(id) {
+    if (!this.allTorrents.has(id)) {
       return;
     }
 
@@ -1949,7 +1791,7 @@ export class System extends SystemBase {
       return;
     }
 
-    const torrent = transmission.torrents.all[id];
+    const torrent = this.allTorrents.get(id);
     this.loadingTorrent.add(id);
     const fields = [
       'fileStats',
@@ -2113,7 +1955,7 @@ export class System extends SystemBase {
         name: file.name == torrent.name ? file.name : file.name.slice(namelength),
         index,
         bytesCompleted: stats.bytesCompleted,
-        percentDone: system.getTorrentProgressBar(percentDone, transmission._status.download),
+        percentDone: getTorrentProgressBar(percentDone, transmission._status.download),
         length: file.length,
         wanted: system.lang.torrent.attribute.status[stats.wanted],
         priority:
@@ -2254,7 +2096,7 @@ export class System extends SystemBase {
       // 使用同类已有的翻译文本
       rowdata.isUTP = system.lang.torrent.attribute.status[item.isUTP];
       const percentDone = parseFloat(item.progress * 100).toFixed(2);
-      rowdata.progress = system.getTorrentProgressBar(percentDone, transmission._status.download);
+      rowdata.progress = getTorrentProgressBar(percentDone, transmission._status.download);
       datas.push(rowdata);
     }
   }
@@ -2319,7 +2161,6 @@ export class System extends SystemBase {
   // Set the field display format
   setFieldFormat(field) {
     if (!field.formatter_type) {
-      field.formatter = (v) => v?.toString();
       return;
     }
 
@@ -2344,7 +2185,7 @@ export class System extends SystemBase {
       case 'progress':
         field.formatter = function (value, row, index) {
           const percentDone = parseFloat(value * 100).toFixed(2);
-          return system.getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
+          return getTorrentProgressBar(percentDone, transmission.torrents.all[row.id]);
         };
         break;
 
@@ -2401,16 +2242,12 @@ export class System extends SystemBase {
     if (this.popoverCount > 0) {
       setTimeout(function () {
         system.reloadData();
-      }, 2000);
+      }, system.config.reloadStep);
       return;
     }
     this.reloadSession();
-    this.reloading = false;
     this.getServerStatus();
-    this.reloading = false;
-    this.reloadTorrentBaseInfos();
-    // enable all icons
-    this.checkTorrentRow('all', false);
+    void this.fetchData(true);
   }
 
   /**
@@ -2459,7 +2296,7 @@ export class System extends SystemBase {
         disabled: false,
       });
       this.panel.toolbar.find('#toolbar_queue').menubutton('enable');
-      const torrent = transmission.torrents.all[rowData.id];
+      const torrent = this.allTorrents.get(rowData.id);
       // 确认当前种子状态
       switch (torrent.status) {
         // 已停止
@@ -2505,109 +2342,11 @@ export class System extends SystemBase {
     }
   }
 
-  // Loads the directory listing
-  loadFolderList(oldFolders) {
-    this.removeTreeNode('folders-loading');
-    // Delete the directory that does not exist
-    for (const index in oldFolders) {
-      const item = oldFolders[index];
-      if (item) {
-        system.removeTreeNode(item.nodeid);
-      }
-    }
-    if (transmission.downloadDirs.length === 0) {
-      return;
-    }
-
-    timedChunk(
-      {
-        items: transmission.downloadDirs,
-        process: this.appendFolder,
-        context: this,
-        delay: 10,
-      },
-      () => {
-        system.initUIStatus();
-      },
-    );
-    /*
-    for (var index in transmission.downloadDirs)
-    {
-      var parentkey = rootkey;
-      var fullkey = transmission.downloadDirs[index];
-
-    } */
-  }
-
-  appendFolder(fullkey) {
-    if (!fullkey) {
-      return;
-    }
-
-    const rootkey = 'folders';
-    let parentkey = rootkey;
-    const folder = fullkey.replace(/\\/g, '/').split('/');
-    let key = rootkey + '-';
-    let path = '';
-    for (const i in folder) {
-      const name = folder[i];
-      if (name == '') {
-        continue;
-      }
-      // key += "--" + text.replace(/\./g,"。") + "--";
-      path += name;
-      const _key = Base64.encode(name);
-      key += _key.replace(/[+|\/|=]/g, '0');
-      let node = this.panel.left.tree('find', key);
-      const folderinfos = transmission.torrents.folders[key];
-      if (folderinfos) {
-        const text = name + this.showNodeMoreInfos(folderinfos.count, folderinfos.size);
-
-        if (!node) {
-          this.appendTreeNode(parentkey, [
-            {
-              id: key,
-              path,
-              downDir: fullkey,
-              text,
-              iconCls: 'iconfont tr-icon-file',
-            },
-          ]);
-          if (parentkey != rootkey) {
-            node = this.panel.left.tree('find', parentkey);
-            this.panel.left.tree('collapse', node.target);
-          }
-        } else {
-          this.updateTreeNodeText(key, text);
-        }
-        parentkey = key;
-      } else {
-        this.debug('appendFolder:key', key);
-        this.debug('appendFolder:name', name);
-        this.debug('appendFolder:node', node);
-      }
-    }
-  }
-
   replaceURI(text) {
     const reg = /(http|https|ftp):\/\/([^/:]+)(:\d*)?([^# ]*)/gi;
     return text.replace(reg, function (url) {
       return '<a href="' + url + '" target="_blank">' + url + '</a>';
     });
-  }
-
-  // Load the parameters from cookies
-  readConfig() {
-    this.readUserConfig();
-    // 将原来的cookies的方式改为本地存储的方式
-    const config = this.getStorageData(this.configHead + '.system');
-    if (config) {
-      this.config = $.extend(true, this.config, JSON.parse(config));
-    }
-
-    for (const key in this.storageKeys.dictionary) {
-      this.dictionary[key] = this.getStorageData(this.storageKeys.dictionary[key]);
-    }
   }
 
   // Save labels config for torrent if need
@@ -2618,14 +2357,6 @@ export class System extends SystemBase {
       } else {
         system.config.labelMaps[hash] = labels;
       }
-    }
-  }
-
-  readUserConfig() {
-    const local = window.localStorage[this.configHead];
-    if (local) {
-      const localOptions = JSON.parse(local);
-      this.userConfig = $.extend(true, this.userConfig, localOptions);
     }
   }
 

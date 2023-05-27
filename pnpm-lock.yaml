@@ -48,6 +48,9 @@ devDependencies:
   '@types/ua-parser-js':
     specifier: ^0.7.36
     version: 0.7.36
+  '@types/web':
+    specifier: ^0.0.99
+    version: 0.0.99
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.59.0
     version: 5.59.0(@typescript-eslint/parser@5.0.0)(eslint@8.39.0)(typescript@5.0.4)
@@ -570,6 +573,10 @@ packages:
 
   /@types/ua-parser-js@0.7.36:
     resolution: {integrity: sha512-N1rW+njavs70y2cApeIw1vLMYXRwfBy+7trgavGuuTfOd7j1Yh7QTRc/yqsPl6ncokt72ZXuxEU0PiCp9bSwNQ==}
+    dev: true
+
+  /@types/web@0.0.99:
+    resolution: {integrity: sha512-xMz3tOvtkZzc7RpQrDNiLe5sfMmP+fz8bOxHIZ/U8qXyvzDX4L4Ss1HCjor/O9DSelba+1iXK1VM7lruX28hiQ==}
     dev: true
 
   /@typescript-eslint/eslint-plugin@5.59.0(@typescript-eslint/parser@5.0.0)(eslint@8.39.0)(typescript@5.0.4):

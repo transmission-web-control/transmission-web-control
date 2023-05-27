@@ -12,14 +12,16 @@ import {
   type MenuItemDef,
   type ValueGetterFunc,
 } from 'ag-grid-community';
+import type JQuery from 'jquery';
+import { Base64 } from 'js-base64';
 import * as lo from 'lodash-es';
 
 import i18nManifest from '../i18n.json';
 import enLocal from '../i18n/en.json';
+import { events, userActions } from './events';
 import { formatDuration, formatLongTime } from './formatter';
 import torrentFields, { type Field } from './torrent-fields';
-import { type Torrent, TorrentStatus, transmission } from './transmission';
-import { userActions } from './user-actions';
+import { type ProcessedTorrent, TorrentStatus, transmission } from './transmission';
 import { formatSize } from './utils';
 import { APP_VERSION } from './version';
 
@@ -96,8 +98,8 @@ export class SystemBase {
     fieldOrder: 'dataGrid.fields.order',
     dictionary: {
       folders: 'dictionary.folders',
-    },
-  };
+    } as const,
+  } as const;
 
   // Local data storage
   dictionary = {
@@ -107,12 +109,28 @@ export class SystemBase {
   checkUpdateScript =
     'https://api.github.com/repos/transmission-web-control/transmission-web-control/releases/latest';
 
-  contextMenus = {};
-  panel: Record<string, JQuery<HTMLElement>> = {};
+  panel = {
+    main: $('#main'),
+    top: $('#m_top'),
+    toolbar: $('#m_toolbar'),
+    left_layout: $('#m_left_layout'),
+    left: $('#m_left'),
+    body: $('#m_body'),
+    layout_body: $('#layout_body'),
+    layout_left: $('#layout_left'),
+    list: $('#m_list'),
+    attribute: $('#m_attribute'),
+    bottom: $('#m_bottom'),
+    title: $('#m_title'),
+    status: $('#m_status'),
+    statusbar: $('#m_statusbar'),
+    status_text: $('#status_text'),
+    droparea: $('#dropArea'),
+  };
+
   lang = enLocal;
   langInit = false;
-  reloading = false;
-  autoReloadTimer: number | null = null;
+  autoReloadTimer?: ReturnType<typeof setTimeout>;
   downloadDir = '';
   // The currently selected torrent number
   public currentTorrentId = 0;
@@ -121,7 +139,7 @@ export class SystemBase {
   control = {
     tree: null,
     torrentList: null as any as Grid,
-    grid: null as any as GridOptions<Torrent>,
+    grid: null as any as GridOptions<ProcessedTorrent>,
   };
 
   userConfig = {
@@ -135,7 +153,7 @@ export class SystemBase {
   serverConfig = null;
   serverSessionStats = null;
   // 当前已选中的行
-  checkedRows: Torrent[] = [];
+  checkedRows: ProcessedTorrent[] = [];
   uiIsInitialized = false;
   popoverCount = 0;
 
@@ -144,6 +162,46 @@ export class SystemBase {
 
   // Dialog Templates Temporary list
   public readonly templates: Record<string, string> = {};
+  private lastUIStatus: any;
+
+  /**
+   * 程序初始化
+   */
+  init(lang: string) {
+    this.readConfig();
+    this.lastUIStatus = JSON.parse(JSON.stringify(this.config.ui.status));
+
+    if (!system.langInit) {
+      this.setLang(lang);
+      system.langInit = true;
+    }
+
+    // @ts-expect-error
+    this.initData();
+    this.initEvent2();
+  }
+
+  // Load the parameters from cookies
+  readConfig() {
+    this.readUserConfig();
+    // 将原来的cookies的方式改为本地存储的方式
+    const config = this.getStorageData(this.configHead + '.system');
+    if (config) {
+      this.config = lo.merge(this.config, JSON.parse(config));
+    }
+
+    for (const [key, value] of Object.entries(this.storageKeys.dictionary)) {
+      this.dictionary[key as 'folders'] = this.getStorageData(value);
+    }
+  }
+
+  readUserConfig() {
+    const local = window.localStorage[this.configHead];
+    if (local) {
+      const localOptions = JSON.parse(local);
+      this.userConfig = lo.merge(this.userConfig, localOptions);
+    }
+  }
 
   /**
    * 设置语言
@@ -338,7 +396,6 @@ export class SystemBase {
   }
 
   saveUserConfig() {
-    console.log('save config');
     this.setStorageData(this.configHead, JSON.stringify(this.userConfig));
   }
 
@@ -360,17 +417,9 @@ export class SystemBase {
     this.saveUserConfig();
   }
 
-  /**
-   * 初始化主题
-   */
-  initThemes() {
-    $('#styleEasyui').attr('href', `tr-web-control/script/easyui/themes/gray/easyui.css`);
-    this.config.theme = 'gray';
-  }
-
   // Initialize the torrent list display table
   initTorrentTable() {
-    $('<div id="myGrid" class="ag-theme-alpine torrent-list"></div>').appendTo(this.panel.list!);
+    $('<div id="myGrid" class="ag-theme-alpine torrent-list"></div>').appendTo(this.panel.list);
     const eGridDiv = document.querySelector('#myGrid');
 
     const fields = torrentFields.fields;
@@ -393,12 +442,12 @@ export class SystemBase {
           const formatter: undefined | ((value: any) => string) = this.getFieldFormat(
             o.formatter_type,
           );
-          let valueGetter: undefined | ((params: { data: Torrent; value: number }) => any);
+          let valueGetter: undefined | ((params: { data: ProcessedTorrent; value: number }) => any);
           const opt: Record<string, any> = {};
           if (o.formatter_type === 'progress') {
-            opt.cellRenderer = (params: { data: Torrent; value: number }) => {
+            opt.cellRenderer = (params: { data: ProcessedTorrent; value: number }) => {
               const torrent = params.data;
-              return this.getTorrentProgressBar(params.value * 100, torrent);
+              return getTorrentProgressBar(params.value * 100, torrent);
             };
           }
           if (o.formatter_type === 'html') {
@@ -409,7 +458,7 @@ export class SystemBase {
 
           if (o.field === 'status') {
             valueGetter = (params) => {
-              const torrent: Torrent = params.data;
+              const torrent: ProcessedTorrent = params.data;
               const status = this.lang.torrent.statusText[torrent.status];
               if (torrent.error != 0) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -432,7 +481,7 @@ export class SystemBase {
             ...opt,
             headerName: this.lang.torrent.fields[o.field],
             field: o.field,
-            valueGetter: valueGetter as unknown as ValueGetterFunc<Torrent>,
+            valueGetter: valueGetter as unknown as ValueGetterFunc<ProcessedTorrent>,
             width: o.width,
             valueFormatter: formatter ? ({ value }: { value: any }) => formatter(value) : undefined,
             initialWidth: o.width,
@@ -477,8 +526,6 @@ export class SystemBase {
       );
     };
 
-    console.log(this.control.grid.columnDefs);
-
     userActions.on('selectTorrent', (i, t) => {
       // @ts-expect-error
       this.checkTorrentRow(i, t);
@@ -522,43 +569,34 @@ export class SystemBase {
   }
 
   // Retrieve the torrent information again
-  async reloadTorrentBaseInfos(ids?: Array<string | number>, moreFields?: Array<keyof Torrent>) {
-    if (this.autoReloadTimer) {
-      clearTimeout(this.autoReloadTimer);
-    }
-    this.reloading = true;
-    const oldInfos = {
-      trackers: transmission.trackers,
-      folders: transmission.torrents.folders,
-    };
-
-    const system = this;
-
-    // Gets all the torrent id information
-    const resultTorrents = await transmission.torrents.getAllIDsAsync(ids, moreFields);
-
-    const ignore = [];
-    for (const index in resultTorrents) {
-      const item = resultTorrents[index];
-      ignore.push(item.id);
-    }
-
-    // Error numbered list
-    const errorIds = transmission.torrents.getErrorIds(ignore, true);
-    if (errorIds.length > 0) {
-      await transmission.torrents.getAllIDsAsync(errorIds);
-      system.resetTorrentInfos(oldInfos);
-    } else {
-      system.resetTorrentInfos(oldInfos);
-    }
+  async reloadTorrentBaseInfos(
+    ids?: Array<string | number>,
+    moreFields?: Array<keyof ProcessedTorrent>,
+  ) {
+    await this.fetchData(false);
   }
 
-  resetTorrentInfos(oldInfos: { trackers: unknown; folders: unknown }) {
+  updateTreeNodesUI() {
     throw new Error('BUG: NEED OVERRIDE');
   }
 
-  torrentContextMenu(params: GetContextMenuItemsParams<Torrent>): Array<string | MenuItemDef> {
-    const torrent = params.node!.data as Torrent;
+  // Displays the current torrent count and size
+  showNodeMoreInfos(count: number = 0, size: number = 0) {
+    let result = '';
+    if (count > 0) {
+      result = ` <span class='nav-torrents-number'>(${count})</span>`;
+    }
+    if (size > 0) {
+      result += `<span class='nav-total-size'>[${formatSize(size)}]</span>`;
+    }
+
+    return result;
+  }
+
+  torrentContextMenu(
+    params: GetContextMenuItemsParams<ProcessedTorrent>,
+  ): Array<string | MenuItemDef> {
+    const torrent = params.node!.data as ProcessedTorrent;
 
     const selected = this.control.grid.api?.getSelectedRows() ?? [];
     if (!selected.length) {
@@ -569,7 +607,6 @@ export class SystemBase {
 
     if (torrent.status === TorrentStatus.stopped) {
       statusMenu.push({
-        // TODO
         name: this.lang.toolbar.tip.start,
         action: () => {
           const ids = selected.map((t) => t.hashString);
@@ -580,7 +617,7 @@ export class SystemBase {
                 ids,
               },
             })
-            .then(() => this.reloadTorrentBaseInfos(ids));
+            .then(() => events.emit('userChangeTorrent', ids));
         },
       });
     } else if (
@@ -602,7 +639,7 @@ export class SystemBase {
                 ids,
               },
             })
-            .then(() => this.reloadTorrentBaseInfos(ids));
+            .then(() => events.emit('userChangeTorrent', ids));
         },
       });
     }
@@ -613,6 +650,7 @@ export class SystemBase {
       {
         name: this.lang.toolbar.tip.rename,
         action: () => {
+          const ids = selected.map((x) => x.id);
           system.openDialogFromTemplate({
             id: 'dialog-torrent-rename',
             options: {
@@ -624,12 +662,16 @@ export class SystemBase {
             datas: {
               id: torrent.id,
             },
+            onClose: () => {
+              events.emit('userChangeTorrent', ids);
+            },
           });
         },
       },
       {
         name: this.lang.toolbar.tip.remove,
         action: () => {
+          const ids = selected.map((x) => x.id);
           system.openDialogFromTemplate({
             id: 'dialog-torrent-remove-confirm',
             options: {
@@ -638,7 +680,10 @@ export class SystemBase {
               height: 150,
             },
             datas: {
-              ids: selected.map((x) => x.id),
+              ids,
+            },
+            onClose: () => {
+              events.emit('userChangeTorrent', ids);
             },
           });
         },
@@ -654,7 +699,7 @@ export class SystemBase {
                 ids,
               },
             })
-            .then(() => this.reloadTorrentBaseInfos(ids));
+            .then(() => events.emit('userChangeTorrent', ids));
         },
       },
       'separator',
@@ -669,12 +714,14 @@ export class SystemBase {
                 ids,
               },
             })
-            .then(() => this.reloadTorrentBaseInfos(ids));
+            .then(() => events.emit('userChangeTorrent', ids));
         },
       },
-      {
-        name: this.lang.toolbar.tip['change-download-dir'],
-      },
+      // TODO
+      // {
+      //   name: this.lang.toolbar.tip['change-download-dir'],
+      // },
+      'separator',
       {
         name: this.lang.toolbar.tip['copy-path-to-clipboard'],
         action: () => {
@@ -695,7 +742,6 @@ export class SystemBase {
       // {
       //   name: this.lang.menus.queue['move-bottom'],
       // },
-      'separator',
       {
         name: this.lang.menus.copyMagnetLink,
         action: () => {
@@ -707,58 +753,350 @@ export class SystemBase {
     ];
   }
 
-  // Gets the progress bar for the specified torrent
-  getTorrentProgressBar(progress: number, torrent: Torrent): string {
-    let className = '';
-    let status = 0;
-    if (typeof torrent === 'object') {
-      status = torrent.status;
+  allTorrents: Map<number, ProcessedTorrent> = new Map<number, ProcessedTorrent>();
+
+  torrentStatusTree: Record<TorrentStatus, number[]> = {
+    '0': [],
+    '1': [],
+    '2': [],
+    '3': [],
+    '4': [],
+    '5': [],
+    '6': [],
+  };
+
+  torrentStatusExtra = {
+    warning: [] as number[],
+    error: [] as number[],
+    active: [] as number[],
+  };
+
+  trackersTree: Record<
+    string,
+    {
+      connected?: boolean;
+      pt: boolean;
+      size: number;
+      torrents: number[];
+    }
+  > = {};
+
+  fsTreeNodes = {} as Record<
+    string,
+    {
+      path: string;
+      count: number;
+      torrents: ProcessedTorrent[];
+      size: number;
+      nodeid: string;
+    }
+  >;
+
+  buildTreeNodesData() {
+    Object.keys(this.torrentStatusTree).forEach((key) => {
+      // @ts-expect-error
+      this.torrentStatusTree[key] = [];
+    });
+
+    this.torrentStatusExtra = {
+      warning: [],
+      error: [],
+      active: [],
+    };
+
+    this.trackersTree = {};
+
+    this.fsTreeNodes = {};
+
+    this.allTorrents.forEach((value, key) => {
+      if (value.isPrivate) {
+        const warningTracker = value.trackerStats.find(
+          (s) => s.announceState === transmission._trackerStatus.inactive,
+        );
+        if (warningTracker) {
+          this.torrentStatusExtra.warning.push(key);
+        }
+      }
+      if (value.error) {
+        this.torrentStatusExtra.error.push(key);
+      }
+      if (value.rateUpload + value.rateDownload !== 0) {
+        this.torrentStatusExtra.active.push(key);
+      }
+      this.torrentStatusTree[value.status].push(key);
+      value.trackerStats.forEach((tracker) => {
+        const tree = (this.trackersTree[tracker.sitename ?? tracker.host] ??= {
+          pt: value.isPrivate,
+          size: 0,
+          torrents: [],
+        });
+        tree.torrents.push(key);
+        tree.size += value.totalSize;
+      });
+
+      const folder = value.downloadDir.replaceAll(/\\/g, '/').replaceAll(/\/*$/g, '').split('/');
+      let folderkey = 'folders';
+      const component = [];
+      for (const text of folder) {
+        component.push(text);
+        const key = Base64.encode(text);
+        // 去除特殊字符
+        folderkey += key.replace(/[+|\/|=]/g, '0') + '-';
+        const thisKey = folderkey.slice(0, -1);
+        let node = this.fsTreeNodes[thisKey];
+        if (!node) {
+          node = {
+            count: 0,
+            torrents: [],
+            size: 0,
+            path: component.join('/'),
+            nodeid: thisKey,
+          };
+        }
+        node.torrents.push(value);
+        node.count++;
+        node.size += value.totalSize;
+        this.fsTreeNodes[thisKey] = node;
+      }
+    });
+  }
+
+  async onTorrentDataChange() {
+    console.log('onTorrentDataChange');
+    this.buildTreeNodesData();
+    this.refreshDataGrid();
+  }
+
+  torrentFilter = (t?: ProcessedTorrent): boolean => true;
+
+  refreshDataGrid() {
+    this.control.grid.api?.setRowData(
+      Array.from(this.allTorrents.values()).filter(this.torrentFilter),
+    );
+  }
+
+  async fetchFull() {
+    const { torrents } = await transmission.fetchALl();
+    torrents.forEach((item) => {
+      this.allTorrents.set(item.id, item);
+    });
+  }
+
+  async fetchDelta() {
+    const { removed, torrents } = await transmission.fetchDelta();
+    torrents.forEach((item) => {
+      this.allTorrents.set(item.id, item);
+    });
+
+    removed.forEach((id) => {
+      this.allTorrents.delete(id);
+    });
+  }
+
+  async fetchData(forceAll?: boolean) {
+    if (forceAll === undefined) {
+      if (this.config.reloadStep >= 50 * 1000) {
+        await this.fetchFull();
+      } else {
+        await this.fetchDelta();
+      }
+    } else if (forceAll) {
+      await this.fetchFull();
     } else {
-      status = torrent;
+      await this.fetchDelta();
     }
 
-    switch (status) {
-      case transmission._status.stopped:
-        className = 'torrent-progress-stop';
-        break;
+    await this.onTorrentDataChange();
 
-      case transmission._status.checkwait:
-      case transmission._status.check:
-        className = 'torrent-progress-check';
-        break;
+    this.updateTreeNodesUI();
+  }
 
-      case transmission._status.downloadwait:
-      case transmission._status.download:
-        className = 'torrent-progress-download';
-        break;
+  async init2() {
+    await transmission.init();
 
-      case transmission._status.seedwait:
-      case transmission._status.seed:
-        className = 'torrent-progress-seed';
-        break;
+    const { torrents } = await transmission.fetchALl();
+    this.allTorrents = new Map(torrents.map((x) => [x.id, x]));
+
+    if (!this.config.autoReload) {
+      return;
     }
-    if (typeof torrent === 'object') {
-      if (torrent.warning) {
-        className = 'torrent-progress-warning';
+
+    const timer = () => {
+      console.log('timer');
+      this.fetchData().finally(() => {
+        this.autoReloadTimer = setTimeout(timer, this.config.reloadStep);
+      });
+    };
+
+    console.log(`start timer ${this.config.reloadStep}`);
+    this.autoReloadTimer = setTimeout(timer, this.config.reloadStep);
+    void this.fetchData(true).then(() => {
+      this.initUIStatus();
+    });
+  }
+
+  initEvent2() {
+    console.log('init event 2');
+    events.on('userChangeTorrent', (ids) => {
+      console.debug(`user change torrent setting, reload from server ${ids}`);
+      void this.fetchData(false);
+    });
+    void this.init2();
+  }
+
+  // connect to the server
+  async connect() {
+    this.showStatus(this.lang.system.status.connect, 0);
+    // When submitting an error
+    transmission.event.on('error', (e) => {
+      console.error(`transmission error ${e}`);
+      system.reloadTorrentBaseInfos();
+    });
+    // Initialize the connection
+    // @ts-expect-error
+    system.reloadSession();
+    // @ts-expect-error
+    system.getServerStatus();
+
+    this.showStatus(this.lang.system.status.connected);
+  }
+
+  // Displays status information
+  showStatus(msg: string, outTime: number = 3000) {
+    // @ts-expect-error
+    if ($('#m_status').panel('options').collapsed) {
+      // @ts-expect-error
+      $('#layout_left').layout('expand', 'south');
+    }
+    this.panel.status_text.show();
+    if (msg) {
+      this.panel.status_text.html(msg);
+    }
+    if (outTime == 0) {
+      return;
+    }
+    this.panel.status_text.fadeOut(outTime, function () {
+      // @ts-expect-error
+      $('#layout_left').layout('collapse', 'south');
+    });
+  }
+
+  /**
+   * @deprecated
+   */
+  getTorrentProgressBar(progress: number, torrent: ProcessedTorrent) {
+    return getTorrentProgressBar(progress, torrent);
+  }
+
+  /**
+   * 重置导航栏数据目录信息
+   */
+
+  rebuildNavFolders() {
+    // @ts-expect-error
+    this.removeTreeNode('folders-loading');
+
+    for (const [nodeID, node] of Object.entries(this.fsTreeNodes)) {
+      if (!node.path) {
+        continue;
       }
-      if (torrent.error != 0) {
-        className = 'torrent-progress-error';
+
+      // @ts-expect-error
+      const previous = this.panel.left.tree('find', nodeID);
+      if (previous) {
+        // @ts-expect-error
+        this.panel.left.tree('update', {
+          target: previous.target,
+          data: {
+            ...previous,
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+            text: previous.path + this.showNodeMoreInfos(node.count, node.size),
+            iconCls: 'iconfont tr-icon-file',
+          },
+        });
+      } else {
+        const keys = nodeID.split('-');
+        const parentKey = keys.slice(0, -1).join('-');
+        // @ts-expect-error
+        const parent = this.panel.left.tree('find', parentKey);
+        if (parent) {
+          const lengthTrim: number = parent.fullPath?.length ?? 0;
+          // @ts-expect-error
+          this.panel.left.tree('append', {
+            parent: parent.target,
+            data: {
+              id: nodeID,
+              // state: 'closed',
+              path: node.path.slice(lengthTrim + 1),
+              fullPath: node.path,
+              downDir: node.path.slice(lengthTrim + 1),
+              text: node.path.slice(lengthTrim + 1) + this.showNodeMoreInfos(node.count, node.size),
+              iconCls: 'iconfont tr-icon-file',
+            },
+          });
+        }
       }
     }
-    if (status == transmission._status.check) {
-      // 目前只有status==_status.download时 torrent 不是对象
-      // 检查进度条长度保持在已完成的范围内
-      const percentCheckText = (torrent.recheckProgress * 100).toFixed(2);
-      const percentCheckView = (progress * torrent.recheckProgress).toFixed(2);
-      return `<div class="torrent-progress" title="${progress}%">
+  }
+
+  private initUIStatus() {
+    throw new Error('BUG: NEED OVERRIDE');
+  }
+}
+
+// Gets the progress bar for the specified torrent
+export function getTorrentProgressBar(progress: number, torrent: ProcessedTorrent): string {
+  let className = '';
+  let status = 0;
+  if (typeof torrent === 'object') {
+    status = torrent.status;
+  } else {
+    status = torrent;
+  }
+
+  switch (status) {
+    case transmission._status.stopped:
+      className = 'torrent-progress-stop';
+      break;
+
+    case transmission._status.checkwait:
+    case transmission._status.check:
+      className = 'torrent-progress-check';
+      break;
+
+    case transmission._status.downloadwait:
+    case transmission._status.download:
+      className = 'torrent-progress-download';
+      break;
+
+    case transmission._status.seedwait:
+    case transmission._status.seed:
+      className = 'torrent-progress-seed';
+      break;
+  }
+  if (typeof torrent === 'object') {
+    if (torrent.warning) {
+      className = 'torrent-progress-warning';
+    }
+    if (torrent.error != 0) {
+      className = 'torrent-progress-error';
+    }
+  }
+
+  if (status == TorrentStatus.check) {
+    // 目前只有status==_status.download时 torrent 不是对象
+    // 检查进度条长度保持在已完成的范围内
+    const percentCheckText = (torrent.recheckProgress * 100).toFixed(2);
+    const percentCheckView = (progress * torrent.recheckProgress).toFixed(2);
+    return `<div class="torrent-progress" title="${progress}%">
           <div class="torrent-progress-text" style="z-index:2;">${percentCheckText}%</div>
           <div class="torrent-progress-bar torrent-progress-seed" style="width:${percentCheckView}%;z-index:1;opacity:0.7;"></div>
           <div class="torrent-progress-bar ${className}" style="width:${progress}%;"></div>
         </div>`;
-    }
-    return `<div class="torrent-progress" title="${progress}%">
+  }
+
+  return `<div class="torrent-progress" title="${progress}%">
          <div class="torrent-progress-text">${progress}%</div>
          <div class="torrent-progress-bar ${className}" style="width:${progress}%;"></div>
        </div>`;
-  }
 }
