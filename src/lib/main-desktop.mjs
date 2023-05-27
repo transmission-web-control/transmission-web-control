@@ -7,6 +7,7 @@ import { events } from './events';
 import { getGrayLevel, getHoursFromMinutes } from './formatter';
 import { loadFileContent } from './loadFileContent.mjs';
 import { saveFileAs } from './saveFileAs.mjs';
+import { enableShortcut } from './shortcuts';
 import { System } from './system.js';
 import { transmission } from './transmission';
 import { formatSize, getMinutesFromHours, getQueryString, getUserLang } from './utils';
@@ -51,7 +52,8 @@ globalThis.getGrayLevel = getGrayLevel;
 
 $(document).ready(function () {
   // Loads a list of available languages
-  system.init(getUserLang(), getQueryString('local'));
+  system.init(getUserLang());
+  enableShortcut();
 });
 
 onunhandledrejection = (event) => {
