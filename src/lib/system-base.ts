@@ -439,7 +439,7 @@ export class SystemBase {
         .filter((o) => o.field.toString() !== 'ck')
         .sort((a, b) => fieldOrder.indexOf(a.field) - fieldOrder.indexOf(b.field))
         .map((o) => {
-          const formatter: undefined | ((value: any) => string) = this.getFieldFormat(
+          let formatter: undefined | ((value: any) => string) = this.getFieldFormat(
             o.formatter_type,
           );
           let valueGetter: undefined | ((params: { data: ProcessedTorrent; value: number }) => any);
@@ -469,11 +469,16 @@ export class SystemBase {
               }
               return status;
             };
-          }
-
-          if (o.field === 'completeSize') {
+          } else if (o.field === 'completeSize') {
             valueGetter = (params) => {
               return params.data.totalSize - params.data.leftUntilDone;
+            };
+          } else if (o.field === 'trackers') {
+            valueGetter = (params) => {
+              return params.data.trackerStats;
+            };
+            formatter = (value: ProcessedTorrent['trackerStats']) => {
+              return value.map((t) => t.host).join(';');
             };
           }
 
@@ -483,7 +488,9 @@ export class SystemBase {
             field: o.field,
             valueGetter: valueGetter as unknown as ValueGetterFunc<ProcessedTorrent>,
             width: o.width,
-            valueFormatter: formatter ? ({ value }: { value: any }) => formatter(value) : undefined,
+            valueFormatter: formatter
+              ? ({ value }: { value: any }) => formatter!(value)
+              : undefined,
             initialWidth: o.width,
           };
         }),
