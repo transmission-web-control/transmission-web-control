@@ -599,6 +599,11 @@ export class SystemBase {
     const torrent = params.node!.data as ProcessedTorrent;
 
     const selected = this.control.grid.api?.getSelectedRows() ?? [];
+    if (!selected.some((t) => t.id === torrent.id)) {
+      this.control.grid.api!.deselectAll();
+      params.node!.setSelected(true);
+    }
+
     if (!selected.length) {
       selected.push(torrent);
     }

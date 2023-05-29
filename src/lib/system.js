@@ -1266,9 +1266,10 @@ export class System extends SystemBase {
   rebuildNavServers() {
     // 获取服务器分布主节点
     let serversNode = this.panel.left.tree('find', 'servers');
+    let serversNode_collapsed;
 
     if (serversNode) {
-      var serversNode_collapsed = serversNode.state;
+      serversNode_collapsed = serversNode.state;
       this.removeTreeNode('servers-loading');
     } else {
       this.appendTreeNode(null, [
