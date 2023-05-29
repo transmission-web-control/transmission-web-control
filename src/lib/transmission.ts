@@ -2,7 +2,7 @@ import { EventEmitter } from 'eventemitter3';
 import * as lo from 'lodash-es';
 import PQueue from 'p-queue';
 
-import { getHostName, normalizePath } from './utils';
+import { normalizePath } from './utils';
 
 const queue = new PQueue({ concurrency: 1, autoStart: true });
 
@@ -350,95 +350,6 @@ export const transmission = {
   torrents: {
     activeTorrentCount: 0,
     actively: null as null | ProcessedTorrent[],
-    addTracker(item: ProcessedTorrent) {
-      var trackerStats = item.trackerStats;
-      var trackers: string[] = [];
-
-      item.leecherCount = 0;
-      item.seederCount = 0;
-
-      if (trackerStats.length > 0) {
-        const warnings: string[] = [];
-        for (const trackerInfo of trackerStats) {
-          const lastResult = trackerInfo.lastAnnounceResult.toLowerCase();
-          const hostName = getHostName(trackerInfo.host);
-          const trackerUrl = hostName.split('.');
-          if (['www', 'tracker', 'announce'].includes(trackerUrl[0] as string)) {
-            trackerUrl.shift();
-          }
-
-          const name = trackerUrl.join('.');
-          const id = 'tracker-' + name.replace(/\./g, '-');
-          let tracker = transmission.trackers[id];
-          if (!tracker) {
-            // @ts-expect-error
-            tracker = {
-              count: 0,
-              torrents: [],
-              size: 0,
-              connected: true,
-              isBT: trackerStats.length > 5,
-              name,
-              nodeid: id,
-              host: trackerInfo.host,
-            } as Tracker;
-            transmission.trackers[id] = tracker;
-          }
-
-          tracker.name = name;
-          tracker.nodeid = id;
-          tracker.host = trackerInfo.host;
-
-          // 判断当前tracker状态
-          if (
-            !trackerInfo.lastAnnounceSucceeded &&
-            trackerInfo.announceState != transmission._trackerStatus.inactive
-          ) {
-            warnings.push(trackerInfo.lastAnnounceResult);
-
-            if (lastResult == 'could not connect to tracker') {
-              tracker.connected = false;
-            }
-          }
-
-          if (!tracker.torrents.includes(item)) {
-            tracker.torrents.push(item);
-            tracker.count++;
-            tracker.size += item.totalSize;
-          }
-
-          item.leecherCount += trackerInfo.leecherCount;
-          item.seederCount += trackerInfo.seederCount;
-          if (!trackers.includes(name)) {
-            trackers.push(name);
-          }
-        }
-
-        if (!item.isPrivate) {
-          this.btItems.push(item);
-        }
-
-        // private tracker, show any warning
-        if (item.isPrivate) {
-          if (warnings.length) {
-            this.warning?.push(item);
-          }
-        } else if (warnings.length == trackerStats.length) {
-          this.warning?.push(item);
-        }
-
-        if (item.leecherCount < 0) {
-          item.leecherCount = 0;
-        }
-        if (item.seederCount < 0) {
-          item.seederCount = 0;
-        }
-
-        item.leecher = `${item.leecherCount} (${item.peersGettingFromUs})`;
-        item.seeder = `${item.seederCount} (${item.peersSendingToUs})`;
-        // item.trackers = trackers.join(';');
-      }
-    },
 
     all: {} as Record<string, ProcessedTorrent>,
     btItems: [] as ProcessedTorrent[],
@@ -768,6 +679,12 @@ function processTorrent(t: Torrent): ProcessedTorrent {
 
   return {
     ...t,
+    seederCount: `${t.trackerStats.reduce((pre, cur) => pre + cur.seederCount, 0)} | ${
+      t.peersSendingToUs
+    }`,
+    leecherCount: `${t.trackerStats.reduce((pre, cur) => pre + cur.leecherCount, 0)} | ${
+      t.peersGettingFromUs
+    }`,
     warning,
     normalizedPath: normalizePath(t.downloadDir),
   };
@@ -806,8 +723,6 @@ export interface Torrent {
   peersSendingToUs: string;
   leecher: string;
   seeder: string;
-  seederCount: number;
-  leecherCount: number;
   id: number;
   name: string;
   status: TorrentStatus;
@@ -853,8 +768,8 @@ export interface ProcessedTorrent {
   peersSendingToUs: string;
   leecher: string;
   seeder: string;
-  seederCount: number;
-  leecherCount: number;
+  seederCount: string;
+  leecherCount: string;
   id: number;
   name: string;
   status: TorrentStatus;
@@ -892,7 +807,9 @@ export type Transmission = typeof transmission;
 
 transmission.event.on('error', (err: unknown) => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  console.error(`transmission error: ${err}`);
+  console.error(`transmission error
+: ${err}
+  `);
 });
 
 export enum TorrentStatus {
