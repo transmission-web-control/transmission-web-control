@@ -1780,6 +1780,7 @@ export class System extends SystemBase {
   }
 
   // Get the torrent details
+  // TODO replace with modern UI
   async getTorrentInfos(id) {
     if (!this.allTorrents.has(id)) {
       return;
@@ -1834,8 +1835,6 @@ export class System extends SystemBase {
         this.fillTorrentServerList(torrent);
         this.fillTorrentPeersList(torrent);
         this.fillTorrentConfig(torrent);
-        transmission.torrents.all[id] = torrent;
-        transmission.torrents.datas[id] = torrent;
       })
       .finally(() => {
         this.loadingTorrent.delete(id);
@@ -1966,21 +1965,26 @@ export class System extends SystemBase {
           '</span>',
       });
     }
+
+    this.updateCurrentPageDatas(
+      'index',
+      datas,
+      system.panel.attribute.find('#torrent-files-table'),
+    );
   }
 
   // Fill in the torrent server list
   fillTorrentServerList(torrent) {
     const trackerStats = torrent.trackerStats;
     const datas = [];
-    for (const index in trackerStats) {
-      const stats = trackerStats[index];
+    for (const stats of trackerStats) {
       const rowdata = {};
       for (const key in stats) {
         switch (key) {
           case 'downloadCount':
           case 'leecherCount':
           case 'seederCount':
-            rowdata[key] = stats[key] == -1 ? system.lang.public['text-unknown'] : stats[key];
+            rowdata[key] = stats[key] === -1 ? system.lang.public['text-unknown'] : stats[key];
             break;
 
           // state
@@ -2009,7 +2013,8 @@ export class System extends SystemBase {
       datas.push(rowdata);
     }
     // Replace the tracker information
-    transmission.torrents.addTracker(torrent);
+    // transmission.torrents.addTracker(torrent);
+    this.updateCurrentPageDatas('id', datas, this.panel.attribute.find('#torrent-servers-table'));
   }
 
   // Fill the torrent user list
@@ -2099,26 +2104,33 @@ export class System extends SystemBase {
       rowdata.progress = getTorrentProgressBar(percentDone, transmission._status.download);
       datas.push(rowdata);
     }
+
+    this.updateCurrentPageDatas(
+      'address',
+      datas,
+      system.panel.attribute.find('#torrent-peers-table'),
+    );
   }
 
   // Fill torrent parameters
-  fillTorrentConfig(torrent) {
+  fillTorrentConfig(t) {
     if (
       system.panel.attribute.find('#torrent-attribute-tabs').data('selectedIndex')?.toString() !==
       '4'
     ) {
       return;
     }
-    transmission.torrents.getConfig(torrent.id, function (result) {
+    transmission.torrents.getConfig(t.id, function (result) {
       if (result == null) {
         return;
       }
 
-      const torrent = lo.merge(transmission.torrents.all[system.currentTorrentId], result[0]);
+      const torrent = lo.merge(t, result[0]);
       // Merge the currently returned value to the current torrent
       if (system.currentTorrentId === 0) {
         return;
       }
+
       $.each(torrent, function (key, value) {
         let indeterminate = false;
         let checked = false;
@@ -2158,9 +2170,75 @@ export class System extends SystemBase {
     });
   }
 
+  // Updates the specified current page count
+  updateCurrentPageDatas(keyField, datas, sourceTable) {
+    // Get the current page data
+    const rows = sourceTable.datagrid('getRows');
+    const _options = sourceTable.datagrid('options');
+    let orderField = null;
+    if (_options.sortName) {
+      orderField = _options.sortName;
+      datas = datas.sort(arrayObjectSort(orderField, _options.sortOrder));
+    }
+
+    const isFileTable = sourceTable.selector.indexOf('#torrent-files-table') != -1;
+    const tableData = sourceTable.datagrid('getData');
+    const isFileFilterMode =
+      isFileTable && !!tableData.filterString && tableData.torrentId == system.currentTorrentId;
+    if (isFileFilterMode) {
+      datas = fileFilter(datas, tableData.filterString);
+    }
+
+    if (isFileFilterMode == false && (rows.length == 0 || datas.length != tableData.total)) {
+      sourceTable
+        .datagrid({
+          loadFilter: pagerFilter,
+          pageNumber: 1,
+          sortName: orderField,
+          sortOrder: _options.sortOrder,
+        })
+        .datagrid('loadData', datas);
+      return;
+    }
+
+    // Setting data
+    sourceTable.datagrid('getData').originalRows = datas;
+    const start = (_options.pageNumber - 1) * parseInt(_options.pageSize);
+    const end = start + parseInt(_options.pageSize);
+    datas = datas.slice(start, end);
+
+    const newDatas = {};
+    // Initializes the data under the current type
+    for (var index in datas) {
+      var item = datas[index];
+      newDatas[item[keyField]] = item;
+      item = null;
+    }
+
+    // Update the changed data
+    for (var index = rows.length - 1; index >= 0; index--) {
+      var item = rows[index];
+
+      let data = newDatas[item[keyField]];
+
+      if (data) {
+        sourceTable.datagrid('updateRow', {
+          index,
+          row: data,
+        });
+      } else {
+        sourceTable.datagrid('deleteRow', index);
+      }
+      data = null;
+
+      item = null;
+    }
+  }
+
   // Set the field display format
   setFieldFormat(field) {
     if (!field.formatter_type) {
+      field.formatter = (v) => v?.toString();
       return;
     }
 

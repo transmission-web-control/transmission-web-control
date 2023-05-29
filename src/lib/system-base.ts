@@ -178,7 +178,7 @@ export class SystemBase {
 
     // @ts-expect-error
     this.initData();
-    this.initEvent2();
+    void this.init2();
   }
 
   // Load the parameters from cookies
@@ -862,12 +862,11 @@ export class SystemBase {
   }
 
   async onTorrentDataChange() {
-    console.log('onTorrentDataChange');
     this.buildTreeNodesData();
     this.refreshDataGrid();
   }
 
-  torrentFilter = (t?: ProcessedTorrent): boolean => true;
+  torrentFilter: (t?: ProcessedTorrent) => boolean = () => true;
 
   refreshDataGrid() {
     this.control.grid.api?.setRowData(
@@ -912,10 +911,16 @@ export class SystemBase {
   }
 
   async init2() {
+    console.log('init event 2');
+    events.on('userChangeTorrent', (ids) => {
+      console.debug(`user change torrent setting, reload from server ${ids}`);
+      void this.fetchData(false);
+    });
+
     await transmission.init();
 
-    const { torrents } = await transmission.fetchALl();
-    this.allTorrents = new Map(torrents.map((x) => [x.id, x]));
+    await this.fetchData(true);
+    this.initUIStatus();
 
     if (!this.config.autoReload) {
       return;
@@ -930,18 +935,6 @@ export class SystemBase {
 
     console.log(`start timer ${this.config.reloadStep}`);
     this.autoReloadTimer = setTimeout(timer, this.config.reloadStep);
-    void this.fetchData(true).then(() => {
-      this.initUIStatus();
-    });
-  }
-
-  initEvent2() {
-    console.log('init event 2');
-    events.on('userChangeTorrent', (ids) => {
-      console.debug(`user change torrent setting, reload from server ${ids}`);
-      void this.fetchData(false);
-    });
-    void this.init2();
   }
 
   // connect to the server
@@ -1039,7 +1032,7 @@ export class SystemBase {
     }
   }
 
-  private initUIStatus() {
+  initUIStatus() {
     throw new Error('BUG: NEED OVERRIDE');
   }
 }
