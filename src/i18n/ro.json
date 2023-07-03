@@ -231,7 +231,7 @@
       "uploadedEver": "Total încărcat",
       "uploadRatio": "Rația"
     },
-    "status-text": {
+    "statusText": {
       "0": "Pauză",
       "1": "Așteaptă pentru verificare",
       "2": "Verificare",

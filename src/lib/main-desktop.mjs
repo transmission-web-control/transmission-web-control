@@ -2,11 +2,12 @@ import '../style/iconfont/iconfont.css';
 
 import ClipboardJS from 'clipboard';
 import * as lo from 'lodash-es';
-import { UAParser } from 'ua-parser-js';
 
+import { events } from './events';
 import { getGrayLevel, getHoursFromMinutes } from './formatter';
 import { loadFileContent } from './loadFileContent.mjs';
 import { saveFileAs } from './saveFileAs.mjs';
+import { enableShortcut } from './shortcuts';
 import { System } from './system.js';
 import { transmission } from './transmission';
 import { formatSize, getMinutesFromHours, getQueryString, getUserLang } from './utils';
@@ -14,6 +15,7 @@ import { formatSize, getMinutesFromHours, getQueryString, getUserLang } from './
 const system = new System();
 
 // used in templates
+globalThis.events = events;
 globalThis.uniq = lo.uniq;
 globalThis.transmission = transmission;
 globalThis.system = system;
@@ -50,15 +52,9 @@ globalThis.getGrayLevel = getGrayLevel;
 
 $(document).ready(function () {
   // Loads a list of available languages
-  system.init(getUserLang(), getQueryString('local'));
+  system.init(getUserLang());
+  enableShortcut();
 });
-
-const { device } = UAParser(navigator.userAgent);
-
-const nonpc = ['console', 'mobile', 'tablet', 'smarttv', 'wearable', 'embedded'];
-if (nonpc.includes(device.type) && getQueryString('devicetype') !== 'computer') {
-  location.href = 'index.mobile.html';
-}
 
 onunhandledrejection = (event) => {
   console.error(`onunhandledrejection ${event}`);

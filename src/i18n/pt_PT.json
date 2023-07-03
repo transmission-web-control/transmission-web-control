@@ -267,7 +267,7 @@
       "uploadedEver": "Total enviado",
       "uploadRatio": "Proporção"
     },
-    "status-text": {
+    "statusText": {
       "0": "Pausado",
       "1": "Aguardando verificação",
       "2": "Comprovando",

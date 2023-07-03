@@ -1,0 +1,4 @@
+.ag-theme-alpine {
+  --ag-row-border-width: 1px;
+  --ag-cell-horizontal-padding: 5px;
+}

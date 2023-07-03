@@ -275,7 +275,7 @@
       "uploadRatio": "Arány",
       "queuePosition": "Sor"
     },
-    "status-text": {
+    "statusText": {
       "0": "Szünetel",
       "1": "Ellenőrzésre vár",
       "2": "Ellenőrzés",

@@ -1439,7 +1439,7 @@
           }
 
           system.saveConfig();
-          system.control.torrentlist.refresh();
+          system.control.torrentList.refresh();
           system.resetNavLabels(true);
           page.editIndex = undefined;
         });
@@ -1474,7 +1474,7 @@
                 system.config.labelMaps = item.maps;
                 system.saveConfig();
                 reloadData();
-                system.control.torrentlist.refresh();
+                system.control.torrentList.refresh();
                 system.resetNavLabels(true);
               }
             }
@@ -1557,7 +1557,7 @@
                     }
                     system.config.labels[index] = row;
                     system.saveConfig();
-                    system.control.torrentlist.refresh();
+                    system.control.torrentList.refresh();
                     system.resetNavLabels(true);
                   }
                 },

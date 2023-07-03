@@ -300,7 +300,7 @@
       "activityDate": "Date d'activité",
       "labels": "Etiquettes"
     },
-    "status-text": {
+    "statusText": {
       "0": "En pause",
       "1": "En attente de vérification",
       "2": "Vérification",
