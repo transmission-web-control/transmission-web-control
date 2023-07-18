@@ -255,7 +255,7 @@ export const transmission = {
     this.event.emit('torrentCountChange');
   },
   // 删除种子
-  removeTorrent(ids: string[], removeData: boolean, callback?: (data: any) => void) {
+  removeTorrent(ids: number[], removeData: boolean, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'torrent-remove',
@@ -265,6 +265,12 @@ export const transmission = {
         },
       },
       function (data) {
+        if (transmission.torrents.datas) {
+          for (const id of ids) {
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+            delete transmission.torrents.datas[id];
+          }
+        }
         if (callback != null) {
           callback(data.result);
         }
@@ -440,7 +446,7 @@ export const transmission = {
     all: {} as Record<string, Torrent>,
     btItems: [] as Torrent[],
     count: 0,
-    datas: {} as Record<string, Torrent> | null,
+    datas: {} as Record<number, Torrent> | null,
     downloading: null as Torrent[] | null,
     error: null as Torrent[] | null,
     fields: {
@@ -870,18 +876,15 @@ export const transmission = {
       }
 
       // Torrents are classified
-      for (var index in this.datas) {
-        var item = this.datas?.[index];
-        if (!item) {
-          return;
-        }
-        if ($.inArray(item.id, removed) != -1 && removed.length > 0) {
+      for (let [index, item] of Object.entries(this.datas!)) {
+        if (removed.includes(item.id)) {
           if (this.all[item.id]) {
             // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
             delete this.all[item.id];
           }
+          // @ts-expect-error
           // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-          delete this.datas[index];
+          delete this.datas![index];
 
           continue;
         }
