@@ -10,26 +10,22 @@ echo_err() {
   echo "$@" 1>&2
 }
 
-# 获取Tr所在的目录
-# 指定一次当前系统的默认目录
-# 用户如知道自己的 Transmission Web 所在的目录，直接修改这个值，以避免搜索所有目录
-# ROOT_FOLDER="/usr/local/transmission/share/transmission"
-# Fedora 或 Debian 发行版的默认 ROOT_FOLDER 目录
-getTransmissionPath() {
+# Get Target Install directory
+getTransmissionWebPath() {
   if [ ! -d "$ROOT_FOLDER" ]; then
     if [ -f "/etc/fedora-release" ] || [ -f "/etc/debian_version" ] || [ -f "/etc/openwrt_release" ]; then
-      echo "/usr/share/transmission"
+      echo "/usr/share/transmission/web"
       return
     fi
 
     if [ -f "/bin/freebsd-version" ]; then
-      echo "/usr/local/share/transmission"
+      echo "/usr/local/share/transmission/web"
       return
     fi
 
     # 群晖
     if [ -f "/etc/synoinfo.conf" ]; then
-      echo "/var/packages/transmission/target/share/transmission"
+      echo "/var/packages/transmission/target/share/transmission/web"
       return
     fi
   fi
@@ -78,10 +74,10 @@ fi
 
 if [[ "$OUTPUT" == "" ]]; then
   if [[ "$TRANSMISSION_WEB_HOME" != "" ]]; then
-    echo "USE TRANSMISSION_WEB_HOME=${TRANSMISSION_WEB_HOME}"
+    echo "USE TRANSMISSION_WEB_HOME=${OUTPUT}"
     OUTPUT=TRANSMISSION_WEB_HOME
   else
-    OUTPUT=$(getTransmissionPath)
+    OUTPUT=$(getTransmissionWebPath)
   fi
 fi
 
