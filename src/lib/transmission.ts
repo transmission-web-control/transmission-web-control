@@ -270,7 +270,7 @@ export const transmission = {
     this.event.emit('torrentCountChange');
   },
   // 删除种子
-  removeTorrent(ids: string[], removeData: boolean, callback?: (data: any) => void) {
+  removeTorrent(ids: number[], removeData: boolean, callback?: (data: any) => void) {
     this.exec(
       {
         method: 'torrent-remove',
@@ -280,6 +280,12 @@ export const transmission = {
         },
       },
       function (data) {
+        if (transmission.torrents.datas) {
+          for (const id of ids) {
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+            delete transmission.torrents.datas[id];
+          }
+        }
         if (callback != null) {
           callback(data.result);
         }
@@ -354,7 +360,7 @@ export const transmission = {
     all: {} as Record<string, ProcessedTorrent>,
     btItems: [] as ProcessedTorrent[],
     count: 0,
-    datas: {} as Record<string, ProcessedTorrent> | null,
+    datas: {} as Record<number, ProcessedTorrent> | null,
     downloading: null as ProcessedTorrent[] | null,
     error: null as ProcessedTorrent[] | null,
     fields: {

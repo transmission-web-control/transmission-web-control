@@ -1,0 +1,68 @@
+{
+  "system": {
+    "status": {}
+  },
+  "error": {},
+  "config": {},
+  "toolbar": {
+    "tip": {}
+  },
+  "menus": {
+    "queue": {},
+    "plugin": {}
+  },
+  "title": {},
+  "tree": {
+    "status": {},
+    "statistics": {},
+    "toolbar": {
+      "nav": {}
+    }
+  },
+  "statusbar": {},
+  "dialog": {
+    "torrent-add": {},
+    "system-config": {
+      "tabs": {},
+      "encryption-type": {},
+      "weekday": {},
+      "labels-manage": {}
+    },
+    "public": {},
+    "about": {},
+    "torrent-remove": {},
+    "torrent-changeDownloadDir": {},
+    "torrent-changeSpeedLimit": {},
+    "system-replaceTracker": {},
+    "auto-match-data-folder": {
+      "work-mode": {}
+    },
+    "torrent-rename": {},
+    "torrent-attribute-add-tracker": {},
+    "torrent-setLabels": {},
+    "export-config": {},
+    "import-config": {}
+  },
+  "torrent": {
+    "fields": {},
+    "status-text": {},
+    "attribute": {
+      "tabs": {},
+      "files-fields": {},
+      "servers-fields": {
+        "announceStateText": {}
+      },
+      "peers-fields": {},
+      "status": {},
+      "priority": {},
+      "filter-template-text": {},
+      "label": {},
+      "tip": {},
+      "other": {}
+    }
+  },
+  "torrent-head": {
+    "buttons": {}
+  },
+  "public": {}
+}
