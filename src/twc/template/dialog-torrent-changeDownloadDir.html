@@ -162,7 +162,7 @@
               ids: torrent.id,
             },
           });
-          system.control.torrentlist.datagrid('uncheckAll');
+          system.control.grid.api.deselectAll();
           system.reloadTorrentBaseInfos();
         }
         thisDialog.dialog('close');
@@ -177,7 +177,7 @@
       var id = ids.shift();
       if (!id) {
         button.linkbutton({ iconCls: icon, disabled: false });
-        system.control.torrentlist.datagrid('uncheckAll');
+        system.control.grid.api.deselectAll();
 
         if (recheck) {
           await transmission.execAsync({
@@ -187,7 +187,7 @@
             },
           });
 
-          system.control.torrentlist.datagrid('uncheckAll');
+          system.control.grid.api.deselectAll();
           system.reloadTorrentBaseInfos();
         }
 

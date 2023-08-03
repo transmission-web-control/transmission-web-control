@@ -213,11 +213,10 @@
 </div>
 <script type="text/javascript">
   (function (thisLayout) {
-    var labels = system.lang.torrent.attribute.label;
+    const labels = system.lang.torrent.attribute.label;
     system.resetLangText(thisLayout);
-    var clipboard = new ClipboardJS('#torrent-attribute-config-button-copyPath');
 
-    $.each(labels, function (key, item) {
+    Object.entries(labels).forEach(function ([key, item]) {
       thisLayout.find('#torrent-attribute-label-' + key).html(item);
     });
 
@@ -273,19 +272,23 @@
         switch (index) {
           // 设置
           case 4:
-            if (system.currentTorrentId == 0) {
+            if (system.currentTorrentId === 0) {
               return;
             }
 
-            system.fillTorrentConfig(transmission.torrents.all[system.currentTorrentId]);
+            try {
+              system.fillTorrentConfig(transmission.torrents.all[system.currentTorrentId]);
+            } catch (e) {
+              console.log(e);
+            }
 
             break;
         }
       },
     });
 
-    var title = 'downloadLimited,seedIdleMode,seedRatioMode,uploadLimited'.split(',');
-    $.each(title, function (i, item) {
+    const title = ['downloadLimited', 'seedIdleMode', 'seedRatioMode', 'uploadLimited'];
+    title.forEach(function (item) {
       thisLayout.find('#' + item).click(function () {
         var checked = this.checked;
         var indeterminate = false;
@@ -309,7 +312,7 @@
             break;
         }
         $(this).prop('checked', checked).prop('indeterminate', indeterminate).data('_tag', tag);
-        thisLayout.find("input[enabledof='" + this.id + "']").prop('disabled', !checked);
+        thisLayout.find(`input[enabledof='${this.id}']`).prop('disabled', !checked);
       });
     });
 
@@ -411,7 +414,7 @@
     // 设置已选中的文件是否下载
     function changeSelectedFilesWanted(wanted, button) {
       var rows = filelist.datagrid('getChecked');
-      var files = new Array();
+      var files = [];
       var arguments = null;
 
       for (var i in rows) {
@@ -449,7 +452,7 @@
     // 设置已选中的文件优先级别
     function changeSelectedFilesPriority(priority) {
       var rows = filelist.datagrid('getChecked');
-      var files = new Array();
+      var files = [];
       var arguments = null;
 
       for (var i in rows) {
@@ -542,7 +545,9 @@
               var tracker = serverlist.datagrid('getSelected');
               if (tracker) {
                 if (
-                  confirm(system.lang.torrent.attribute['other']['tracker-remove-confim']) == false
+                  confirm(
+                    system.lang.torrent.attribute['other']['tracker-remove-confim'],
+                  ).toString() === 'false'
                 ) {
                   return;
                 }
@@ -574,6 +579,7 @@
         pager.pagination({
           buttons: buttons,
         });
+        serverlist.set;
       },
       'json',
     );
@@ -616,6 +622,14 @@
 
       system.openDialogFromTemplate({
         id: 'dialog-torrent-attribute-add-tracker',
+        options: {
+          title: system.lang.dialog['torrent-attribute-add-tracker'].title,
+          width: 520,
+          height: 240,
+          resizable: false,
+          cache: true,
+          modal: true,
+        },
         datas: {
           ids: system.currentTorrentId,
         },

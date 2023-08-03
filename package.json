@@ -1,6 +1,6 @@
 {
   "name": "transmission-web-control",
-  "version": "1.6.31",
+  "version": "1.6.31.alpha.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -22,11 +22,14 @@
   "license": "MIT",
   "packageManager": "pnpm@8.6.11",
   "dependencies": {
+    "ag-grid-community": "^29.3.5",
+    "ag-grid-enterprise": "^29.3.5",
     "clipboard": "^2.0.11",
     "eventemitter3": "^5.0.0",
     "file-saver": "^2.0.5",
     "js-base64": "^3.7.5",
     "lodash-es": "^4.17.21",
+    "p-queue": "^7.3.4",
     "semver": "^7.5.0",
     "ua-parser-js": "^1.0.35"
   },
@@ -36,6 +39,7 @@
     "@types/node": "^18.16.0",
     "@types/semver": "^7.3.13",
     "@types/ua-parser-js": "^0.7.36",
+    "@types/web": "^0.0.99",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vitest/coverage-c8": "^0.33.0",
@@ -53,6 +57,7 @@
     "node-stdlib-browser": "^1.2.0",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.0",
+    "rxjs": "^7.8.1",
     "typescript": "^5.0.4",
     "vite": "^4.3.1",
     "vite-plugin-node-polyfills": "^0.9.0",
