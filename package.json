@@ -41,7 +41,7 @@
     "@vitest/coverage-c8": "^0.33.0",
     "@vitest/ui": "^0.33.0",
     "eslint": "^8.39.0",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard-with-typescript": "^35.0.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^16.0.0",
