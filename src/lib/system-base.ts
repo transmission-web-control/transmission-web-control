@@ -741,19 +741,32 @@ export class SystemBase {
         },
       },
       // TODO:
-      // 'separator',
-      // {
-      //   name: this.lang.menus.queue['move-top'],
-      // },
-      // {
-      //   name: this.lang.menus.queue['move-up'],
-      // },
-      // {
-      //   name: this.lang.menus.queue['move-down'],
-      // },
-      // {
-      //   name: this.lang.menus.queue['move-bottom'],
-      // },
+      'separator',
+      {
+        name: this.lang.menus.queue['move-top'],
+        action: () => {
+          void transmission.queueTop(selected.map((x) => x.hashString));
+        },
+      },
+      {
+        name: this.lang.menus.queue['move-up'],
+        action: () => {
+          void transmission.queueIncrease(selected.map((x) => x.hashString));
+        },
+      },
+      {
+        name: this.lang.menus.queue['move-down'],
+        action: () => {
+          void transmission.queueDecrease(selected.map((x) => x.hashString));
+        },
+      },
+      {
+        name: this.lang.menus.queue['move-bottom'],
+        action: () => {
+          void transmission.queueBottom(selected.map((x) => x.hashString));
+        },
+      },
+      'separator',
       {
         name: this.lang.menus.copyMagnetLink,
         action: () => {

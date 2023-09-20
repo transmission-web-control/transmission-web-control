@@ -112,6 +112,22 @@ export const transmission = {
     return data.arguments;
   },
 
+  async queueTop(infoHash: string | string[]) {
+    await this.execAsync({ method: 'queue-move-top', arguments: { ids: infoHash } });
+  },
+
+  async queueIncrease(infoHash: string | string[]) {
+    await this.execAsync({ method: 'queue-move-up', arguments: { ids: infoHash } });
+  },
+
+  async queueDecrease(infoHash: string | string[]) {
+    await this.execAsync({ method: 'queue-move-down', arguments: { ids: infoHash } });
+  },
+
+  async queueBottom(infoHash: string | string[]) {
+    await this.execAsync({ method: 'queue-move-bottom', arguments: { ids: infoHash } });
+  },
+
   getStatus(callback: (data: unknown) => void) {
     this.exec(
       {
