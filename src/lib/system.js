@@ -1014,13 +1014,14 @@ export class System extends SystemBase {
       });
 
     // search
-    this.panel.toolbar.find('#toolbar_search').searchbox({
-      searcher(value) {
-        system.searchTorrents(value);
-      },
-      prompt: this.lang.toolbar['search-prompt'],
-    });
-
+    // TODO
+    this.panel.toolbar.find('#toolbar_search').hide();
+    // this.panel.toolbar.find('#toolbar_search').searchbox({
+    //   searcher(value) {
+    //     system.searchTorrents(value);
+    //   }, prompt: this.lang.toolbar['search-prompt'],
+    // });
+    //
     this.panel.toolbar
       .find('#toolbar_copyPath')
       .linkbutton()
@@ -1736,10 +1737,14 @@ export class System extends SystemBase {
 
   // Looks for the specified torrent from the torrent list
   searchTorrents(key) {
+    console.log('system.searchTorrents', { key });
     if (key === '') {
       return;
     }
-    const result = transmission.torrents.search(key);
+    const result = Array.from(this.allTorrents.values())
+      .filter(this.torrentFilter)
+      .filter((x) => x.name.includes(key));
+
     if (result == null || result.length === 0) {
       this.removeTreeNode('search-result');
       return;

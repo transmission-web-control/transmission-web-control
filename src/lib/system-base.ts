@@ -894,6 +894,7 @@ export class SystemBase {
   }
 
   torrentFilter: (t?: ProcessedTorrent) => boolean = () => true;
+  torrentFilter_search: string = '';
 
   refreshDataGrid() {
     this.control.grid.api?.setRowData(
