@@ -516,6 +516,9 @@ export class SystemBase {
         userActions.emit('selectTorrent', e.rowIndex!, e.data!);
         userActions.emit('onSelected');
       },
+      onSelectionChanged: (e) => {
+        this.checkedRows = this.control.grid.api?.getSelectedRows() ?? [];
+      },
     };
 
     console.groupCollapsed('hide');
@@ -740,7 +743,6 @@ export class SystemBase {
           void navigator.clipboard.writeText(torrent.downloadDir);
         },
       },
-      // TODO:
       'separator',
       {
         name: this.lang.menus.queue['move-top'],

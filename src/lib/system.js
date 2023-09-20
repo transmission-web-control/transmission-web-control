@@ -818,21 +818,7 @@ export class System extends SystemBase {
       })
       .attr('title', this.lang.toolbar.tip.recheck)
       .click(function () {
-        const rows = system.control.torrentlist.datagrid('getChecked');
-        if (rows.length > 0) {
-          if (rows.length == 1) {
-            const torrent = transmission.torrents.all[rows[0].id];
-            if (torrent.percentDone > 0) {
-              if (confirm(system.lang.toolbar.tip['recheck-confirm'])) {
-                system.changeSelectedTorrentStatus('verify', $(this));
-              }
-            } else {
-              system.changeSelectedTorrentStatus('verify', $(this));
-            }
-          } else if (confirm(system.lang.toolbar.tip['recheck-confirm'])) {
-            system.changeSelectedTorrentStatus('verify', $(this));
-          }
-        }
+        system.changeSelectedTorrentStatus('verify', $(this));
       });
 
     // Get more peers
@@ -853,7 +839,7 @@ export class System extends SystemBase {
       })
       .attr('title', this.lang.toolbar.tip.remove)
       .click(function () {
-        const rows = system.control.torrentlist.datagrid('getChecked');
+        const rows = system.control.grid;
         const ids = [];
         for (const i in rows) {
           ids.push(rows[i].id);
@@ -1453,6 +1439,7 @@ export class System extends SystemBase {
       // system.updateTreeNodeText("torrent-all",system.lang.tree.all+" ("+data["torrentCount"]+")");
       // system.updateTreeNodeText("paused",system.lang.tree.paused+(data["pausedTorrentCount"]==0?"":" ("+data["pausedTorrentCount"]+")"));
       // system.updateTreeNodeText("sending",system.lang.tree.sending+(data["activeTorrentCount"]==0?"":" ("+data["activeTorrentCount"]+")"));
+      console.log('update speed in status bar');
       $('#status_downloadspeed').html(formatSize(data.downloadSpeed, false, 'speed'));
       $('#status_uploadspeed').html(formatSize(data.uploadSpeed, false, 'speed'));
       system.serverSessionStats = data;
@@ -1707,15 +1694,14 @@ export class System extends SystemBase {
 
   // Starts / pauses the selected torrent
   changeSelectedTorrentStatus(status, button, method) {
-    const rows = this.checkedRows;
-    const ids = [];
+    const ids = this.checkedRows.length
+      ? this.checkedRows.map((x) => x.hashString)
+      : Array.from(this.allTorrents.values())
+          .filter(this.torrentFilter)
+          .map((x) => x.hashString);
     if (!status) {
       status = 'start';
     }
-    for (const i in rows) {
-      ids.push(rows[i].id);
-    }
-
     if (!method) {
       method = 'torrent-' + status;
     }
@@ -2321,6 +2307,7 @@ export class System extends SystemBase {
     if (this.popoverCount > 0) {
       setTimeout(function () {
         system.reloadData();
+        system.getServerStatus();
       }, system.config.reloadStep);
       return;
     }
