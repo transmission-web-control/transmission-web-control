@@ -47,7 +47,7 @@
     "eslint-plugin-n": "^16.0.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "eslint-plugin-unicorn": "^48.0.0",
+    "eslint-plugin-unicorn": "^49.0.0",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.0",
     "node-stdlib-browser": "^1.2.0",
