@@ -354,7 +354,7 @@ export class System extends SystemBase {
 
   // Check the dragged files
   checkDropFiles(sources) {
-    if (!sources || !sources.length) {
+    if (!sources?.length) {
       return;
     }
     const files = [];
@@ -567,7 +567,7 @@ export class System extends SystemBase {
     let status = this.lastUIStatus.tree;
     for (var key in status) {
       const node1 = this.panel.left.tree('find', key);
-      if (node1 && node1.target) {
+      if (node1?.target) {
         if (status[key] == 'open') {
           this.panel.left.tree('expand', node1.target);
         } else {
@@ -595,14 +595,14 @@ export class System extends SystemBase {
     }
 
     // 恢复尺寸
-    if (this.lastUIStatus.size.nav && this.lastUIStatus.size.nav.width) {
+    if (this.lastUIStatus.size.nav?.width) {
       this.panel.main
         .layout('panel', 'west')
         .panel('resize', { width: this.lastUIStatus.size.nav.width + 5 });
       this.panel.main.layout('resize');
     }
 
-    if (this.lastUIStatus.size.attribute && this.lastUIStatus.size.attribute.height) {
+    if (this.lastUIStatus.size.attribute?.height) {
       this.panel.layout_body
         .layout('panel', 'south')
         .panel('resize', { height: this.lastUIStatus.size.attribute.height });
@@ -701,7 +701,7 @@ export class System extends SystemBase {
 
     for (const item of fields) {
       const _field = _fields[item.field];
-      if (_field && _field.formatter_type) {
+      if (_field?.formatter_type) {
         item.formatter_type = _field.formatter_type;
       } else if (item.formatter_type) {
         delete item.formatter_type;
@@ -709,7 +709,7 @@ export class System extends SystemBase {
 
       item.align = _field.align;
 
-      if (_field && _field.sortable) {
+      if (_field?.sortable) {
         item.sortable = _field.sortable;
       } else if (item.sortable) {
         delete item.sortable;
@@ -2885,7 +2885,7 @@ export class System extends SystemBase {
       datas = fileFilter(datas, tableData.filterString);
     }
 
-    if (isFileFilterMode == false && (rows.length == 0 || datas.length != tableData.total)) {
+    if (!isFileFilterMode && (rows.length == 0 || datas.length != tableData.total)) {
       sourceTable
         .datagrid({
           loadFilter: pagerFilter,
@@ -3497,7 +3497,7 @@ export class System extends SystemBase {
       url: this.checkUpdateScript,
       dataType: 'json',
       success(result) {
-        if (result && result.tag_name) {
+        if (result?.tag_name) {
           const update = result.created_at.slice(0, 10).replace(/-/g, '');
           const version = result.tag_name;
           if (system.config.ignoreVersion.includes(version)) {
@@ -3708,7 +3708,7 @@ function pagerFilter(data) {
   const end = start + parseInt(opts.pageSize);
   data.rows = data.originalRows.slice(start, end);
 
-  if (buttons && buttons.length) {
+  if (buttons?.length) {
     for (let i = 0; i < buttons.length; i++) {
       const button = buttons[i];
       if (button.id && button.title) {

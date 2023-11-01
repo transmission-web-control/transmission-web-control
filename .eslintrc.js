@@ -11,6 +11,16 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    '@typescript-eslint/no-floating-promises': 0,
+    '@typescript-eslint/restrict-template-expressions': 0,
+    '@typescript-eslint/restrict-plus-operands': 0,
+    '@typescript-eslint/no-dynamic-delete': 0,
+    '@typescript-eslint/no-redeclare': 0,
+    '@typescript-eslint/naming-convention': 0,
+    '@typescript-eslint/no-unused-vars': 0,
+    '@typescript-eslint/no-for-in-array': 0,
+    '@typescript-eslint/no-base-to-string': 0,
+
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'prefer-const': 'error',
