@@ -11,7 +11,7 @@ export function loadFileContent(fileType, callback) {
         var index = 0;
         var r = new FileReader();
         r.onload = function (e) {
-          callback && callback.call(system, e.target.result);
+          callback?.call(system, e.target.result);
           readFile();
         };
         r.onerror = function () {
