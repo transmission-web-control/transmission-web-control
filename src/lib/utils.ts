@@ -48,31 +48,36 @@ export function getUserLang(): string {
     return '';
   }
 
-  const browserLang = navigator.language;
-
-  if (browserLang in i18nManifest) {
-    return browserLang;
-  }
-
-  const mappedLang = browserLangMap[browserLang];
-  if (mappedLang) {
-    return mappedLang;
-  }
-
-  if (browserLang.includes('-')) {
-    // Because Linux file size restrictions
-    const lang = browserLang
-      .split('-')
-      .map((x, index) => {
-        if (index == 0) {
-          return x.toLocaleLowerCase();
-        }
-        return x.toLocaleUpperCase();
-      })
-      .join('_');
-
+  const browserLang = navigator.languages;
+  for (const lang of browserLang) {
     if (lang in i18nManifest) {
       return lang;
+    }
+    const mappedLang = browserLangMap[lang];
+    if (mappedLang) {
+      return mappedLang;
+    }
+
+    if (lang.includes('-')) {
+      const slug = lang.split('-')[0] as string;
+      if (slug in i18nManifest) {
+        return slug;
+      }
+
+      // Because Linux file size restrictions
+      const slug3 = lang
+        .split('-')
+        .map((x, index) => {
+          if (index == 0) {
+            return x.toLocaleLowerCase();
+          }
+          return x.toLocaleUpperCase();
+        })
+        .join('_');
+
+      if (slug3 in i18nManifest) {
+        return slug3;
+      }
     }
   }
 
