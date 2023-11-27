@@ -54,6 +54,10 @@ export function getUserLang(): string {
     return browserLang;
   }
 
+  if (browserLang in i18nManifest) {
+    return browserLang;
+  }
+
   const mappedLang = browserLangMap[browserLang];
   if (mappedLang) {
     return mappedLang;
