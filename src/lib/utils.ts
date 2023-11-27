@@ -54,10 +54,6 @@ export function getUserLang(): string {
     return browserLang;
   }
 
-  if (browserLang in i18nManifest) {
-    return browserLang;
-  }
-
   const mappedLang = browserLangMap[browserLang];
   if (mappedLang) {
     return mappedLang;
@@ -73,7 +69,7 @@ export function getUserLang(): string {
         }
         return x.toLocaleUpperCase();
       })
-      .join('-');
+      .join('_');
 
     if (lang in i18nManifest) {
       return lang;
@@ -85,6 +81,7 @@ export function getUserLang(): string {
 
 const browserLangMap: Record<string, string> = {
   zh: 'zh-CN',
+  'en-US': 'en',
 };
 
 export function formatSize(bytes: number, zeroToEmpty?: boolean, type?: 'speed'): string {
