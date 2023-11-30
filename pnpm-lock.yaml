@@ -107,8 +107,8 @@ devDependencies:
     specifier: ^0.34.0
     version: 0.34.3(@vitest/ui@0.34.3)
   vitest-github-actions-reporter:
-    specifier: ^0.10.0
-    version: 0.10.0(vitest@0.34.3)
+    specifier: ^0.11.0
+    version: 0.11.1(vitest@0.34.3)
 
 packages:
 
@@ -3759,8 +3759,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest-github-actions-reporter@0.10.0(vitest@0.34.3):
-    resolution: {integrity: sha512-ctFM1xlOVsXCNp5+LkaBZBhN1Iq5y9vVMZ9+Czls2CimOUKt0lH24MV1S0EzKysNUT7efs2OOSdmc6lgR8hqXg==}
+  /vitest-github-actions-reporter@0.11.1(vitest@0.34.3):
+    resolution: {integrity: sha512-ZHHB0wBgOPhMYCB17WKVlJZa+5SdudBZFoVoebwfq3ioIUTeLQGYHwh85vpdJAxRghLP8d0qI/6eCTueGyDVXA==}
     engines: {node: '>=14.16.0'}
     peerDependencies:
       vitest: '>=0.28.5'
