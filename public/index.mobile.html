@@ -189,22 +189,9 @@
 	function addTorrent()
 	{
 		system.uploadTorrentFile('torrent_upload_file', $("#download-dir").val(), !autostart, function (data, count) {
-            button.linkbutton({ iconCls: icon, disabled: false });
-            uploaded++;
-            thisDialog
-              .find('#dialog-torrent-add-queue')
-              .html(uploaded + '/' + count)
-              .show();
-            if (uploaded == count) {
-              thisDialog.find('#dialog-torrent-add-queue').html('').hide();
-              thisDialog.dialog('close');
-            }
-            if (system.config.nav.labels && data.hashString != null) {
-              system.saveLabelsConfig(data.hashString, labelPage.getLabels());
-              system.saveConfig();
-            }
-            system.reloadData();
-        });
+			$("#status").hide();
+			$("#navPanel").panel("close");
+		});
 
 		var urls = $("#torrent-url").val();
 		if (urls=="")
