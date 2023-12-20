@@ -188,11 +188,21 @@
 	}
 	function addTorrent()
 	{
-		system.uploadTorrentFile('torrent_upload_file', $("#download-dir").val(), !autostart, function (data, count) {
-			$("#status").hide();
-			$("#navPanel").panel("close");
-		});
-
+		if ($("#torrent_upload_file").val()){
+			var autostart = ($("#autostart").val()=="true"?true:false);
+			system.uploadTorrentFile('torrent_upload_file', $("#download-dir").val(), !autostart, function (data, count) {
+				$("#status").hide();
+				$("#navPanel").panel("close");
+			});
+			$("#torrent_upload_file").val("");
+			system.showContent('home');
+		}
+		else{
+			addUrl()
+		}
+	}
+	function addUrl()
+	{
 		var urls = $("#torrent-url").val();
 		if (urls=="")
 		{
