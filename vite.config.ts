@@ -3,7 +3,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 import { version } from './package.json';
 
-const TRANSMISSION_RPC = process.env.TRANSMISSION_RPC || 'http://192.168.1.2:9091/transmission/rpc';
+const TRANSMISSION_RPC = process.env.TRANSMISSION_RPC || 'http://192.168.1.3:9091/transmission/rpc';
 
 export default defineConfig(({ mode }) => {
   return {
