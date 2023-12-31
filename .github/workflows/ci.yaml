@@ -52,12 +52,12 @@ jobs:
       - run: zip -r dist.zip ./dist/
       - run: tar -czvf dist.tar.gz ./dist/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-tar
           path: dist.tar.gz
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-zip
           path: dist.zip
