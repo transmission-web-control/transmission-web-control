@@ -20,7 +20,7 @@
   "author": "",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@8.13.1",
+  "packageManager": "pnpm@8.15.1",
   "dependencies": {
     "clipboard": "^2.0.11",
     "eventemitter3": "^5.0.0",
