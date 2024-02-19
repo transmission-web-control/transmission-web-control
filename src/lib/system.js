@@ -3036,9 +3036,9 @@ export class System extends SystemBase {
       datas.push({
         name: file.name == torrent.name ? file.name : file.name.slice(namelength),
         index,
-        bytesCompleted: stats.bytesCompleted,
+        bytesCompleted: formatSize(stats.bytesCompleted, true, 'size'),
         percentDone: system.getTorrentProgressBar(percentDone, transmission._status.download),
-        length: file.length,
+        length: formatSize(file.length, true, 'size'),
         wanted: system.lang.torrent.attribute.status[stats.wanted],
         priority:
           '<span class="iconlabel icon-flag-' +
@@ -3115,6 +3115,7 @@ export class System extends SystemBase {
       for (const key in item) {
         rowdata[key] = item[key];
       }
+      rowdata["rateToClient"] = formatSize(rowdata["rateToClient"], true, 'speed')
 
       if (system.config.ipInfoToken !== '' || system.config.ipInfoFlagUrl !== '') {
         let flag = '';
