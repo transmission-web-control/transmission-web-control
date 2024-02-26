@@ -3115,7 +3115,8 @@ export class System extends SystemBase {
       for (const key in item) {
         rowdata[key] = item[key];
       }
-      rowdata["rateToClient"] = formatSize(rowdata["rateToClient"], true, 'speed')
+      rowdata.rateToClient = formatSize(rowdata.rateToClient, true, 'speed');
+      rowdata.rateToPeer = formatSize(rowdata.rateToPeer, true, 'speed');
 
       if (system.config.ipInfoToken !== '' || system.config.ipInfoFlagUrl !== '') {
         let flag = '';
