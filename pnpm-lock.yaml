@@ -16,7 +16,7 @@ dependencies:
     version: 2.0.5
   js-base64:
     specifier: ^3.7.5
-    version: 3.7.5
+    version: 3.7.7
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
@@ -2676,8 +2676,8 @@ packages:
       '@pkgjs/parseargs': 0.11.0
     dev: true
 
-  /js-base64@3.7.5:
-    resolution: {integrity: sha512-3MEt5DTINKqfScXKfJFrRbxkrnk2AxPWGBL/ycjz4dK8iqiSJ06UxD8jh8xuh6p10TX4t2+7FsBYVxxQbMg+qA==}
+  /js-base64@3.7.7:
+    resolution: {integrity: sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==}
     dev: false
 
   /js-tokens@4.0.0:
