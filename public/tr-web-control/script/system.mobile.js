@@ -750,6 +750,17 @@ var system = {
 			system.addTorrentsToServer(urls, count, autostart, savepath, callback);
 		});
 	},
+	uploadTorrentFile: function (fileInputId, savePath, paused, callback) {
+		// Determines whether the FileReader interface is supported
+		if (window.FileReader) {
+			var files = $("input[id='" + fileInputId + "']")[0].files;
+			$.each(files, function (index, file) {
+				transmission.addTorrentFromFile(file, savePath, paused, callback, files.length);
+			});
+		} else {
+			alert(system.lang["public"]["text-browsers-not-support-features"]);
+		}
+	},
 	showStatus: function (msg, count) {
 		if (!msg) {
 			$("#status").hide();
