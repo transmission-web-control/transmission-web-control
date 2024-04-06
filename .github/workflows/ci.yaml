@@ -25,7 +25,7 @@ jobs:
       - run: pnpm run test --coverage
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
 
   lint:
     runs-on: ubuntu-latest
@@ -52,12 +52,12 @@ jobs:
       - run: zip -r dist.zip ./dist/
       - run: tar -czvf dist.tar.gz ./dist/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-tar
           path: dist.tar.gz
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-zip
           path: dist.zip
