@@ -8,6 +8,10 @@
 
 本项目已经废弃，推荐使用 https://github.com/jayzcoder/TrguiNG 和 https://github.com/openscopeproject/TrguiNG
 
+# deprecated
+
+This project is deprecated, please consider using https://github.com/openscopeproject/TrguiNG or https://github.com/jayzcoder/TrguiNG
+
 # English
 
 ## Introduction
